@@ -1,0 +1,8 @@
+/docs/
+README.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+.gitignore
+!/uploads/.gitkeep
+/uploads/*
