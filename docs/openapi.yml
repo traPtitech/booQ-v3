@@ -671,11 +671,11 @@ components:
               readOnly: true
           oneOf:
             - properties:
-                transactionEquipment:
+                transactionsEquipment:
                   type: "array"
                   items:
                     $ref: "#/components/schemas/transactionEquipment"
-              required: ["transactionEquipment"]
+              required: ["transactionsEquipment"]
             - properties:
                 transactions:
                   type: "array"
