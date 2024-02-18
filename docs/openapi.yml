@@ -25,63 +25,10 @@ tags:
     description: "物品の所有者に関するAPI"
   - name: "borrows"
     description: "物品を借りるフローに関するAPI"
-  - name: "users"
-    description: "ユーザーに関するAPI"
   - name: "files"
     description: "画像アップロードに関するAPI"
 
 paths:
-  /users:
-    get:
-      operationId: getUsers
-      tags:
-        - "users"
-      summary: "ユーザー一覧を取得します。"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/user"
-    put:
-      operationId: editUser
-      tags:
-        - "users"
-      summary: "ユーザーの情報を変更します。主に権限の変更用です。"
-      requestBody:
-        description: "権限の変更は権限を持っているユーザーからしかできません。"
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/user"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/user"
-        "400":
-          description: "変更がありません"
-        "403":
-          description: "権限がありません"
-  /users/me:
-    get:
-      operationId: getMe
-      tags:
-        - "users"
-      summary: "自分の情報を取得します。存在しない場合はユーザーを作成します。"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/user"
   /items:
     get:
       operationId: getItems
@@ -91,7 +38,7 @@ paths:
       parameters:
         - schema:
             type: "string"
-          name: "user"
+          name: "userId"
           in: "query"
           description: "指定したユーザーの所有する物品一覧を取得します。"
         - schema:
@@ -248,56 +195,6 @@ paths:
           description: "リクエストボディが不正です。"
         "404":
           description: "アイテムが存在しません"
-  /items/{itemId}/borrowing/equipment:
-    parameters:
-      - $ref: "#/components/parameters/itemIdInPath"
-    post:
-      operationId: postBorrowEquipment
-      tags:
-        - "borrows"
-      summary: "備品を借ります。"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/borrowRequest"
-      responses:
-        "201":
-          description: "Created"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/borrowRequest"
-        "400":
-          description: "リクエストボディが不正です。"
-        "404":
-          description: "アイテムが存在しません"
-  /items/{itemId}/borrowing/equipment/return:
-    parameters:
-      - $ref: "#/components/parameters/itemIdInPath"
-    post:
-      operationId: postBorrowEquipmentReturn
-      tags:
-        - "borrows"
-      summary: "備品を返します。"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/borrowReturn"
-      responses:
-        "201":
-          description: "Created"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/borrowReturn"
-        "400":
-          description: "リクエストボディが不正です。"
-        "404":
-          description: "アイテムが存在しません"
   /items/{itemId}/owners:
     parameters:
       - $ref: "#/components/parameters/itemIdInPath"
@@ -351,6 +248,69 @@ paths:
           description: "権限がありません。"
         "404":
           description: "アイテムが存在しません"
+    delete:
+      operationId: deleteItemOwners
+      tags:
+        - "owners"
+      summary: "物品の所有者を削除します"
+      description: "他者の所有権を操作する場合は権限が必要です。"
+      responses:
+        "200":
+          description: "OK"
+        "403":
+          description: "権限がありません。"
+        "404":
+          description: "アイテムが存在しません"
+  /items/{itemId}/borrowing/equipment:
+    parameters:
+      - $ref: "#/components/parameters/itemIdInPath"
+    post:
+      operationId: postBorrowEquipment
+      tags:
+        - "borrows"
+      summary: "備品を借ります。"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/borrowRequestEquipment"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/borrowRequestEquipment"
+        "400":
+          description: "リクエストボディが不正です。"
+        "404":
+          description: "アイテムが存在しません"
+  /items/{itemId}/borrowing/equipment/return:
+    parameters:
+      - $ref: "#/components/parameters/itemIdInPath"
+    post:
+      operationId: postBorrowEquipmentReturn
+      tags:
+        - "borrows"
+      summary: "備品を返します。"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/borrowReturn"
+      responses:
+        "201":
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/borrowReturn"
+        "400":
+          description: "リクエストボディが不正です。"
+        "404":
+          description: "アイテムが存在しません"
   /items/{itemId}/owners/{ownershipId}/borrowings:
     parameters:
       - $ref: "#/components/parameters/itemIdInPath"
@@ -359,7 +319,7 @@ paths:
       operationId: postBorrow
       tags:
         - "borrows"
-      summary: "「借りたい」と意見表明します。"
+      summary: "個人所有物を「借りたい」と意見表明します。"
       requestBody:
         required: true
         content:
@@ -386,7 +346,7 @@ paths:
       operationId: getBorrowingById
       tags:
         - "borrows"
-      summary: "借りたい人が〇〇日に借りたいという要望を取得します。"
+      summary: "個人所有物を借りたいという要望を取得します。 (○○日に借りたい、○○日に返す予定、など)"
       responses:
         "200":
           description: "OK"
@@ -407,7 +367,7 @@ paths:
       operationId: postBorrowReply
       tags:
         - "borrows"
-      summary: "借りたい人が〇〇日に借りたいという要望に対して返答します。"
+      summary: "個人所有物を○○日まで借りたいという要望に対して返答します。"
       requestBody:
         required: true
         content:
@@ -434,7 +394,7 @@ paths:
       operationId: postReturn
       tags:
         - "borrows"
-      summary: "確認画面で本を返したことを確認したときに発行します。"
+      summary: "個人所有物を返します。"
       requestBody:
         required: true
         content:
@@ -611,8 +571,8 @@ components:
           type: "integer"
           example: 100
         code:
-          type: "integer"
-          example: 9784041026403
+          type: "string"
+          example: "9784041026403"
         tags:
           type: "array"
           items:
@@ -655,11 +615,6 @@ components:
         - $ref: "#/components/schemas/itemPosted"
         - type: "object"
           properties:
-            transactions:
-              type: "array"
-              items:
-                $ref: "#/components/schemas/transaction"
-              readOnly: true
             tags:
               type: "array"
               items:
@@ -672,14 +627,12 @@ components:
               readOnly: true
           oneOf:
             - properties:
-                ownerships:
-                  not: {}
                 count:
                   type: "integer"
-              required: ["count"]
+                countMax:
+                  type: "integer"
+              required: ["count", "countMax"]
             - properties:
-                count:
-                  not: {}
                 ownerships:
                   type: "array"
                   items:
@@ -710,11 +663,25 @@ components:
         - $ref: "#/components/schemas/item"
         - type: "object"
           properties:
-            likes:
+            likesByUsers:
               type: "array"
               items:
-                $ref: "#/components/schemas/user"
+                type: "string"
+                example: "s9"
               readOnly: true
+          oneOf:
+            - properties:
+                transactionEquipment:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/transactionEquipment"
+              required: ["transactionEquipment"]
+            - properties:
+                transactions:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/transaction"
+              required: ["transactions"]
           required:
             - likes
     comment:
@@ -733,13 +700,9 @@ components:
           allOf:
             - $ref: "#/components/schemas/itemSummary"
         userId:
-          type: "integer"
-          example: 1
+          type: "string"
+          example: "s9"
           readOnly: true
-        user:
-          readOnly: true
-          allOf:
-            - $ref: "#/components/schemas/user"
         text:
           type: "string"
           example: "小説版は夏美の心理描写がよく描かれていて、映画版を補完するものになっている。あとがきと解説だけでも読む価値はあると思います。"
@@ -763,7 +726,6 @@ components:
         - id
         - itemId
         - userId
-        - user
         - item
         - text
         - createdAt
@@ -777,52 +739,6 @@ components:
           example: "小説版は夏美の心理描写がよく描かれていて、映画版を補完するものになっている。あとがきと解説だけでも読む価値はあると思います。"
       required:
         - text
-    user:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          example: 1
-          readOnly: true
-        name:
-          type: "string"
-          format: "traq_id"
-          example: "nagatech"
-        displayName:
-          type: "string"
-          example: "ながてち"
-          readOnly: true
-        admin:
-          type: "boolean"
-          example: true
-        frozen:
-          type: "boolean"
-          example: false
-        createdAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-          readOnly: true
-        updatedAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-          readOnly: true
-        deletedAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-          readOnly: true
-          nullable: true
-      required:
-        - id
-        - name
-        - displayName
-        - admin
-        - frozen
-        - createdAt
-        - updatedAt
-        - deletedAt
     transaction:
       type: "object"
       properties:
@@ -835,8 +751,8 @@ components:
           example: 1
           readOnly: true
         userId:
-          type: "integer"
-          example: 1
+          type: "string"
+          example: "s9"
           readOnly: true
         status:
           type: "integer"
@@ -893,12 +809,91 @@ components:
         - createdAt
         - updatedAt
         - deletedAt
+    transactionEquipment:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          example: 1
+          readOnly: true
+        itemId:
+          type: "integer"
+          example: 1
+          readOnly: true
+        userId:
+          type: "string"
+          example: "s9"
+          readOnly: true
+        status:
+          type: "integer"
+          example: 1
+          readOnly: true
+          description: "0=リクエスト済み、1=貸し出し中、2=返却済み、3=貸し出し拒否"
+        purpose:
+          type: "string"
+          example: "読みたかったから。"
+        due_date:
+          type: "string"
+          format: "date"
+          example: "2024-02-16"
+        return_date:
+          type: "string"
+          format: "date"
+          example: "2024-02-16"
+        createdAt:
+          type: "string"
+          format: "date-time"
+          example: "2019-07-28T22:00:00Z"
+          readOnly: true
+        updatedAt:
+          type: "string"
+          format: "date-time"
+          example: "2019-07-28T22:00:00Z"
+          readOnly: true
+        deletedAt:
+          type: "string"
+          format: "date-time"
+          example: "2019-07-28T22:00:00Z"
+          readOnly: true
+          nullable: true
+      required:
+        - id
+        - ownershipId
+        - userId
+        - status
+        - message
+        - returnMessage
+        - due_date
+        - checkout_date
+        - return_date
+        - createdAt
+        - updatedAt
+        - deletedAt
     borrowRequest:
       type: "object"
       properties:
         propose:
           type: "string"
           example: "読みたかったから。"
+        dueDate:
+          type: "string"
+          format: "date"
+          example: "2024-02-16"
+        borrowInClubRoom:
+          type: "boolean"
+          example: "true"
+      required:
+        - dueDate
+        - borrowInClubRoom
+    borrowRequestEquipment:
+      type: "object"
+      properties:
+        propose:
+          type: "string"
+          example: "読みたかったから。"
+        count:
+          type: "integer"
+          example: 1
         dueDate:
           type: "string"
           format: "date"
@@ -961,8 +956,8 @@ components:
           example: 1
           readOnly: true
         userId:
-          type: "integer"
-          example: 1
+          type: "string"
+          example: "s9"
         rentalable:
           type: "boolean"
           example: true
@@ -979,8 +974,8 @@ components:
       type: "object"
       properties:
         userId:
-          type: "integer"
-          example: 1
+          type: "string"
+          example: "s9"
         rentalable:
           type: "boolean"
           example: true
@@ -999,47 +994,6 @@ components:
           example: "小説"
       required:
         - name
-    rentalUser:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          example: 1
-        userId:
-          type: "integer"
-          example: 1
-        user:
-          $ref: "#/components/schemas/user"
-        ownerId:
-          type: "integer"
-          example: 1
-        owner:
-          $ref: "#/components/schemas/user"
-        count:
-          type: "integer"
-          example: 1
-        createdAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-        updatedAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-        deletedAt:
-          type: "string"
-          format: "date-time"
-          example: "2019-07-28T22:00:00Z"
-      required:
-        - id
-        - userId
-        - user
-        - ownerId
-        - owner
-        - count
-        - createdAt
-        - updatedAt
-        - deletedAt
     owner:
       type: "object"
       properties:
@@ -1049,8 +1003,9 @@ components:
         ownerId:
           type: "integer"
           example: 1
-        user:
-          $ref: "#/components/schemas/user"
+        userId:
+          type: "string"
+          example: "s9"
         rentalable:
           type: "boolean"
           example: true
@@ -1072,7 +1027,7 @@ components:
       required:
         - id
         - ownerId
-        - user
+        - userId
         - rentalable
         - count
         - createdAt
