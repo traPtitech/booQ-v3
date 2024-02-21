@@ -1,301 +1,57 @@
 package router
 
 import (
-	"errors"
 	"net/http"
-	"os"
-	"strconv"
 
-	"fmt"
-
-	"github.com/labstack/echo"
-
-	"github.com/traPtitech/booQ-v3/model"
+	"github.com/labstack/echo/v4"
 )
 
 // GetItems GET /items
 func GetItems(c echo.Context) error {
-	me := c.Get("user").(model.User)
-	ownerName := c.QueryParam("user")
-	if ownerName != "" {
-		user, err := model.GetUserByName(ownerName)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		if user.ID == 0 {
-			return c.JSON(http.StatusBadRequest, errors.New("指定してるNameが不正です"))
-		}
-		res, err := model.SearchItemByOwner(ownerName, me.ID)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		return c.JSON(http.StatusOK, res)
-	}
-	searchString := c.QueryParam("search")
-	if searchString != "" {
-		res, err := model.SearchItems(searchString)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		return c.JSON(http.StatusOK, res)
-	}
-	rentalName := c.QueryParam("rental")
-	if rentalName != "" {
-		user, err := model.GetUserByName(rentalName)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		if user.ID == 0 {
-			return c.JSON(http.StatusBadRequest, errors.New("指定してるNameが不正です"))
-		}
-		res, err := model.SearchItemByRental(user.ID, me.ID)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err)
-		}
-		return c.JSON(http.StatusOK, res)
-	}
-	res, err := model.GetItems(me.ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	return c.JSON(http.StatusOK, res)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // PostItems POST /items
 func PostItems(c echo.Context) error {
-	user := c.Get("user").(model.User)
-	item := model.Item{}
-	if err := BindAndValidate(c, &item); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	// item.Type=0⇒個人、1⇒trap所有、2⇒支援課
-	if item.Type != model.PersonalItem && !user.Admin {
-		return c.NoContent(http.StatusForbidden)
-	}
-	res, err := model.CreateItem(item)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemInfo := fmt.Sprintf("[%v](https://%v/items/%v)", res.Name, os.Getenv("HOST"), res.ID)
-	message := fmt.Sprintf("@%v が%vを登録しました", user.Name, itemInfo)
-	_ = PostMessage(c, message, item.Type != model.PersonalItem)
-	return c.JSON(http.StatusCreated, res)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // GetItem GET /items/:id
 func GetItem(c echo.Context) error {
-	ID := c.Param("id")
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-
-	return c.JSON(http.StatusOK, item)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // PutItem PUT /items/:id
 func PutItem(c echo.Context) error {
-	ID := c.Param("id")
-	user := c.Get("user").(model.User)
-	body := model.RequestPutItemBody{}
-	if err := BindAndValidate(c, &body); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	err = model.CheckOwnsOrAdmin(&user, &item)
-	if err != nil {
-		return c.JSON(http.StatusForbidden, err)
-	}
-
-	item, err = model.UpdateItem(&item, &body, user.Admin)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.JSON(http.StatusOK, item)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // DeleteItem DELETE /items/:id
 func DeleteItem(c echo.Context) error {
-	ID := c.Param("id")
-	user := c.Get("user").(model.User)
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	if !user.Admin {
-		return c.NoContent(http.StatusForbidden)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	item, err = model.DestroyItem(item)
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-
-	return c.JSON(http.StatusOK, item)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // PostOwners POST /items/:id/owners
 func PostOwners(c echo.Context) error {
-	ID := c.Param("id")
-	me := c.Get("user").(model.User)
-	body := model.RequestPostOwnersBody{}
-	if err := BindAndValidate(c, &body); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	user, err := model.GetUserByID(body.UserID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	err = model.CheckTargetedOrAdmin(me, user)
-	if err != nil {
-		return c.JSON(http.StatusForbidden, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	if body.UserID > 2 && item.Type > model.PersonalItem {
-		return c.NoContent(http.StatusForbidden)
-	}
-	if item.Type == model.TrapItem {
-		user, _ = model.GetUserByName("traP")
-	}
-	if item.Type == model.SienkaItem {
-		user, _ = model.GetUserByName("sienka")
-	}
-	// item.Type=0⇒個人、1⇒trap(id:1)所有、2⇒支援課(id:2)
-	if item.Type != model.PersonalItem && !me.Admin {
-		return c.NoContent(http.StatusForbidden)
-	}
-	owner := model.Owner{
-		UserID:     user.ID,
-		Rentalable: body.Rentalable,
-		Count:      body.Count,
-	}
-	if owner.Count < 0 {
-		return c.NoContent(http.StatusBadRequest)
-	}
-	fmt.Printf("PostOwners %+v\n", owner)
-	res, err := model.RegisterOwner(owner, item)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.JSON(http.StatusCreated, res)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
-// PutOwners PUT /items/:id/owners
-func PutOwners(c echo.Context) error {
-	ID := c.Param("id")
-	me := c.Get("user").(model.User)
-	body := model.RequestPostOwnersBody{}
-	if err := BindAndValidate(c, &body); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	user, err := model.GetUserByID(body.UserID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	err = model.CheckTargetedOrAdmin(me, user)
-	if err != nil {
-		return c.JSON(http.StatusForbidden, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	if body.UserID > 2 && item.Type > model.PersonalItem {
-		return c.NoContent(http.StatusForbidden)
-	}
-	if item.Type == model.TrapItem {
-		user, _ = model.GetUserByName("traP")
-	}
-	if item.Type == model.SienkaItem {
-		user, _ = model.GetUserByName("sienka")
-	}
-	// item.Type=0⇒個人、1⇒trap(id:1)所有、2⇒支援課(id:2)
-	if item.Type != model.PersonalItem && !me.Admin {
-		return c.NoContent(http.StatusForbidden)
-	}
-	owner := model.Owner{
-		UserID:     user.ID,
-		Rentalable: body.Rentalable,
-		Count:      body.Count,
-	}
-	res, err := model.AddOwner(owner, item)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	return c.JSON(http.StatusOK, res)
+// PatchOwners PUT /items/:id/owners/:ownershipid
+func PatchOwners(c echo.Context) error {
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
+}
+
+// DeleteOwners PUT /items/:id/owners/:ownershipid
+func DeleteOwners(c echo.Context) error {
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // PostLikes POST /items/:id/likes
 func PostLikes(c echo.Context) error {
-	ID := c.Param("id")
-	user := c.Get("user").(model.User)
-	user, err := model.GetUserByName(user.Name)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	_, err = model.CreateLike(item.ID, user.ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.NoContent(http.StatusCreated)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
 
 // PostLikes POST /items/:id/likes
 func DeleteLikes(c echo.Context) error {
-	ID := c.Param("id")
-	user := c.Get("user").(model.User)
-	user, err := model.GetUserByName(user.Name)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	itemID, err := strconv.Atoi(ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-	item, err := model.GetItemByID(uint(itemID))
-	if err != nil {
-		return c.JSON(http.StatusNotFound, err)
-	}
-	_, err = model.CancelLike(item.ID, user.ID)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	return c.NoContent(http.StatusOK)
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }

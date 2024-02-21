@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func calcHMACSHA1(message string) string {

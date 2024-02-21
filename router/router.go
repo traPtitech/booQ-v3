@@ -3,9 +3,9 @@ package router
 import (
 	"net/http"
 
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // SetupRouting APIのルーティングを行います
@@ -16,13 +16,6 @@ func SetupRouting(e *echo.Echo, client *UserProvider) {
 
 	api := e.Group("/api", client.MiddlewareAuthUser)
 	{
-		apiUsers := api.Group("/users")
-		{
-			apiUsers.GET("", GetUsers)
-			apiUsers.GET("/me", GetUsersMe)
-			apiUsers.PUT("", PutUsers)
-		}
-
 		apiItems := api.Group("/items")
 		{
 			apiItems.GET("", GetItems)
@@ -30,17 +23,27 @@ func SetupRouting(e *echo.Echo, client *UserProvider) {
 			apiItems.GET("/:id", GetItem)
 			apiItems.PUT("/:id", PutItem)
 			apiItems.DELETE("/:id", DeleteItem)
+			
 			apiItems.POST("/:id/owners", PostOwners)
-			apiItems.PUT("/:id/owners", PutOwners)
-			apiItems.POST("/:id/logs", PostLogs)
+			apiItems.PATCH("/:id/owners/:ownershipid", PatchOwners)
+			apiItems.DELETE("/:id/owners/:ownershipid", DeleteOwners)
 			apiItems.POST("/:id/comments", PostComments)
 			apiItems.POST("/:id/likes", PostLikes)
 			apiItems.DELETE("/:id/likes", DeleteLikes)
-		}
 
-		apiComments := api.Group("/comments")
-		{
-			apiComments.GET("", GetComments)
+			apiBorrowingEquipment := apiItems.Group("/:id/borrowing")
+			{
+				apiBorrowingEquipment.POST("", PostBorrowingEquipment)
+				apiBorrowingEquipment.POST("/return", PostBorrowingEquipmentReturn)
+			}
+
+			apiOwnersBorrowing := apiItems.Group("/:id/owners/:ownershipid/borrowing")
+			{
+				apiOwnersBorrowing.POST("", PostBorrowings)
+				apiOwnersBorrowing.GET("/:borrowingid", GetBorrowingsId)
+				apiOwnersBorrowing.POST("/:borrowingid/reply", PostBorrowingsReply)
+				apiOwnersBorrowing.POST("/:borrowingid/return", PostBorrowingsReturn)
+			}
 		}
 
 		apiFiles := api.Group("/files")

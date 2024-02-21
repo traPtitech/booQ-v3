@@ -3,7 +3,6 @@ package storage
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"sync"
 )
 
@@ -22,7 +21,7 @@ func (m *Memory) Save(filename string, src io.Reader) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	b, err := ioutil.ReadAll(src)
+	b, err := io.ReadAll(src)
 	if err != nil {
 		return err
 	}
@@ -38,7 +37,7 @@ func (m *Memory) Open(filename string) (io.ReadCloser, error) {
 	if !ok {
 		return nil, ErrFileNotFound
 	}
-	return ioutil.NopCloser(bytes.NewReader(b)), nil
+	return io.NopCloser(bytes.NewReader(b)), nil
 }
 
 func (m *Memory) Delete(filename string) error {

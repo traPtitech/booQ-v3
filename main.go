@@ -3,11 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-
-	// gorm mysql driver
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/traPtitech/booQ-v3/model"
 	"github.com/traPtitech/booQ-v3/router"
@@ -15,14 +12,14 @@ import (
 )
 
 func main() {
-	db, err := model.EstablishConnection()
+	err := model.EstablishConnection()
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
+	// db.close() の必要はなさそう。参考: https://github.com/go-gorm/gorm/issues/3145
 
 	if os.Getenv("BOOQ_ENV") == "development" {
-		db.LogMode(true)
+		model.SetDBLoggerInfo()
 	}
 
 	err = model.Migrate()

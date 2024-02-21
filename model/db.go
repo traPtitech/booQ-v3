@@ -5,20 +5,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
-
-var allTables = []interface{}{
-	User{},
-	Item{},
-	Log{},
-	Owner{},
-	Comment{},
-	RentalUser{},
-	File{},
-}
 
 type GormModel struct {
 	ID        uint       `gorm:"primary_key" json:"id"`
@@ -28,7 +20,7 @@ type GormModel struct {
 }
 
 // EstablishConnection DBに接続する
-func EstablishConnection() (*gorm.DB, error) {
+func EstablishConnection() (error) {
 	user := os.Getenv("MYSQL_USERNAME")
 	if user == "" {
 		user = "root"
@@ -54,46 +46,17 @@ func EstablishConnection() (*gorm.DB, error) {
 		dbname = "booq"
 	}
 
-	_db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
+	_db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	db = _db
-	db.BlockGlobalUpdate(true)
-	return db, err
+	return err
+}
+
+func SetDBLoggerInfo() {
+	db.Logger = db.Logger.LogMode(logger.Info)
 }
 
 // Migrate DBのマイグレーション
 func Migrate() error {
-	if err := db.AutoMigrate(allTables...).Error; err != nil {
-		return err
-	}
-
-	traP, _ := GetUserByName("traP")
-	if traP.Name == "" {
-		user := User{
-			Name:        "traP",
-			DisplayName: "traP",
-			Admin:       true,
-		}
-		_, err := CreateUser(user)
-		if err != nil {
-			return err
-		}
-	}
-
-	sienka, _ := GetUserByName("sienka")
-	if sienka.Name == "" {
-		user := User{
-			Name:        "sienka",
-			DisplayName: "支援課",
-			Admin:       true,
-		}
-		_, err := CreateUser(user)
-		if err != nil {
-			return err
-		}
-	}
-
-	// https://cover.openbd.jp/xxx.jpg -> https://iss.ndl.go.jp/thumbnail/xxx
-	db.Exec("UPDATE items SET img_url=REPLACE(REPLACE(img_url, '.jpg', ''), 'https://cover.openbd.jp/', 'https://iss.ndl.go.jp/thumbnail/') WHERE img_url LIKE 'https://cover.openbd.jp/%'")
-
 	return nil
 }
