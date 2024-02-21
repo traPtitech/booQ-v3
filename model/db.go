@@ -5,7 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -18,7 +20,7 @@ type GormModel struct {
 }
 
 // EstablishConnection DBに接続する
-func EstablishConnection() (*gorm.DB, error) {
+func EstablishConnection() (error) {
 	user := os.Getenv("MYSQL_USERNAME")
 	if user == "" {
 		user = "root"
@@ -44,10 +46,14 @@ func EstablishConnection() (*gorm.DB, error) {
 		dbname = "booq"
 	}
 
-	_db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4")
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
+	_db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	db = _db
-	db.BlockGlobalUpdate(true)
-	return db, err
+	return err
+}
+
+func SetDBLoggerInfo() {
+	db.Logger = db.Logger.LogMode(logger.Info)
 }
 
 // Migrate DBのマイグレーション

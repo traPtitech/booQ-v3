@@ -10,8 +10,3 @@ import (
 func PostComments(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
 }
-
-// GetComments GET /comments
-func GetComments(c echo.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
-}
