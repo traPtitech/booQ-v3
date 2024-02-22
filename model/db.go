@@ -12,11 +12,28 @@ import (
 
 var db *gorm.DB
 
+var allTables = []interface{}{
+	Item{},
+	Book{},
+	Equipment{},
+	Comment{},
+	Transaction{},
+	TransactionEquipment{},
+	Tag{},
+	Ownership{},
+	Like{},
+	File{},
+}
+
 type GormModel struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
+	ID        int       `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"deletedAt"`
+}
+
+type GormModelWithoutID struct {
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }
 
 // EstablishConnection DBに接続する
@@ -43,7 +60,7 @@ func EstablishConnection() (error) {
 
 	dbname := os.Getenv("MYSQL_DATABASE")
 	if dbname == "" {
-		dbname = "booq"
+		dbname = "booq-v3"
 	}
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
@@ -58,5 +75,9 @@ func SetDBLoggerInfo() {
 
 // Migrate DBのマイグレーション
 func Migrate() error {
+	if err := db.AutoMigrate(allTables...); err != nil {
+		return err
+	}
+
 	return nil
 }

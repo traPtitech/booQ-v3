@@ -1,12 +1,11 @@
 package model
 
-// Tag tagの構造体
 type Tag struct {
 	GormModel
-	Name string `gorm:"type:varchar(32);not null" json:"name"`
+	Name   string `gorm:"type:text;not null" json:"name"`
+	ItemId int    `gorm:"type:int;not null" json:"itemId"`
 }
 
-// TableName dbのテーブル名を指定する
-func (tag *Tag) TableName() string {
+func (Tag) TableName() string {
 	return "tags"
 }
