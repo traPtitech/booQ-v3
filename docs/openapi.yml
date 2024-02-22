@@ -639,7 +639,6 @@ components:
                     $ref: "#/components/schemas/ownership"
               required: ["ownerships"]
           required:
-            - transactions
             - tags
             - comments
     itemSummary:
@@ -1047,3 +1046,4 @@ components:
       required:
         - id
         - url
+
