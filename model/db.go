@@ -26,7 +26,7 @@ var allTables = []interface{}{
 }
 
 type GormModel struct {
-	ID        int       `gorm:"primary_key" json:"id"`
+	ID        int       `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

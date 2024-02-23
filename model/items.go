@@ -2,19 +2,25 @@ package model
 
 type Item struct {
 	GormModel
-	Name        string `gorm:"type:text;not null" json:"name"`
-	Description string `gorm:"type:text;" json:"description"`
-	ImgURL      string `gorm:"type:text;" json:"imgUrl"`
+	Name                 string                 `gorm:"type:text;not null" json:"name"`
+	Description          string                 `gorm:"type:text;" json:"description"`
+	ImgURL               string                 `gorm:"type:text;" json:"imgUrl"`
+	Book                 Book                   `gorm:"foreignKey:item_id;references:id"`
+	Equipment            Equipment              `gorm:"foreignKey:item_id;references:id"`
+	Comment              []Comment              `gorm:"foreignKey:item_id;references:id"`
+	Tag                  []Tag                  `gorm:"foreignKey:item_id;references:id"`
+	Ownership            []Ownership            `gorm:"foreignKey:item_id;references:id"`
+	Like                 []Like                 `gorm:"foreignKey:item_id;references:id"`
+	TransactionEquipment []TransactionEquipment `gorm:"foreignKey:item_id;references:id"`
 }
 
 func (Item) TableName() string {
 	return "items"
 }
 
-// TODO: 外部キー制約
 type Book struct {
 	GormModelWithoutID
-	ItemID int    `gorm:"primary_key" json:"itemId"`
+	ItemID int    `gorm:"primaryKey" json:"itemId"`
 	Code   string `gorm:"type:varchar(13);" json:"code"`
 }
 
@@ -24,7 +30,7 @@ func (Book) TableName() string {
 
 type Equipment struct {
 	GormModelWithoutID
-	ItemID   int `gorm:"primary_key" json:"itemId"`
+	ItemID   int `gorm:"primaryKey" json:"itemId"`
 	Count    int `gorm:"type:int;not null" json:"count"`
 	CountMax int `gorm:"type:int;not null" json:"countMax"`
 }
