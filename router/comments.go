@@ -8,5 +8,5 @@ import (
 
 // PostComments POST /items/:id/comments
 func PostComments(c echo.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented");
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }

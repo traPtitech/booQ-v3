@@ -24,7 +24,7 @@ func (File) TableName() string {
 func CreateFile(uploadUserID uint, src io.Reader, ext string) (File, error) {
 	f := File{UploadUserID: uploadUserID}
 	// トランザクション開始
-	err := db.Transaction(func (tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(&f).Error; err != nil {
 			return err
 		}
@@ -32,12 +32,12 @@ func CreateFile(uploadUserID uint, src io.Reader, ext string) (File, error) {
 		if err := storage.Save(fmt.Sprintf("%d.%s", f.ID, ext), src); err != nil {
 			return err
 		}
-		return nil;
+		return nil
 	})
-	
+
 	if err != nil {
 		return File{}, err
-	} else {
-		return f, nil
 	}
+
+	return f, nil
 }

@@ -5,14 +5,8 @@ linters:
     - staticcheck
     - unused
     - gosimple
-    - structcheck
-    - varcheck
     - ineffassign
-    - deadcode
     - typecheck
-    - golint
     - gofmt
+    - revive
 
-linters-settings:
-  errcheck:
-    exclude: dev/errcheck-exclude.txt

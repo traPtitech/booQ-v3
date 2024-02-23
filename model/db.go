@@ -27,17 +27,17 @@ var allTables = []interface{}{
 
 type GormModel struct {
 	ID        int       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type GormModelWithoutID struct {
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // EstablishConnection DBに接続する
-func EstablishConnection() (error) {
+func EstablishConnection() error {
 	user := os.Getenv("MYSQL_USERNAME")
 	if user == "" {
 		user = "root"
@@ -63,7 +63,7 @@ func EstablishConnection() (error) {
 		dbname = "booq-v3"
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname)+"?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname) + "?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
 	_db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	db = _db
 	return err

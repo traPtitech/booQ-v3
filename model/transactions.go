@@ -4,8 +4,8 @@ import "time"
 
 type Transaction struct {
 	GormModel
-	OwnershipId   int       `gorm:"type:int;not null" json:"ownershipId"`
-	UserId        string    `gorm:"type:text;not null" json:"userId"`
+	OwnershipID   int       `gorm:"type:int;not null" json:"ownershipId"`
+	UserID        string    `gorm:"type:text;not null" json:"userId"`
 	Statue        int       `gorm:"type:int;not null" json:"statue"`
 	Purpose       string    `gorm:"type:text" json:"purpose"`
 	Message       string    `gorm:"type:text" json:"message"`
@@ -21,8 +21,8 @@ func (Transaction) TableName() string {
 
 type TransactionEquipment struct {
 	GormModel
-	ItemId        int       `gorm:"type:int;not null" json:"itemId"`
-	UserId        string    `gorm:"type:text;not null" json:"userId"`
+	ItemID        int       `gorm:"type:int;not null" json:"itemId"`
+	UserID        string    `gorm:"type:text;not null" json:"userId"`
 	Statue        int       `gorm:"type:int;not null" json:"statue"`
 	Purpose       string    `gorm:"type:text" json:"purpose"`
 	ReturnMessage string    `gorm:"type:text" json:"returnMessage"`
