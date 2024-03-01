@@ -7,6 +7,12 @@ type Ownership struct {
 	Transaction []Transaction `gorm:"foreignKey:ownership_id;references:id"`
 }
 
+type PostOwnershipBody struct {
+	UserID     string `json:"userId"`
+	Rentalable bool   `json:"rentalable"`
+	Memo       string `json:"memo"`
+}
+
 func (Ownership) TableName() string {
 	return "ownerships"
 }
