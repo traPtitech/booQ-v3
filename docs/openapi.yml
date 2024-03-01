@@ -560,7 +560,7 @@ components:
           readOnly: true
         name:
           type: "string"
-          example: "小説　天気の子"
+          example: "小説 天気の子"
         isTrapItem:
           $ref: "#/components/schemas/isEquipment"
           example: 0
