@@ -6,11 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// DeleteItem DELETE /items/:id
-func DeleteItem(c echo.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
-}
-
 // PostOwners POST /items/:id/owners
 func PostOwners(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
