@@ -6,22 +6,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// GetItems GET /items
-func GetItems(c echo.Context) error {
+// DeleteItem DELETE /items/:id
+func DeleteItem(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
 
-// PostItems POST /items
-func PostItems(c echo.Context) error {
+// PostOwners POST /items/:id/owners
+func PostOwners(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
 
-// GetItem GET /items/:id
-func GetItem(c echo.Context) error {
+// PatchOwners PUT /items/:id/owners/:ownershipid
+func PatchOwners(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
 
-// PutItem PUT /items/:id
-func PutItem(c echo.Context) error {
+// DeleteOwners PUT /items/:id/owners/:ownershipid
+func DeleteOwners(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
