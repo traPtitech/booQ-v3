@@ -25,3 +25,8 @@ func GetItem(c echo.Context) error {
 func PutItem(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
+
+// DeleteItem DELETE /items/:id
+func DeleteItem(c echo.Context) error {
+	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
+}
