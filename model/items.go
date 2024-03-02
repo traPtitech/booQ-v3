@@ -38,3 +38,12 @@ type Equipment struct {
 func (Equipment) TableName() string {
 	return "equipments"
 }
+
+func GetItemByID(id int) (Item, error) {
+	res := Item{}
+	if err := db.First(&res, id).Error; err != nil {
+		return Item{}, err
+	}
+
+	return res, nil
+}
