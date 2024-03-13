@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 
 	"github.com/traPtitech/booQ-v3/model"
 	"github.com/traPtitech/booQ-v3/router"
@@ -58,6 +59,11 @@ func main() {
 
 	// Validator
 	router.SetValidator(e)
+
+	// debug
+	if os.Getenv("BOOQ_ENV") == "development" {
+		e.Logger.SetLevel(log.INFO)
+	}
 
 	// Middleware
 	e.Use(middleware.Logger())

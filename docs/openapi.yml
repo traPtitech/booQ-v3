@@ -116,7 +116,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/itemPosted"
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/itemPosted"
         "400":
           description: "リクエストボディが不正です。"
         "403":
@@ -520,37 +522,13 @@ components:
         type: integer
   schemas:
     isBook:
-      type: integer
+      type: boolean
       title: isBook
-      description: |-
-        アイテム種別
-        0: 本でない
-        1: 本
-      enum:
-        - 0
-        - 1
-      x-enum-varnames:
-        - notBook
-        - book
-      x-enum-descriptions:
-        - 本ではない物品
-        - 本
+      description: アイテム種別 本でない/本
     isEquipment:
-      type: integer
+      type: boolean
       title: isEquipment
-      description: |-
-        アイテム種別
-        0: 個人所有
-        1: 備品
-      enum:
-        - 0
-        - 1
-      x-enum-varnames:
-        - individual
-        - equipment
-      x-enum-descriptions:
-        - 個人所有
-        - 備品
+      description: アイテム種別 個人所有/備品
     itemPosted:
       type: "object"
       properties:
