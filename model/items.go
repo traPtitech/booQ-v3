@@ -1,8 +1,6 @@
 package model
 
 import (
-	"database/sql"
-
 	"gorm.io/gorm"
 )
 
@@ -11,8 +9,8 @@ type Item struct {
 	Name                 string                 `gorm:"type:text;not null" json:"name"`
 	Description          string                 `gorm:"type:text;" json:"description"`
 	ImgURL               string                 `gorm:"type:text;" json:"imgUrl"`
-	Book                 sql.Null[Book]         `gorm:"foreignKey:item_id;references:id" json:"book,omitempty"`
-	Equipment            sql.Null[Equipment]    `gorm:"foreignKey:item_id;references:id" json:"equipment,omitempty"`
+	Book                 *Book                  `gorm:"foreignKey:item_id;references:id" json:"book,omitempty"`
+	Equipment            *Equipment             `gorm:"foreignKey:item_id;references:id" json:"equipment,omitempty"`
 	Comment              []Comment              `gorm:"foreignKey:item_id;references:id" json:"comment,omitempty"`
 	Tag                  []Tag                  `gorm:"foreignKey:item_id;references:id" json:"tag,omitempty"`
 	Ownership            []Ownership            `gorm:"foreignKey:item_id;references:id" json:"ownership,omitempty"`
@@ -88,14 +86,10 @@ func itemFromBody(itemBody RequestPostItemsBody) Item {
 		Tag:         stringsToTags(itemBody.Tags),
 	}
 	if itemBody.IsBook {
-		item.Book = sql.Null[Book]{V: Book{Code: itemBody.Code}}
-	} else {
-		item.Book = sql.Null[Book]{Valid: false}
+		item.Book = &Book{Code: itemBody.Code}
 	}
 	if itemBody.IsTrapItem {
-		item.Equipment = sql.Null[Equipment]{V: Equipment{Count: itemBody.Count, CountMax: itemBody.Count}}
-	} else {
-		item.Equipment = sql.Null[Equipment]{Valid: false}
+		item.Equipment = &Equipment{Count: itemBody.Count, CountMax: itemBody.Count}
 	}
 	return item
 }
