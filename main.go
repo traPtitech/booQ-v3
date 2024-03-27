@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 
 	"github.com/traPtitech/booQ-v3/model"
 	"github.com/traPtitech/booQ-v3/router"
@@ -16,18 +17,29 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// db.close() の必要はなさそう。参考: https://github.com/go-gorm/gorm/issues/3145
-
-	if os.Getenv("BOOQ_ENV") == "development" {
-		model.SetDBLoggerInfo()
-	}
 
 	err = model.Migrate()
 	if err != nil {
 		panic(err)
 	}
 
-	// Storage
+	setStorage()
+
+	e := echo.New()
+	router.SetValidator(e)
+
+	if os.Getenv("BOOQ_ENV") == "development" {
+		e.Logger.SetLevel(log.INFO)
+	}
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	e.Logger.Fatal(e.Start(":3001"))
+}
+
+func setStorage() {
 	if os.Getenv("OS_CONTAINER") != "" {
 		// Swiftオブジェクトストレージ
 		err := storage.SetSwiftStorage(
@@ -52,20 +64,4 @@ func main() {
 			panic(err)
 		}
 	}
-
-	// Echo instance
-	e := echo.New()
-
-	// Validator
-	router.SetValidator(e)
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// Routing
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
-
-	// Start server
-	e.Logger.Fatal(e.Start(":3001"))
 }

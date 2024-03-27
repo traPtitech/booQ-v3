@@ -1,0 +1,16 @@
+- id: 1
+  item_id: 1
+  user_id: "s9"
+  rentalable: true
+  memo: "memo1"
+- id: 2
+  item_id: 1
+  user_id: "cp20"
+  rentalable: true
+  memo: "memo2"
+- id: 3
+  item_id: 1
+  user_id: "s9"
+  rentalable: false
+  memo: "memo3"
+

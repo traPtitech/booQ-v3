@@ -21,7 +21,7 @@ func SetupRouting(e *echo.Echo, client *UserProvider) {
 			apiItems.GET("", GetItems)
 			apiItems.POST("", PostItems)
 			apiItems.GET("/:id", GetItem)
-			apiItems.PUT("/:id", PutItem)
+			apiItems.PATCH("/:id", PatchItem)
 			apiItems.DELETE("/:id", DeleteItem)
 
 			apiItems.POST("/:id/owners", PostOwners)
