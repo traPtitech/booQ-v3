@@ -1,0 +1,25 @@
+- id: 1
+  ownership_id: 1
+  user_id: "ryoha"
+  status: 0
+  purpose: "かりたいから"
+- id: 2
+  ownership_id: 1
+  user_id: "ryoha"
+  status: 1
+  purpose: "かりたいから"
+  message: "いいよ"
+- id: 3
+  ownership_id: 1
+  user_id: "ryoha"
+  status: 2
+  purpose: "かりたいから"
+  message: "いいよ"
+  return_message: "ありがとう"
+- id: 4
+  ownership_id: 1
+  user_id: "ryoha"
+  status: 3
+  purpose: "かりたいから"
+  message: "ごめん、いまむり"
+
