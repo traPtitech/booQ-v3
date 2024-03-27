@@ -13,14 +13,6 @@ import (
 )
 
 func main() {
-	if os.Getenv("BOOQ_ENV") == "development" {
-		mainDevlopment()
-	} else {
-		mainProduct()
-	}
-}
-
-func mainProduct() {
 	err := model.EstablishConnection()
 	if err != nil {
 		panic(err)
@@ -36,23 +28,10 @@ func mainProduct() {
 	e := echo.New()
 	router.SetValidator(e)
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	if os.Getenv("BOOQ_ENV") == "development" {
+		e.Logger.SetLevel(log.INFO)
+	}
 
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
-	e.Logger.Fatal(e.Start(":3001"))
-}
-
-func mainDevlopment() {
-	model.SetUpTestDB()
-	model.SetDBLoggerInfo()
-	model.PrepareTestDatabase()
-
-	setStorage()
-
-	e := echo.New()
-	router.SetValidator(e)
-	e.Logger.SetLevel(log.INFO)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 

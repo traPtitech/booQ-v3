@@ -108,11 +108,7 @@ func SetUpTestDB() {
 		panic(err)
 	}
 
-	dirFixtures := os.Getenv("MYSQL_TESTFIXTURES_DIR")
-	if dirFixtures == "" {
-		dirFixtures = "testdata/fixtures"
-	}
-
+	dirFixtures := "../testdata/fixtures"
 	fixtures, err = testfixtures.New(
 		testfixtures.Database(sqlDB),        // You database connection
 		testfixtures.Dialect("mysql"),       // Available: "postgresql", "timescaledb", "mysql", "mariadb", "sqlite" and "sqlserver"
@@ -120,7 +116,8 @@ func SetUpTestDB() {
 	)
 
 	if err != nil {
-		panic(err)
+		wd, _ := os.Getwd()
+		panic(fmt.Errorf("%v %v", err, wd))
 	}
 }
 
