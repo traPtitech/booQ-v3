@@ -941,6 +941,9 @@ components:
         memo:
           type: "string"
           example: "おもしろいのでぜひ読んでください"
+        transaction:
+          type: "array"
+          $ref: "#/components/schemas/transaction"
       required:
         - id
         - itemId

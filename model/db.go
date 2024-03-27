@@ -5,12 +5,16 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-testfixtures/testfixtures/v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
+var (
+	db       *gorm.DB
+	fixtures *testfixtures.Loader
+)
 
 var allTables = []interface{}{
 	Item{},
@@ -45,7 +49,7 @@ func EstablishConnection() error {
 
 	pass := os.Getenv("MYSQL_PASSWORD")
 	if pass == "" {
-		pass = ""
+		pass = "password"
 	}
 
 	host := os.Getenv("MYSQL_HOST")
@@ -65,8 +69,13 @@ func EstablishConnection() error {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, dbname) + "?parseTime=true&loc=Asia%2FTokyo&charset=utf8mb4"
 	_db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		return err
+	}
+
 	db = _db
-	return err
+	return nil
 }
 
 func SetDBLoggerInfo() {
@@ -80,4 +89,43 @@ func Migrate() error {
 	}
 
 	return nil
+}
+
+// テスト用DBの稼働。model, routerのテストで用いる
+func SetUpTestDB() {
+	err := EstablishConnection()
+	if err != nil {
+		panic(err)
+	}
+
+	err = Migrate()
+	if err != nil {
+		panic(err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+
+	dirFixtures := os.Getenv("MYSQL_TESTFIXTURES_DIR")
+	if dirFixtures == "" {
+		dirFixtures = "testdata/fixtures"
+	}
+
+	fixtures, err = testfixtures.New(
+		testfixtures.Database(sqlDB),        // You database connection
+		testfixtures.Dialect("mysql"),       // Available: "postgresql", "timescaledb", "mysql", "mariadb", "sqlite" and "sqlserver"
+		testfixtures.Directory(dirFixtures), // The directory containing the YAML files
+	)
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func PrepareTestDatabase() {
+	if err := fixtures.Load(); err != nil {
+		panic(err)
+	}
 }

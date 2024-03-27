@@ -1,0 +1,17 @@
+- id: 1
+  name: "item-id1"
+  description: "aaa"
+  img_url: "url"
+- id: 2
+  name: "item-id2 book"
+  description: "aaa"
+  img_url: "url"
+- id: 3
+  name: "item-id3 equipment"
+  description: "aaa"
+  img_url: "url"
+- id: 4
+  name: "item-id4 book equipment"
+  description: "aaa"
+  img_url: "url"
+

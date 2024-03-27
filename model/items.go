@@ -1,6 +1,8 @@
 package model
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -65,11 +67,23 @@ type GetItemsBody struct {
 	SortBy      string   `json:"sortby"`
 }
 
+func dbPreloaded() *gorm.DB {
+	return db.Preload("Book").Preload("Equipment").Preload("Comment").Preload("Tag").
+		Preload("Ownership").Preload("Like").Preload("Ownership.Transaction").Preload("TransactionEquipment")
+}
+
 func GetItems(query GetItemsBody) ([]Item, error) {
 	query.Limit = max(query.Limit, 20)
 
-	model := db.Limit(query.Limit).Offset(query.Offset)
-	// TODO: userid, rental, search, tag, tag-exclude, sortby
+	model := db.Preload("Book").Preload("Equipment").Preload("Tag")
+	model = model.Limit(query.Limit).Offset(query.Offset)
+
+	if query.Search != "" {
+		model = model.Where("name LIKE ?", "%"+query.Search+"%")
+	}
+
+	// TODO: userid, rental, tag, tag-exclude, sortby
+	// sortby: 項目名 + 降順or昇順 の2つの情報が必要そう
 
 	items := []Item{}
 	if err := model.Find(&items).Error; err != nil {
@@ -99,10 +113,12 @@ func CreateItems(itemBodies []RequestPostItemsBody, me string) ([]Item, error) {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		for i, itemBody := range itemBodies {
 			items[i] = itemFromBody(itemBody)
-			items[i].Ownership = []Ownership{{UserID: me, Rentalable: true}}
+
+			if items[i].Equipment == nil {
+				items[i].Ownership = []Ownership{{UserID: me, Rentalable: true}}
+			}
 		}
 
-		// TODO: アイテムの重複チェックができてるか要チェックしたいが
 		if err := tx.Create(&items).Error; err != nil {
 			return err
 		}
@@ -127,19 +143,29 @@ func stringsToTags(tagStrs []string) []Tag {
 
 func GetItem(itemID int) (Item, error) {
 	res := Item{}
-	if err := db.Preload("Book").Preload("Equipment").First(&res, itemID).Error; err != nil {
+	if err := dbPreloaded().First(&res, itemID).Error; err != nil {
 		return Item{}, err
 	}
 	return res, nil
 }
 
+// TODO: Booksの紐づけ, Ownershipsの除去/入力を適切に行う
+// TODO: 備品がCount < CountMaxの際にPatchItemされたらどうする？
 func PatchItem(itemID int, itemBody RequestPostItemsBody) (Item, error) {
 	itemOld, err := GetItem(itemID)
 	if err != nil {
 		return Item{}, err
 	}
 
+	if itemOld.Book == nil && itemBody.IsBook || itemOld.Book != nil && !itemBody.IsBook {
+		return Item{}, errors.New("それが本かどうかの情報を変えることはできません")
+	}
+	if itemOld.Equipment == nil && itemBody.IsTrapItem || itemOld.Equipment != nil && !itemBody.IsTrapItem {
+		return Item{}, errors.New("それが物品かどうかの情報を変えることはできません")
+	}
+
 	item := itemFromBody(itemBody)
+	item.Ownership = itemOld.Ownership
 	if err := db.Model(&itemOld).Updates(item).Error; err != nil {
 		return Item{}, err
 	}
@@ -148,8 +174,27 @@ func PatchItem(itemID int, itemBody RequestPostItemsBody) (Item, error) {
 }
 
 func DeleteItem(itemID int) error {
-	if err := db.Delete(&Item{}, itemID).Error; err != nil {
+	item, err := GetItem(itemID)
+	if err != nil {
 		return err
 	}
-	return nil
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		if item.Ownership != nil {
+			ownershipIDs := []int{}
+			if err := tx.Model(&Ownership{}).Where("item_id = ?", item.ID).Pluck("id", &ownershipIDs).Error; err != nil {
+				return err
+			}
+			if err := db.Where("ownership_id IN ?", ownershipIDs).Delete(&Transaction{}).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Select("Book", "Equipment", "Comment", "Tag", "Like", "Ownership",
+			"TransactionEquipment").Delete(&item).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return err
 }

@@ -1,11 +1,11 @@
 version: "3"
 services:
   db:
-    image: mariadb:10.6.4
+    image: mariadb:10.11.7
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: booq
+      MYSQL_DATABASE: booq-v3
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: password
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
@@ -27,7 +27,7 @@ services:
       MYSQL_HOST: db
       MYSQL_USER: root
       MYSQL_PASSWORD: password
-      MYSQL_DATABASE: booq
+      MYSQL_DATABASE: booq-v3_test
     volumes:
       - "./:/app"
     tty: true

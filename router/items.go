@@ -26,11 +26,34 @@ func GetItems(c echo.Context) error {
 }
 
 func getItemsParams(c echo.Context) (model.GetItemsBody, error) {
-	getItemsBody := model.GetItemsBody{}
-	err := c.Bind(&getItemsBody)
-	if err != nil {
-		return model.GetItemsBody{}, err
+	params := c.QueryParams()
+
+	getItemsBody := model.GetItemsBody{
+		UserID:      params.Get("userId"),
+		Search:      params.Get("search"),
+		Rental:      params.Get("rental"),
+		Tags:        params["tag"],
+		TagsExclude: params["tag-exclude"],
+		SortBy:      params.Get("sortby"),
 	}
+
+	if params.Get("limit") != "" {
+		limit, err := strconv.Atoi(params.Get("limit"))
+		if err != nil {
+			return model.GetItemsBody{}, err
+		}
+		getItemsBody.Limit = limit
+	}
+
+	if params.Get("offset") != "" {
+		offset, err := strconv.Atoi(params.Get("offset"))
+		if err != nil {
+			return model.GetItemsBody{}, err
+		}
+		getItemsBody.Offset = offset
+	}
+
+	c.Logger().Info(getItemsBody)
 
 	return getItemsBody, nil
 }

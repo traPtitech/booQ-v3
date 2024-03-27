@@ -13,14 +13,17 @@ import (
 )
 
 func main() {
+	if os.Getenv("BOOQ_ENV") == "development" {
+		mainDevlopment()
+	} else {
+		mainProduct()
+	}
+}
+
+func mainProduct() {
 	err := model.EstablishConnection()
 	if err != nil {
 		panic(err)
-	}
-	// db.close() の必要はなさそう。参考: https://github.com/go-gorm/gorm/issues/3145
-
-	if os.Getenv("BOOQ_ENV") == "development" {
-		model.SetDBLoggerInfo()
 	}
 
 	err = model.Migrate()
@@ -28,7 +31,36 @@ func main() {
 		panic(err)
 	}
 
-	// Storage
+	setStorage()
+
+	e := echo.New()
+	router.SetValidator(e)
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	e.Logger.Fatal(e.Start(":3001"))
+}
+
+func mainDevlopment() {
+	model.SetUpTestDB()
+	model.SetDBLoggerInfo()
+	model.PrepareTestDatabase()
+
+	setStorage()
+
+	e := echo.New()
+	router.SetValidator(e)
+	e.Logger.SetLevel(log.INFO)
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	e.Logger.Fatal(e.Start(":3001"))
+}
+
+func setStorage() {
 	if os.Getenv("OS_CONTAINER") != "" {
 		// Swiftオブジェクトストレージ
 		err := storage.SetSwiftStorage(
@@ -53,25 +85,4 @@ func main() {
 			panic(err)
 		}
 	}
-
-	// Echo instance
-	e := echo.New()
-
-	// Validator
-	router.SetValidator(e)
-
-	// debug
-	if os.Getenv("BOOQ_ENV") == "development" {
-		e.Logger.SetLevel(log.INFO)
-	}
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// Routing
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
-
-	// Start server
-	e.Logger.Fatal(e.Start(":3001"))
 }
