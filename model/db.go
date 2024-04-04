@@ -92,7 +92,11 @@ func Migrate() error {
 }
 
 // テスト用DBの稼働。model, routerのテストで用いる
-func SetUpTestDB() {
+func SetupTestDB() {
+	SetupFixtures("../testdata/fixtures")
+}
+
+func SetupFixtures(dirFixtures string) {
 	err := EstablishConnection()
 	if err != nil {
 		panic(err)
@@ -108,7 +112,6 @@ func SetUpTestDB() {
 		panic(err)
 	}
 
-	dirFixtures := "../testdata/fixtures"
 	fixtures, err = testfixtures.New(
 		testfixtures.Database(sqlDB),        // You database connection
 		testfixtures.Dialect("mysql"),       // Available: "postgresql", "timescaledb", "mysql", "mariadb", "sqlite" and "sqlserver"
@@ -116,8 +119,7 @@ func SetUpTestDB() {
 	)
 
 	if err != nil {
-		wd, _ := os.Getwd()
-		panic(fmt.Errorf("%v %v", err, wd))
+		panic(err)
 	}
 }
 

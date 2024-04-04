@@ -6,7 +6,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	SetUpTestDB()
+	SetupTestDB()
 	exitCode := m.Run()
 	os.Exit(exitCode)
 }

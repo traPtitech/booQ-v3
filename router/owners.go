@@ -25,14 +25,13 @@ func PostOwners(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "物品のIDが整数ではありません")
 	}
 
-	item, err := model.GetItemByID(itemID)
+	item, err := model.GetItem(itemID)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSON(http.StatusNotFound, "物品がみつかりません")
 	}
 
-	// TODO: これは値の比較であるべきで、ポインタの比較ではないが、適切に表現できているか？
-	if item.Equipment != (model.Equipment{}) {
+	if item.Equipment != nil {
 		c.Logger().Debug(err)
 		return c.JSON(http.StatusBadRequest, "備品に対して所有者を設定することはできません。物品の情報を変更することで所有物の個数を変更してください")
 	}
