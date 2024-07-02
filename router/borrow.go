@@ -22,7 +22,7 @@ func PostBorrowings(c echo.Context) error {
 }
 
 // GetBorrowingsId GET /items/:id/owners/:ownershipid/borrowing/:borrowingid
-func GetBorrowingsId(c echo.Context) error {
+func GetBorrowingsID(c echo.Context) error {
 	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
 }
 

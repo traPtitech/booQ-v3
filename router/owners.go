@@ -43,13 +43,13 @@ func PostOwners(c echo.Context) error {
 		Memo:       body.Memo,
 	}
 
-	ownerRes, err := model.RegisterOwnership(ownership)
+	ownerNew, err := model.RegisterOwnership(ownership)
 	if err != nil {
 		c.Logger().Debug(err)
 		return c.JSON(http.StatusInternalServerError, "所有者の情報を保存できませんでした")
 	}
 
-	return c.JSON(http.StatusOK, ownerRes)
+	return c.JSON(http.StatusOK, ownerNew)
 }
 
 // PatchOwners PUT /items/:id/owners/:ownershipid

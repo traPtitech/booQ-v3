@@ -1,5 +1,11 @@
 package model
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
 type Ownership struct {
 	GormModel
 	ItemID      int           `gorm:"type:int;not null" json:"itemId"`
@@ -19,6 +25,13 @@ func (Ownership) TableName() string {
 }
 
 func RegisterOwnership(ownership Ownership) (Ownership, error) {
+	item, err := GetItem(ownership.ItemID)
+	if err != nil {
+		return Ownership{}, err
+	}
+	if item.Equipment != nil {
+		return Ownership{}, errors.New("備品に対して所有者を設定することはできません。物品の情報を変更することで所有物の個数を変更してください")
+	}
 	if err := db.Create(&ownership).Error; err != nil {
 		return Ownership{}, nil
 	}
@@ -34,6 +47,11 @@ func GetOwnershipByID(id int) (Ownership, error) {
 }
 
 func PatchOwnership(ownership Ownership) error {
+	// ownershipが存在するか確認
+	if err := db.First(&Ownership{}, ownership.ID).Error; err != nil {
+		return err
+	}
+
 	if err := db.Save(&ownership).Error; err != nil {
 		return err
 	}
@@ -41,8 +59,22 @@ func PatchOwnership(ownership Ownership) error {
 }
 
 func DeleteOwnership(id int) error {
-	if err := db.Delete(&Ownership{}, id).Error; err != nil {
+	// ownershipが存在するか確認
+	if err := db.First(&Ownership{}, id).Error; err != nil {
 		return err
 	}
-	return nil
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		// 関連するトランザクションを削除
+		if err := tx.Delete(&Transaction{}, "ownership_id = ?", id).Error; err != nil {
+			return err
+		}
+
+		// 所有権を削除
+		if err := tx.Delete(&Ownership{}, id).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
 }

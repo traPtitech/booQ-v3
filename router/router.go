@@ -40,7 +40,7 @@ func SetupRouting(e *echo.Echo, client *UserProvider) {
 			apiOwnersBorrowing := apiItems.Group("/:id/owners/:ownershipid/borrowing")
 			{
 				apiOwnersBorrowing.POST("", PostBorrowings)
-				apiOwnersBorrowing.GET("/:borrowingid", GetBorrowingsId)
+				apiOwnersBorrowing.GET("/:borrowingid", GetBorrowingsID)
 				apiOwnersBorrowing.POST("/:borrowingid/reply", PostBorrowingsReply)
 				apiOwnersBorrowing.POST("/:borrowingid/return", PostBorrowingsReturn)
 			}
