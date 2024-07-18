@@ -8,7 +8,7 @@ RUN apk add --update --no-cache git && \
   rm -rf /var/cache/apk/*
 
 WORKDIR /app
-RUN go install github.com/cosmtrek/air@latest
+RUN go install github.com/air-verse/air@latest
 
 COPY go.mod go.sum ./
 RUN go mod download
