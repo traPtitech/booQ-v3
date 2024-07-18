@@ -27,7 +27,7 @@ services:
       MYSQL_HOST: db
       MYSQL_USER: root
       MYSQL_PASSWORD: password
-      MYSQL_DATABASE: booq-v3_test
+      MYSQL_DATABASE: booq-v3
     volumes:
       - "./:/app"
     tty: true
