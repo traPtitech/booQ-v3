@@ -22,17 +22,9 @@ Now you can access to `http://localhost:8080` for booQ
 And you can access booQ MariaDB by executing commands
 `docker-compose exec db bash` and `mysql -uroot -ppassword -Dbooq`
 
-You can also execute build shell script
+#### turnicate and insert development db data
 
-```
-$ sh scripts/build.sh
-```
-
-And start development
-
-```
-$ sh scripts/up.sh
-```
+`bash scripts/insert_devdata.sh`
 
 #### test
 

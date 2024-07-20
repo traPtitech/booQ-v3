@@ -953,9 +953,6 @@ components:
     postOwnership:
       type: "object"
       properties:
-        userId:
-          type: "string"
-          example: "s9"
         rentalable:
           type: "boolean"
           example: true
