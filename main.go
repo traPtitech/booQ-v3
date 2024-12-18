@@ -15,12 +15,12 @@ import (
 func main() {
 	err := model.EstablishConnection()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	err = model.Migrate()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	setStorage()
@@ -51,7 +51,7 @@ func setStorage() {
 			os.Getenv("OS_AUTH_URL"),
 		)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	} else {
 		// ローカルストレージ
@@ -61,7 +61,7 @@ func setStorage() {
 		}
 		err := storage.SetLocalStorage(dir)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
