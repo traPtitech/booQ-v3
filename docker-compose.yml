@@ -20,6 +20,28 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+  s3:
+    image: minio/minio
+    restart: unless-stopped
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+      MINIO_ACCESS_KEY: minio_access_key
+      MINIO_SECRET_KEY: minio_secret_key
+    volumes:
+      - booq-s3:/data
+  s3-init:
+    image: minio/mc
+    depends_on:
+      - s3
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set s3-local http://s3:9000 admin password;
+      mc mb s3-local/booq-v3;
+      "
   booq-server:
     build: .
     environment:
@@ -28,12 +50,18 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: password
       MYSQL_DATABASE: booq-v3
-      UPLOAD_DIR: /app/data
+      S3_BUCKET: booq-v3
+      S3_REGION: ap-northeast-1
+      S3_ENDPOINT: http://s3:9000
+      S3_ACCESS_KEY: minio_access_key
+      S3_SECRET_KEY: minio_secret_key
     ports:
       - '8080:3001'
     depends_on:
       db:
         condition: service_healthy
+      s3-init:
+        condition: service_completed_successfully
     develop:
       watch:
         - path: ./Dockerfile
@@ -56,3 +84,4 @@ services:
 
 volumes:
   booq-db:
+  booq-s3:
