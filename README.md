@@ -14,7 +14,7 @@ management tool for equipment and book rental
 #### First Up (or entirely rebuild)
 
 ```
-$ docker compose -f compose-dev.yml up --build
+$ docker compose up --build --watch
 ```
 
 Now you can access to `http://localhost:8080` for booQ
