@@ -40,15 +40,14 @@ func main() {
 }
 
 func setStorage() {
-	if os.Getenv("OS_CONTAINER") != "" {
-		// Swiftオブジェクトストレージ
-		err := storage.SetSwiftStorage(
-			os.Getenv("OS_CONTAINER"),
-			os.Getenv("OS_USERNAME"),
-			os.Getenv("OS_PASSWORD"),
-			os.Getenv("OS_TENANT_NAME"),
-			os.Getenv("OS_TENANT_ID"),
-			os.Getenv("OS_AUTH_URL"),
+	if os.Getenv("S3_BUCKET") != "" {
+		// S3
+		err := storage.SetS3Storage(
+			os.Getenv("S3_BUCKET"),
+			os.Getenv("S3_REGION"),
+			os.Getenv("S3_ENDPOINT"),
+			os.Getenv("S3_ACCESS_KEY"),
+			os.Getenv("S3_SECRET_KEY"),
 		)
 		if err != nil {
 			log.Fatal(err)
