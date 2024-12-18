@@ -51,6 +51,5 @@ func SetupRouting(e *echo.Echo, client *UserProvider) {
 			apiFiles.POST("", PostFile, middleware.BodyLimit("3MB"))
 			apiFiles.GET("/:id", GetFile)
 		}
-
 	}
 }

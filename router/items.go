@@ -10,43 +10,41 @@ import (
 
 // GetItems GET /items
 func GetItems(c echo.Context) error {
-	getItemsBody, err := getItemsParams(c)
+	getItemsBody, err := parseGetItemsParams(c)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "リクエストデータの処理に失敗しました")
+		return invalidRequest(c, err)
 	}
 
 	res, err := model.GetItems(getItemsBody)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusInternalServerError, "DBの操作に失敗しました")
+		return internalServerError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
 }
 
-func getItemsParams(c echo.Context) (model.GetItemsBody, error) {
-	params := c.QueryParams()
+func parseGetItemsParams(c echo.Context) (model.GetItemsBody, error) {
+	query := c.QueryParams()
 
 	getItemsBody := model.GetItemsBody{
-		UserID:      params.Get("userId"),
-		Search:      params.Get("search"),
-		Rental:      params.Get("rental"),
-		Tags:        params["tag"],
-		TagsExclude: params["tag-exclude"],
-		SortBy:      params.Get("sortby"),
+		UserID:      query.Get("userId"),
+		Search:      query.Get("search"),
+		Rental:      query.Get("rental"),
+		Tags:        query["tag"],
+		TagsExclude: query["tag-exclude"],
+		SortBy:      query.Get("sortby"),
 	}
 
-	if params.Get("limit") != "" {
-		limit, err := strconv.Atoi(params.Get("limit"))
+	if query.Get("limit") != "" {
+		limit, err := strconv.Atoi(query.Get("limit"))
 		if err != nil {
 			return model.GetItemsBody{}, err
 		}
 		getItemsBody.Limit = limit
 	}
 
-	if params.Get("offset") != "" {
-		offset, err := strconv.Atoi(params.Get("offset"))
+	if query.Get("offset") != "" {
+		offset, err := strconv.Atoi(query.Get("offset"))
 		if err != nil {
 			return model.GetItemsBody{}, err
 		}
@@ -60,18 +58,16 @@ func getItemsParams(c echo.Context) (model.GetItemsBody, error) {
 
 // PostItems POST /items
 func PostItems(c echo.Context) error {
-	me := c.Get("user").(string)
+	me := getAuthorizedUser(c)
 	items := []model.RequestPostItemsBody{}
 	err := c.Bind(&items)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "リクエストデータの処理に失敗しました")
+		return invalidRequest(c, err)
 	}
 
 	res, err := model.CreateItems(items, me)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "DBの操作に失敗しました")
+		return internalServerError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -83,14 +79,12 @@ func GetItem(c echo.Context) error {
 
 	itemID, err := strconv.Atoi(itemIDRaw)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "物品のIDが不正です")
+		return invalidRequest(c, err)
 	}
 
 	res, err := model.GetItem(itemID)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusInternalServerError, "DBの操作に失敗しました")
+		return internalServerError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -101,21 +95,18 @@ func PatchItem(c echo.Context) error {
 	itemBody := model.RequestPostItemsBody{}
 	err := c.Bind(&itemBody)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "リクエストデータの処理に失敗しました")
+		return invalidRequest(c, err)
 	}
 
 	itemIDRaw := c.Param("id")
 	itemID, err := strconv.Atoi(itemIDRaw)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "物品のIDが不正です")
+		return invalidRequest(c, err)
 	}
 
 	res, err := model.PatchItem(itemID, itemBody)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusInternalServerError, "DBの操作に失敗しました")
+		return internalServerError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -126,14 +117,12 @@ func DeleteItem(c echo.Context) error {
 	itemIDRaw := c.Param("id")
 	itemID, err := strconv.Atoi(itemIDRaw)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusBadRequest, "物品のIDが不正です")
+		return invalidRequest(c, err)
 	}
 
 	err = model.DeleteItem(itemID)
 	if err != nil {
-		c.Logger().Info(err.Error())
-		return c.JSON(http.StatusInternalServerError, "DBの操作に失敗しました")
+		return internalServerError(c, err)
 	}
 
 	return c.NoContent(http.StatusOK)
