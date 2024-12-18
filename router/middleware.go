@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var userProviderKey = "user"
+
 // UserProvider traQに接続する用のclient
 type UserProvider struct {
 	AuthUser func(c echo.Context) (echo.Context, error)
@@ -34,7 +36,11 @@ func CreateUserProvider(debugUserName string) *UserProvider {
 				return c, errors.New("認証に失敗しました(Headerに必要な情報が存在しません)")
 			}
 		}
-		c.Set("user", res)
+		c.Set(userProviderKey, res)
 		return c, nil
 	}}
+}
+
+func getAuthorizedUser(c echo.Context) string {
+	return c.Get(userProviderKey).(string)
 }
