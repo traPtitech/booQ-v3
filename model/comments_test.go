@@ -7,6 +7,8 @@ import (
 )
 
 func TestCreateComment(t *testing.T) {
+	PrepareTestDatabase()
+
 	cases := []struct {
 		name    string
 		payload *CreateCommentPayload
