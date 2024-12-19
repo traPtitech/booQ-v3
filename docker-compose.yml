@@ -8,7 +8,6 @@ services:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: password
     volumes:
-      - booq-db:/var/lib/mysql
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
     expose:
       - '3306'
@@ -31,8 +30,6 @@ services:
       MINIO_ROOT_PASSWORD: password
       MINIO_ACCESS_KEY: minio_access_key
       MINIO_SECRET_KEY: minio_secret_key
-    volumes:
-      - booq-s3:/data
   s3-init:
     image: minio/mc
     depends_on:
@@ -81,7 +78,3 @@ services:
     restart: always
     ports:
       - 8000:8080
-
-volumes:
-  booq-db:
-  booq-s3:

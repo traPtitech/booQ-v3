@@ -9,7 +9,7 @@ management tool for equipment and book rental
 
 ## Development environment
 
-### Setup with docker and docker-compose
+### Setup with docker (compose)
 
 #### First Up (or entirely rebuild)
 
@@ -38,3 +38,14 @@ $ docker compose -f docker/test/docker-compose.yml up --abort-on-container-exit
 
 `docker compose down -v`
 
+### Setup VSCode
+
+write it down in your `.vscode/settings.json`
+
+```json
+{
+  "go.testEnvVars": {
+    "MYSQL_DATABASE": "test"
+  }
+}
+```
