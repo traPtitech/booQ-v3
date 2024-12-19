@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -8,7 +9,7 @@ import (
 )
 
 type PostCommentBody struct {
-	Comment string `json:"comment"`
+	Text string `json:"text"`
 }
 
 type PostCommentResponse struct {
@@ -29,11 +30,14 @@ func PostComment(c echo.Context) error {
 	if err := c.Bind(&body); err != nil {
 		return invalidRequest(c, err)
 	}
+	if body.Text == "" {
+		return invalidRequest(c, fmt.Errorf("text is empty"))
+	}
 
 	payload := model.CreateCommentPayload{
 		ItemID:  itemID,
 		UserID:  me,
-		Comment: body.Comment,
+		Comment: body.Text,
 	}
 	comment, err := model.CreateComment(&payload)
 	if err != nil {
