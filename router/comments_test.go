@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +13,7 @@ func TestPostComment(t *testing.T) {
 	model.PrepareTestDatabase()
 
 	e := echo.New()
-	SetupRouting(e, CreateUserProvider("s9"))
+	SetupRouting(e, CreateUserProvider(TEST_USER))
 
 	cases := []struct {
 		name     string
@@ -22,24 +23,24 @@ func TestPostComment(t *testing.T) {
 		{
 			name:     "正常系",
 			payload:  `{"text":"テストコメント"}`,
-			expected: 201,
+			expected: http.StatusCreated,
 		},
 		{
 			name:     "異常系: 空文字列",
 			payload:  `{"text":""}`,
-			expected: 400,
+			expected: http.StatusBadRequest,
 		},
 		{
 			name:     "異常系: パラメータ不足",
 			payload:  `{}`,
-			expected: 400,
+			expected: http.StatusBadRequest,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			assert := assert.New(t)
-			rec := PerformMutation(e, "POST", "/api/items/1/comments", tc.payload)
+			rec := performMutation(e, "POST", "/api/items/1/comments", tc.payload)
 			assert.Equal(tc.expected, rec.Code)
 		})
 	}

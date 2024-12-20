@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -18,8 +19,8 @@ type PostCommentResponse struct {
 
 // PostComment POST /items/:id/comments
 func PostComment(c echo.Context) error {
-	itemIDRaw := c.Param("id")
-	itemID, err := strconv.Atoi(itemIDRaw)
+	itemIDStr := c.Param("id")
+	itemID, err := strconv.Atoi(itemIDStr)
 	if err != nil {
 		return invalidRequest(c, err)
 	}
@@ -44,5 +45,5 @@ func PostComment(c echo.Context) error {
 		return internalServerError(c, err)
 	}
 
-	return c.JSON(201, PostCommentResponse{ID: comment.ID})
+	return c.JSON(http.StatusCreated, PostCommentResponse{ID: comment.ID})
 }

@@ -7,7 +7,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func PerformMutation(e *echo.Echo, method, path, payload string) *httptest.ResponseRecorder {
+var TEST_USER = "s9"
+
+func performMutation(e *echo.Echo, method, path, payload string) *httptest.ResponseRecorder {
 	req := httptest.NewRequest(method, path, strings.NewReader(payload))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()

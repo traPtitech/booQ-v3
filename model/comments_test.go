@@ -12,7 +12,7 @@ func TestCreateComment(t *testing.T) {
 	cases := []struct {
 		name    string
 		payload *CreateCommentPayload
-		fail    bool
+		ok      bool
 	}{
 		{
 			name: "正常系",
@@ -21,7 +21,7 @@ func TestCreateComment(t *testing.T) {
 				UserID:  "user1",
 				Comment: "comment1",
 			},
-			fail: false,
+			ok: true,
 		},
 		{
 			name: "異常系: ItemIDが存在しない",
@@ -29,7 +29,7 @@ func TestCreateComment(t *testing.T) {
 				UserID:  "user1",
 				Comment: "comment1",
 			},
-			fail: true,
+			ok: false,
 		},
 		{
 			name: "異常系: UserIDが存在しない",
@@ -37,7 +37,7 @@ func TestCreateComment(t *testing.T) {
 				ItemID:  1,
 				Comment: "comment1",
 			},
-			fail: true,
+			ok: false,
 		},
 		{
 			name: "異常系: Commentが存在しない",
@@ -45,7 +45,7 @@ func TestCreateComment(t *testing.T) {
 				ItemID: 1,
 				UserID: "user1",
 			},
-			fail: true,
+			ok: false,
 		},
 	}
 
@@ -53,7 +53,7 @@ func TestCreateComment(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := CreateComment(tt.payload)
-			if tt.fail {
+			if tt.ok {
 				assert.Error(err)
 			} else {
 				assert.NoError(err)

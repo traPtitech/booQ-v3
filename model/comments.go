@@ -1,6 +1,6 @@
 package model
 
-import "fmt"
+import "errors"
 
 type Comment struct {
 	GormModel
@@ -21,21 +21,21 @@ type CreateCommentPayload struct {
 
 func CreateComment(p *CreateCommentPayload) (*Comment, error) {
 	if p.ItemID == 0 {
-		return nil, fmt.Errorf("ItemID is required")
+		return nil, errors.New("ItemID is required")
 	}
 	if p.UserID == "" {
-		return nil, fmt.Errorf("UserID is required")
+		return nil, errors.New("UserID is required")
 	}
 	if p.Comment == "" {
-		return nil, fmt.Errorf("Comment is required")
+		return nil, errors.New("Comment is required")
 	}
-	c := &Comment{
+	c := Comment{
 		ItemID:  p.ItemID,
 		UserID:  p.UserID,
 		Comment: p.Comment,
 	}
-	if err := db.Create(c).Error; err != nil {
+	if err := db.Create(&c).Error; err != nil {
 		return nil, err
 	}
-	return c, nil
+	return &c, nil
 }
