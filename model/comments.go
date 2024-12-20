@@ -1,7 +1,5 @@
 package model
 
-import "errors"
-
 type Comment struct {
 	GormModel
 	ItemID  int    `gorm:"type:int;not null" json:"item_id"`
@@ -20,15 +18,6 @@ type CreateCommentPayload struct {
 }
 
 func CreateComment(p *CreateCommentPayload) (*Comment, error) {
-	if p.ItemID == 0 {
-		return nil, errors.New("ItemID is required")
-	}
-	if p.UserID == "" {
-		return nil, errors.New("UserID is required")
-	}
-	if p.Comment == "" {
-		return nil, errors.New("Comment is required")
-	}
 	c := Comment{
 		ItemID:  p.ItemID,
 		UserID:  p.UserID,
