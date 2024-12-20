@@ -6,6 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func unauthorizedRequest(c echo.Context, err error) error {
+	c.Logger().Infof("unauthorized request on %s: %w", c.Path(), err.Error())
+	return c.String(http.StatusUnauthorized, "認証に失敗しました")
+}
+
 func invalidRequest(c echo.Context, err error) error {
 	c.Logger().Infof("invalid request on %s: %w", c.Path(), err.Error())
 	return c.String(http.StatusBadRequest, "リクエストデータの処理に失敗しました")

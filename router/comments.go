@@ -25,7 +25,10 @@ func PostComment(c echo.Context) error {
 		return invalidRequest(c, err)
 	}
 
-	me := getAuthorizedUser(c)
+	me, err := getAuthorizedUser(c)
+	if err != nil {
+		return unauthorizedRequest(c, err)
+	}
 
 	var body PostCommentBody
 	if err := c.Bind(&body); err != nil {
