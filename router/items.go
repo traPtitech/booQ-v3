@@ -58,10 +58,13 @@ func parseGetItemsParams(c echo.Context) (model.GetItemsBody, error) {
 
 // PostItems POST /items
 func PostItems(c echo.Context) error {
-	me := getAuthorizedUser(c)
-	items := []model.RequestPostItemsBody{}
-	err := c.Bind(&items)
+	me, err := getAuthorizedUser(c)
 	if err != nil {
+		return unauthorizedRequest(c, err)
+	}
+
+	items := []model.RequestPostItemsBody{}
+	if err := c.Bind(&items); err != nil {
 		return invalidRequest(c, err)
 	}
 

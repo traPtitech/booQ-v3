@@ -41,6 +41,10 @@ func CreateUserProvider(debugUserName string) *UserProvider {
 	}}
 }
 
-func getAuthorizedUser(c echo.Context) string {
-	return c.Get(userProviderKey).(string)
+func getAuthorizedUser(c echo.Context) (string, error) {
+	user, ok := c.Get(userProviderKey).(string)
+	if !ok {
+		return "", errors.New("認証に失敗しました")
+	}
+	return user, nil
 }
