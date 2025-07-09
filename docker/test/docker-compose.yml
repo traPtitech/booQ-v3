@@ -15,7 +15,7 @@ services:
     ports:
       - "3307:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
       start_period: 10s
       interval: 10s
       timeout: 5s
