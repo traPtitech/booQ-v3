@@ -20,14 +20,14 @@ $ docker compose up --build --watch
 Now you can access to `http://localhost:8080` for booQ
 
 And you can access booQ MariaDB by executing commands
-`docker compose exec db bash` and `mysql -uroot -ppassword -Dbooq`
+`docker compose exec db bash` and `mysql -uroot -ppassword -Dbooq-v3`
 
 #### test
 
 You can test this project
 
 ```
-$ docker compose -f docker/test/docker-compose.yml up --abort-on-container-exit
+$ ./scripts/test.sh
 ```
 
 #### Rebuild
