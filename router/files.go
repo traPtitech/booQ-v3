@@ -62,7 +62,7 @@ func PostFile(c echo.Context) error {
 		return internalServerError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"id": f.ID, "url": fmt.Sprintf("/zpi/files/%d", f.ID)})
+	return c.JSON(http.StatusCreated, map[string]interface{}{"id": f.ID, "url": fmt.Sprintf("/zpi/files/%d", f.ID)})
 }
 
 // GetFile GET /files/:id
