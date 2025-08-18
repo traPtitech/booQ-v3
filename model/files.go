@@ -12,7 +12,7 @@ import (
 // File アップロードファイルの構造体
 type File struct {
 	GormModel
-	UploadUserID uint `gorm:"type:int;not null"`
+	UploadUserID string `gorm:"type:varchar(32);not null"`
 }
 
 // TableName dbのテーブル名を指定する
@@ -21,7 +21,7 @@ func (File) TableName() string {
 }
 
 // CreateFile Fileを作成する
-func CreateFile(uploadUserID uint, src io.Reader, ext string) (File, error) {
+func CreateFile(uploadUserID string, src io.Reader, ext string) (File, error) {
 	f := File{UploadUserID: uploadUserID}
 	// トランザクション開始
 	err := db.Transaction(func(tx *gorm.DB) error {
