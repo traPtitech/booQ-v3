@@ -1,8 +1,6 @@
 package model
 
 import (
-	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -15,20 +13,26 @@ type Ownership struct {
 	Transaction []Transaction `gorm:"foreignKey:ownership_id;references:id"`
 }
 
+type OwnershipPayload struct {
+	ItemID     int    `json:"itemId"`
+	UserID     string `json:"userId"`
+	Rentalable bool   `json:"rentalable"`
+	Memo       string `json:"memo"`
+}
+
 func (Ownership) TableName() string {
 	return "ownerships"
 }
 
-func CreateOwnership(ownership Ownership) error {
-	if ownership.ItemID == 0 {
-		return errors.New("itemId is required")
+func CreateOwnership(ownership OwnershipPayload) error {
+	o := Ownership{
+		ItemID:     ownership.ItemID,
+		UserID:     ownership.UserID,
+		Rentalable: ownership.Rentalable,
+		Memo:       ownership.Memo,
 	}
-	if ownership.UserID == "" {
-		return errors.New("userId is required")
-	}
-
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(&ownership).Error; err != nil {
+		if err := tx.Create(&o).Error; err != nil {
 			return err
 		}
 
