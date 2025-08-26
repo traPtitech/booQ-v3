@@ -77,6 +77,29 @@ func UpdateOwnership(ownershipId int, ownership OwnershipPayload) (Ownership, er
 	return o, nil
 }
 
+func DeleteOwnership(ownershipId int, userId string) error {
+	ownershipOld, err := GetOwnership(ownershipId)
+	if err != nil {
+		return err
+	}
+
+	if ownershipOld.UserID != userId {
+		return errors.New("削除する権限がありません")
+	}
+
+	err = db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&Ownership{}, ownershipId).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetOwnership(ownershipId int) (*Ownership, error) {
 	var o Ownership
 	if err := db.Preload("Transaction").First(&o, ownershipId).Error; err != nil {
