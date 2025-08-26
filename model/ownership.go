@@ -88,6 +88,9 @@ func DeleteOwnership(ownershipId int, userId string) error {
 	}
 
 	err = db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("ownership_id = ?", ownershipId).Delete(&Transaction{}).Error; err != nil {
+			return err
+		}
 		if err := tx.Delete(&Ownership{}, ownershipId).Error; err != nil {
 			return err
 		}
