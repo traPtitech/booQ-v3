@@ -1,5 +1,11 @@
 package model
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
 type Ownership struct {
 	GormModel
 	ItemID      int           `gorm:"type:int;not null" json:"itemId"`
@@ -11,4 +17,26 @@ type Ownership struct {
 
 func (Ownership) TableName() string {
 	return "ownerships"
+}
+
+func CreateOwnership(ownership Ownership) error {
+	if ownership.ItemID == 0 {
+		return errors.New("itemId is required")
+	}
+	if ownership.UserID == "" {
+		return errors.New("userId is required")
+	}
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&ownership).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
