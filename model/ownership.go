@@ -65,7 +65,10 @@ func UpdateOwnership(ownershipId int, ownership OwnershipPayload) (Ownership, er
 		Transaction: ownershipOld.Transaction,
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&Ownership{}).Where("id = ?", ownershipId).Updates(o).Error; err != nil {
+		if err := tx.Model(&Ownership{}).Where("id = ?", ownershipId).Updates(map[string]interface{}{
+			"rentalable": o.Rentalable,
+			"memo":       o.Memo,
+		}).Error; err != nil {
 			return err
 		}
 		return nil
