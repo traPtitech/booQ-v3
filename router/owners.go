@@ -31,7 +31,28 @@ func PostOwners(c echo.Context) error {
 
 // PatchOwners PUT /items/:id/owners/:ownershipid
 func PatchOwners(c echo.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
+	itemId, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return invalidRequest(c, err)
+	}
+
+	ownershipId, err := strconv.Atoi(c.Param("ownershipid"))
+	if err != nil {
+		return invalidRequest(c, err)
+	}
+
+	owner := model.OwnershipPayload{}
+	if err := c.Bind(&owner); err != nil {
+		return invalidRequest(c, err)
+	}
+	owner.ItemID = itemId
+
+	res, err := model.UpdateOwnership(ownershipId, owner)
+	if err != nil {
+		return internalServerError(c, err)
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 // DeleteOwners PUT /items/:id/owners/:ownershipid
