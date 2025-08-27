@@ -57,5 +57,20 @@ func PatchOwners(c echo.Context) error {
 
 // DeleteOwners PUT /items/:id/owners/:ownershipid
 func DeleteOwners(c echo.Context) error {
-	return echo.NewHTTPError(http.StatusNotImplemented, "Not Implemented")
+	ownershipId, err := strconv.Atoi(c.Param("ownershipid"))
+	if err != nil {
+		return invalidRequest(c, err)
+	}
+
+	me, err := getAuthorizedUser(c)
+	if err != nil {
+		return unauthorizedRequest(c, err)
+	}
+
+	err = model.DeleteOwnership(ownershipId, me)
+	if err != nil {
+		return internalServerError(c, err)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
