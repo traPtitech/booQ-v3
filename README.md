@@ -28,6 +28,8 @@ You can test this project
 
 ```
 $ ./scripts/test.sh
+// Run with coverage. It creates cover_model.html, cover_router.html
+$ ./scripts/test.sh cover
 ```
 
 #### Rebuild
