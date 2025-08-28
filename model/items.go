@@ -1,7 +1,7 @@
 package model
 
 import (
-	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -158,10 +158,10 @@ func PatchItem(itemID int, itemBody RequestPostItemsBody) (Item, error) {
 	}
 
 	if itemOld.Book == nil && itemBody.IsBook || itemOld.Book != nil && !itemBody.IsBook {
-		return Item{}, errors.New("それが本かどうかの情報を変えることはできません")
+		return Item{}, fmt.Errorf("それが本かどうかの情報を変えることはできません: %w", ErrUpdateNotAllowed)
 	}
 	if itemOld.Equipment == nil && itemBody.IsTrapItem || itemOld.Equipment != nil && !itemBody.IsTrapItem {
-		return Item{}, errors.New("それが物品かどうかの情報を変えることはできません")
+		return Item{}, fmt.Errorf("それが物品かどうかの情報を変えることはできません: %w", ErrUpdateNotAllowed)
 	}
 
 	item := itemFromBody(itemBody)
