@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -144,6 +145,9 @@ func stringsToTags(tagStrs []string) []Tag {
 func GetItem(itemID int) (Item, error) {
 	res := Item{}
 	if err := dbPreloaded().First(&res, itemID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return Item{}, ErrNotFound
+		}
 		return Item{}, err
 	}
 	return res, nil

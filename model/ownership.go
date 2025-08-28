@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -109,6 +110,9 @@ func DeleteOwnership(ownershipId int, userId string) error {
 func GetOwnership(ownershipId int) (*Ownership, error) {
 	var o Ownership
 	if err := db.Preload("Transaction").First(&o, ownershipId).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
 	return &o, nil
