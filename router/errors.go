@@ -1,9 +1,11 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/traPtitech/booQ-v3/model"
 )
 
 func unauthorizedRequest(c echo.Context, err error) error {
@@ -19,4 +21,22 @@ func invalidRequest(c echo.Context, err error) error {
 func internalServerError(c echo.Context, err error) error {
 	c.Logger().Infof("internal server error on %s: %w", c.Path(), err.Error())
 	return c.String(http.StatusInternalServerError, "予期せぬエラーが発生しました")
+}
+
+func notFoundError(c echo.Context, err error) error {
+	c.Logger().Infof("not found error on %s: %w", c.Path(), err.Error())
+	return c.String(http.StatusNotFound, "アイテムが見つかりません")
+}
+
+func parseModelError(c echo.Context, err error) error {
+	switch {
+	case errors.Is(err, model.ErrNotFound):
+		return notFoundError(c, err)
+	case errors.Is(err, model.ErrUnauthorized):
+		return unauthorizedRequest(c, err)
+	case errors.Is(err, model.ErrUpdateNotAllowed):
+		return invalidRequest(c, err)
+	default:
+		return internalServerError(c, err)
+	}
 }

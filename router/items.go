@@ -17,7 +17,7 @@ func GetItems(c echo.Context) error {
 
 	res, err := model.GetItems(getItemsBody)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -70,7 +70,7 @@ func PostItems(c echo.Context) error {
 
 	res, err := model.CreateItems(items, me)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -87,7 +87,7 @@ func GetItem(c echo.Context) error {
 
 	res, err := model.GetItem(itemID)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -109,7 +109,7 @@ func PatchItem(c echo.Context) error {
 
 	res, err := model.PatchItem(itemID, itemBody)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -125,7 +125,7 @@ func DeleteItem(c echo.Context) error {
 
 	err = model.DeleteItem(itemID)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.NoContent(http.StatusOK)
