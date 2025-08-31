@@ -71,7 +71,7 @@ func TestUpdateOwnership(t *testing.T) {
 	t.Run("failure: not found", func(t *testing.T) {
 		assert := assert.New(t)
 		_, err := UpdateOwnership(-1, OwnershipPayload{})
-		assert.Error(err)
+		assert.ErrorIs(err, ErrNotFound)
 	})
 
 	t.Run("failure: unauthorized", func(t *testing.T) {
@@ -82,7 +82,7 @@ func TestUpdateOwnership(t *testing.T) {
 			Rentalable: false,
 			Memo:       "new_memo",
 		})
-		assert.Error(err)
+		assert.ErrorIs(err, ErrUnauthorized)
 	})
 
 	t.Run("success", func(t *testing.T) {
@@ -111,13 +111,13 @@ func TestDeleteOwnership(t *testing.T) {
 	t.Run("failure: not found", func(t *testing.T) {
 		assert := assert.New(t)
 		err := DeleteOwnership(-1, "someone")
-		assert.Error(err)
+		assert.ErrorIs(err, ErrNotFound)
 	})
 
 	t.Run("failure: unauthorized", func(t *testing.T) {
 		assert := assert.New(t)
 		err := DeleteOwnership(1, "different_user")
-		assert.Error(err)
+		assert.ErrorIs(err, ErrUnauthorized)
 	})
 
 	t.Run("success", func(t *testing.T) {
@@ -126,7 +126,7 @@ func TestDeleteOwnership(t *testing.T) {
 		assert.NoError(err)
 
 		res, err := GetOwnership(1)
-		assert.Error(err)
+		assert.ErrorIs(err, ErrNotFound)
 		assert.Empty(res)
 	})
 }
