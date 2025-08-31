@@ -74,38 +74,62 @@ func TestCreateItems(t *testing.T) {
 
 func TestGetItem(t *testing.T) {
 	PrepareTestDatabase()
-	t.Run("failure", func(t *testing.T) {
-		t.Parallel()
-		assert := assert.New(t)
 
-		res, err := GetItem(-1)
-		assert.Error(err)
-		assert.Empty(res)
-	})
+	testCase := []struct {
+		name          string
+		itemID        int
+		expectedError error
+		expectedItem  Item
+	}{
+		{
+			name:          "failure: invalid itemID",
+			itemID:        -1,
+			expectedError: ErrNotFound,
+			expectedItem:  Item{},
+		},
+		{
+			name:          "success: get item",
+			itemID:        1,
+			expectedError: nil,
+			expectedItem: Item{
+				Name:        "item-id1",
+				Description: "aaa",
+				ImgURL:      "url",
+			},
+		},
+	}
 
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
-		assert := assert.New(t)
+	for _, tc := range testCase {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		res, err := GetItem(1)
-		assert.NoError(err)
-		assert.NotEmpty(res)
-		assert.Equal(res.Name, "item-id1")
-	})
+			res, err := GetItem(tc.itemID)
+			if tc.expectedError != nil {
+				assert.ErrorIs(t, err, tc.expectedError)
+				assert.Empty(t, res)
+			} else {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, res)
+				assert.Equal(t, tc.expectedItem.Name, res.Name)
+				assert.Equal(t, tc.expectedItem.Description, res.Description)
+				assert.Equal(t, tc.expectedItem.ImgURL, res.ImgURL)
+			}
+		})
+	}
 }
 
 func TestPatchItem(t *testing.T) {
 	PrepareTestDatabase()
 
-	t.Run("failure", func(t *testing.T) {
+	t.Run("failure: invalid itemID", func(t *testing.T) {
 		assert := assert.New(t)
 
 		res, err := PatchItem(-1, RequestPostItemsBody{})
-		assert.Error(err)
+		assert.ErrorIs(err, ErrNotFound)
 		assert.Empty(res)
 	})
 
-	t.Run("success-1", func(t *testing.T) {
+	t.Run("success: no book, no equipment", func(t *testing.T) {
 		assert := assert.New(t)
 
 		req := RequestPostItemsBody{
@@ -124,7 +148,7 @@ func TestPatchItem(t *testing.T) {
 		assert.NotEmpty(res.Ownership)
 	})
 
-	t.Run("success-2", func(t *testing.T) {
+	t.Run("success: book, equipment", func(t *testing.T) {
 		assert := assert.New(t)
 
 		req := RequestPostItemsBody{
@@ -142,23 +166,62 @@ func TestPatchItem(t *testing.T) {
 		assert.Equal(res.Description, req.Description)
 		assert.Equal(res.ImgURL, req.ImgURL)
 	})
+
+	t.Run("failure: can't change isBook", func(t *testing.T) {
+		assert := assert.New(t)
+
+		req := RequestPostItemsBody{
+			Name: "testPatchItem", IsTrapItem: false, IsBook: true,
+			Tags: []string{"tagTest"}, Description: "testPatchItem", ImgURL: "testURL",
+		}
+		res, err := PatchItem(1, req)
+
+		assert.ErrorIs(err, ErrUpdateNotAllowed)
+		assert.Empty(res)
+	})
+
+	t.Run("failure: can't change isTrapItem", func(t *testing.T) {
+		assert := assert.New(t)
+
+		req := RequestPostItemsBody{
+			Name: "testPatchItem", IsTrapItem: true, IsBook: false,
+			Tags: []string{"tagTest"}, Description: "testPatchItem", ImgURL: "testURL",
+		}
+		res, err := PatchItem(1, req)
+
+		assert.ErrorIs(err, ErrUpdateNotAllowed)
+		assert.Empty(res)
+	})
 }
 
 func TestDeleteItem(t *testing.T) {
 	PrepareTestDatabase()
 
-	t.Run("failure", func(t *testing.T) {
-		assert := assert.New(t)
-		err := DeleteItem(-1)
-		assert.Error(err)
-	})
+	testCase := []struct {
+		name          string
+		itemID        int
+		expectedError error
+	}{
+		{
+			name:          "failure: invalid itemID",
+			itemID:        -1,
+			expectedError: ErrNotFound,
+		},
+		{
+			name:          "success: delete item",
+			itemID:        1,
+			expectedError: nil,
+		},
+	}
 
-	t.Run("success", func(t *testing.T) {
-		assert := assert.New(t)
-		err := DeleteItem(1)
-		assert.NoError(err)
-
-		err = DeleteItem(2)
-		assert.NoError(err)
-	})
+	for _, tc := range testCase {
+		t.Run(tc.name, func(t *testing.T) {
+			err := DeleteItem(tc.itemID)
+			if tc.expectedError != nil {
+				assert.ErrorIs(t, err, tc.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }

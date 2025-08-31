@@ -32,6 +32,14 @@ $ ./scripts/test.sh
 $ ./scripts/test.sh cover
 ```
 
+run specific test
+```
+docker compose -f docker/test/docker-compose.yml up -d
+export MYSQL_PORT=3307
+export MYSQL_DATABASE=booq-test
+go test -v ./model -run TestCreateItems 
+```
+
 #### Rebuild
 
 `docker compose up --no-deps --build`

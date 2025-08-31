@@ -23,7 +23,7 @@ func PostOwners(c echo.Context) error {
 
 	res, err := model.CreateOwnership(owner)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -49,7 +49,7 @@ func PatchOwners(c echo.Context) error {
 
 	res, err := model.UpdateOwnership(ownershipId, owner)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -69,7 +69,7 @@ func DeleteOwners(c echo.Context) error {
 
 	err = model.DeleteOwnership(ownershipId, me)
 	if err != nil {
-		return internalServerError(c, err)
+		return parseModelError(c, err)
 	}
 
 	return c.NoContent(http.StatusNoContent)

@@ -2,6 +2,7 @@ package model
 
 import (
 	"errors"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -54,7 +55,7 @@ func UpdateOwnership(ownershipId int, ownership OwnershipPayload) (Ownership, er
 	}
 
 	if ownershipOld.UserID != ownership.UserID {
-		return Ownership{}, errors.New("編集する権限がありません")
+		return Ownership{}, fmt.Errorf("編集する権限がありません: %w", ErrUnauthorized)
 	}
 
 	o := Ownership{
@@ -87,7 +88,7 @@ func DeleteOwnership(ownershipId int, userId string) error {
 	}
 
 	if ownershipOld.UserID != userId {
-		return errors.New("削除する権限がありません")
+		return fmt.Errorf("削除する権限がありません: %w", ErrUnauthorized)
 	}
 
 	err = db.Transaction(func(tx *gorm.DB) error {
@@ -109,6 +110,9 @@ func DeleteOwnership(ownershipId int, userId string) error {
 func GetOwnership(ownershipId int) (*Ownership, error) {
 	var o Ownership
 	if err := db.Preload("Transaction").First(&o, ownershipId).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
 	return &o, nil
