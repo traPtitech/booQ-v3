@@ -13,6 +13,11 @@ func unauthorizedRequest(c echo.Context, err error) error {
 	return c.String(http.StatusUnauthorized, "認証に失敗しました")
 }
 
+func forbiddenRequest(c echo.Context, err error) error {
+	c.Logger().Infof("forbidden request on %s: %w", c.Path(), err.Error())
+	return c.String(http.StatusForbidden, "権限がありません")
+}
+
 func invalidRequest(c echo.Context, err error) error {
 	c.Logger().Infof("invalid request on %s: %w", c.Path(), err.Error())
 	return c.String(http.StatusBadRequest, "リクエストデータの処理に失敗しました")
@@ -33,7 +38,7 @@ func parseModelError(c echo.Context, err error) error {
 	case errors.Is(err, model.ErrNotFound):
 		return notFoundError(c, err)
 	case errors.Is(err, model.ErrUnauthorized):
-		return unauthorizedRequest(c, err)
+		return forbiddenRequest(c, err)
 	case errors.Is(err, model.ErrUpdateNotAllowed):
 		return invalidRequest(c, err)
 	default:
