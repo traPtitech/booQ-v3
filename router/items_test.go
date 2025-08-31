@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -102,17 +103,17 @@ func TestGetItem(t *testing.T) {
 	e := echo.New()
 	SetupRouting(e, CreateUserProvider("s9"))
 
-	t.Run("failure-1", func(t *testing.T) {
+	t.Run("failure: id not found", func(t *testing.T) {
 		t.Parallel()
 		assert := assert.New(t)
 		req := httptest.NewRequest(echo.GET, "/api/items/-1", nil)
 		req.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
-		assert.Equal(http.StatusInternalServerError, rec.Code)
+		assert.Equal(http.StatusNotFound, rec.Code)
 	})
 
-	t.Run("failure-2", func(t *testing.T) {
+	t.Run("failure: invalid item id", func(t *testing.T) {
 		t.Parallel()
 		assert := assert.New(t)
 		req := httptest.NewRequest(echo.GET, "/api/items/aaa", nil)
@@ -122,7 +123,7 @@ func TestGetItem(t *testing.T) {
 		assert.Equal(http.StatusBadRequest, rec.Code)
 	})
 
-	t.Run("success-1", func(t *testing.T) {
+	t.Run("success: personal book", func(t *testing.T) {
 		t.Parallel()
 		assert := assert.New(t)
 		req := httptest.NewRequest(echo.GET, "/api/items/1", nil)
@@ -154,7 +155,7 @@ func TestGetItem(t *testing.T) {
 		assert.Equal("ありがとう", item.Ownership[0].Transaction[2].ReturnMessage)
 	})
 
-	t.Run("success-2", func(t *testing.T) {
+	t.Run("success: equipment", func(t *testing.T) {
 		t.Parallel()
 		assert := assert.New(t)
 		req := httptest.NewRequest(echo.GET, "/api/items/4", nil)
@@ -186,7 +187,7 @@ func TestPatchItem(t *testing.T) {
 	e := echo.New()
 	SetupRouting(e, CreateUserProvider("s9"))
 
-	t.Run("failure-1", func(t *testing.T) {
+	t.Run("failure: can't change isTrapItem, isBook to false", func(t *testing.T) {
 		assert := assert.New(t)
 
 		reqStruct := model.RequestPostItemsBody{
@@ -199,10 +200,10 @@ func TestPatchItem(t *testing.T) {
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
 
-		assert.Equal(http.StatusInternalServerError, rec.Code)
+		assert.Equal(http.StatusBadRequest, rec.Code)
 	})
 
-	t.Run("failure-2", func(t *testing.T) {
+	t.Run("failure: can't change isTrapItem, isBook to true", func(t *testing.T) {
 		assert := assert.New(t)
 
 		reqStruct := model.RequestPostItemsBody{
@@ -215,7 +216,7 @@ func TestPatchItem(t *testing.T) {
 		rec := httptest.NewRecorder()
 		e.ServeHTTP(rec, req)
 
-		assert.Equal(http.StatusInternalServerError, rec.Code)
+		assert.Equal(http.StatusBadRequest, rec.Code)
 	})
 
 	t.Run("success-1", func(t *testing.T) {
@@ -278,49 +279,48 @@ func TestDeleteItem(t *testing.T) {
 	e := echo.New()
 	SetupRouting(e, CreateUserProvider("s9"))
 
-	t.Run("failure-1", func(t *testing.T) {
-		assert := assert.New(t)
-		req := httptest.NewRequest(echo.DELETE, "/api/items/-1", nil)
-		req.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		e.ServeHTTP(rec, req)
-		assert.Equal(http.StatusInternalServerError, rec.Code)
-	})
+	testCase := []struct {
+		name       string
+		itemID     string
+		statusCode int
+	}{
+		{
+			name:       "failure: invalid itemID",
+			itemID:     "-1",
+			statusCode: http.StatusNotFound,
+		},
+		{
+			name:       "failure: invalid itemID format",
+			itemID:     "aaa",
+			statusCode: http.StatusBadRequest,
+		},
+		{
+			name:       "success: delete item 1",
+			itemID:     "1",
+			statusCode: http.StatusOK,
+		},
+		{
+			name:       "success: delete item 4",
+			itemID:     "4",
+			statusCode: http.StatusOK,
+		},
+	}
 
-	t.Run("failure-2", func(t *testing.T) {
-		assert := assert.New(t)
-		req := httptest.NewRequest(echo.DELETE, "/api/items/aaa", nil)
-		req.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		e.ServeHTTP(rec, req)
-		assert.Equal(http.StatusBadRequest, rec.Code)
-	})
+	for _, tc := range testCase {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(echo.DELETE, "/api/items/"+tc.itemID, nil)
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+			e.ServeHTTP(rec, req)
 
-	t.Run("success-1", func(t *testing.T) {
-		assert := assert.New(t)
-		req := httptest.NewRequest(echo.DELETE, "/api/items/1", nil)
-		req.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		e.ServeHTTP(rec, req)
+			assert.Equal(t, tc.statusCode, rec.Code)
 
-		assert.Equal(http.StatusOK, rec.Code)
-
-		item, err := model.GetItem(1)
-		assert.Error(err)
-		assert.Empty(item)
-	})
-
-	t.Run("success-2", func(t *testing.T) {
-		assert := assert.New(t)
-		req := httptest.NewRequest(echo.DELETE, "/api/items/4", nil)
-		req.Header.Set("Content-Type", "application/json")
-		rec := httptest.NewRecorder()
-		e.ServeHTTP(rec, req)
-
-		assert.Equal(http.StatusOK, rec.Code)
-
-		item, err := model.GetItem(4)
-		assert.Error(err)
-		assert.Empty(item)
-	})
+			if tc.statusCode == http.StatusOK {
+				itemID, _ := strconv.Atoi(tc.itemID)
+				item, err := model.GetItem(itemID)
+				assert.ErrorIs(t, err, model.ErrNotFound)
+				assert.Empty(t, item)
+			}
+		})
+	}
 }
