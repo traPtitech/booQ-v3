@@ -51,3 +51,8 @@ write it down in your `.vscode/settings.json`
   }
 }
 ```
+
+### use oapi-codegen
+```bash
+go generate handler/openapi/generate.go
+```
