@@ -7,8 +7,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 
-	"github.com/traPtitech/booQ-v3/model"
-	"github.com/traPtitech/booQ-v3/router"
 	"github.com/traPtitech/booQ-v3/storage"
 )
 
