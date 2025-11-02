@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func setupTestDB(ctx context.Context, t *testing.T) *DB {
+func setupTestDB(ctx context.Context, t *testing.T) *gorm.DB {
 	container, err := mariadb.Run(ctx,
 		"mariadb:12.0.2",
 		mariadb.WithDatabase("testdb"),
@@ -30,20 +30,19 @@ func setupTestDB(ctx context.Context, t *testing.T) *DB {
 	conn, err := container.ConnectionString(ctx,
 		"charset=utf8mb4",
 		"parseTime=true",
-		"loc=Asia/Tokyo",
+		"loc=Asia%2FTokyo",
 		"allowNativePasswords=true",
 	)
 	if err != nil {
 		t.Fatalf("Failed to get connection string: %v", err)
 	}
 
-	gormDB, err := gorm.Open(mysql.Open(conn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(conn), &gorm.Config{})
 	if err != nil {
 		t.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	db := NewDB(gormDB)
-	if err := db.Migrate(); err != nil {
+	if err := Migrate(db); err != nil {
 		t.Fatalf("Failed to migrate database: %v", err)
 	}
 
