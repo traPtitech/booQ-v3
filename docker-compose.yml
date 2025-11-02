@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11.5.2
+    image: mariadb:12.0.2
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
@@ -30,6 +30,7 @@ services:
       MINIO_ROOT_PASSWORD: password
       MINIO_ACCESS_KEY: minio_access_key
       MINIO_SECRET_KEY: minio_secret_key
+    command: server /data --console-address ":9001"
   s3-init:
     image: minio/mc
     depends_on:
@@ -44,7 +45,8 @@ services:
     environment:
       BOOQ_ENV: development
       MYSQL_HOST: db
-      MYSQL_USER: root
+      MYSQL_PORT: 3306
+      MYSQL_USERNAME: root
       MYSQL_PASSWORD: password
       MYSQL_DATABASE: booq-v3
       S3_BUCKET: booq-v3

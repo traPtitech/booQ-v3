@@ -6,17 +6,22 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/traPtitech/booQ-v3/handler"
+	"github.com/traPtitech/booQ-v3/handler/openapi"
+	"github.com/traPtitech/booQ-v3/repository"
+	"github.com/traPtitech/booQ-v3/usecase"
 
 	"github.com/traPtitech/booQ-v3/storage"
 )
 
 func main() {
-	err := model.EstablishConnection()
+	gormDB, err := repository.EstablishConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
+	db := repository.NewDB(gormDB)
 
-	err = model.Migrate()
+	err = db.Migrate()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,16 +29,18 @@ func main() {
 	setStorage()
 
 	e := echo.New()
-	router.SetValidator(e)
 
 	if os.Getenv("BOOQ_ENV") == "development" {
+		db.SetLoggerInfo()
 		e.Logger.SetLevel(log.INFO)
 	}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	h := handler.NewHandler(usecase.NewItemUseCase(db))
+	openapi.RegisterHandlers(e, h)
+
 	e.Logger.Fatal(e.Start(":3001"))
 }
 
