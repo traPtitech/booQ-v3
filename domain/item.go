@@ -24,6 +24,8 @@ type ItemSearchQuery struct {
 	// TODO
 }
 
+//go:generate mockgen -source=$GOFILE -destination=./mock/mock_$GOFILE
+
 type ItemRepository interface {
 	GetByID(id int) (*Item, error)
 	Search(query ItemSearchQuery) ([]*Item, error)
