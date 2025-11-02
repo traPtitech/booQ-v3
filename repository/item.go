@@ -23,7 +23,7 @@ func (i *item) toDomain() *domain.Item {
 	}
 }
 
-func (d *db) GetByID(id int) (*domain.Item, error) {
+func (d *DB) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
 	if err := d.db.First(res, id).Error; err != nil {
 		return nil, err
@@ -32,22 +32,22 @@ func (d *db) GetByID(id int) (*domain.Item, error) {
 	return res.toDomain(), nil
 }
 
-func (d *db) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+func (d *DB) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (d *db) Create(item *domain.Item) error {
+func (d *DB) Create(item *domain.Item) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (d *db) Update(item *domain.Item) error {
+func (d *DB) Update(item *domain.Item) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (d *db) Delete(id int) error {
+func (d *DB) Delete(id int) error {
 	//TODO implement me
 	panic("implement me")
 }
