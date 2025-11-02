@@ -14,6 +14,10 @@ type DB struct {
 	db *gorm.DB
 }
 
+var allTables = []interface{}{
+	item{},
+}
+
 type GormModel struct {
 	ID        int `gorm:"primaryKey"`
 	CreatedAt time.Time
@@ -46,4 +50,11 @@ func EstablishConnection() (*gorm.DB, error) {
 
 func (d *DB) SetLoggerInfo() {
 	d.db.Logger = d.db.Logger.LogMode(logger.Info)
+}
+
+func (d *DB) Migrate() error {
+	if err := d.db.AutoMigrate(allTables...); err != nil {
+		return err
+	}
+	return nil
 }
