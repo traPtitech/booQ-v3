@@ -11,10 +11,6 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type DB struct {
-	db *gorm.DB
-}
-
 var allTables = []interface{}{
 	item{},
 }
@@ -28,10 +24,6 @@ type GormModel struct {
 type GormModelWithoutID struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
-}
-
-func NewDB(db *gorm.DB) *DB {
-	return &DB{db: db}
 }
 
 func EstablishConnection() (*gorm.DB, error) {
@@ -59,13 +51,10 @@ func EstablishConnection() (*gorm.DB, error) {
 	return db, nil
 }
 
-func (d *DB) SetLoggerInfo() {
-	d.db.Logger = d.db.Logger.LogMode(logger.Info)
+func Migrate(db *gorm.DB) error {
+	return db.AutoMigrate(allTables...)
 }
 
-func (d *DB) Migrate() error {
-	if err := d.db.AutoMigrate(allTables...); err != nil {
-		return err
-	}
-	return nil
+func SetLoggerInfo(db *gorm.DB) {
+	db.Logger = db.Logger.LogMode(logger.Info)
 }
