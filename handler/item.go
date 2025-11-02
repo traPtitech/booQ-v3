@@ -19,5 +19,5 @@ func (h *Handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, item)
+	return ctx.JSON(http.StatusOK, toOpenAPIItem(item))
 }
