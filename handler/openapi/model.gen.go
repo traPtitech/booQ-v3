@@ -79,10 +79,10 @@ type Item struct {
 	Code        *string                      `json:"code,omitempty"`
 	Comments    *[]Comment                   `json:"comments,omitempty"`
 	Count       *int                         `json:"count,omitempty"`
-	CreatedAt   *time.Time                   `json:"createdAt,omitempty"`
-	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt,omitempty"`
+	CreatedAt   time.Time                    `json:"createdAt"`
+	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt"`
 	Description string                       `json:"description"`
-	Id          *int                         `json:"id,omitempty"`
+	Id          int                          `json:"id"`
 	ImgUrl      string                       `json:"imgUrl"`
 
 	// IsBook アイテム種別 本でない/本
@@ -92,7 +92,7 @@ type Item struct {
 	IsTrapItem IsEquipment `json:"isTrapItem"`
 	Name       string      `json:"name"`
 	Tags       *[]Tag      `json:"tags,omitempty"`
-	UpdatedAt  *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAt  time.Time   `json:"updatedAt"`
 	union      json.RawMessage
 }
 
@@ -112,10 +112,10 @@ type ItemDetail struct {
 	Code        *string                      `json:"code,omitempty"`
 	Comments    *[]Comment                   `json:"comments,omitempty"`
 	Count       *int                         `json:"count,omitempty"`
-	CreatedAt   *time.Time                   `json:"createdAt,omitempty"`
-	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt,omitempty"`
+	CreatedAt   time.Time                    `json:"createdAt"`
+	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt"`
 	Description string                       `json:"description"`
-	Id          *int                         `json:"id,omitempty"`
+	Id          int                          `json:"id"`
 	ImgUrl      string                       `json:"imgUrl"`
 
 	// IsBook アイテム種別 本でない/本
@@ -126,7 +126,7 @@ type ItemDetail struct {
 	LikesByUsers *[]string   `json:"likesByUsers,omitempty"`
 	Name         string      `json:"name"`
 	Tags         *[]Tag      `json:"tags,omitempty"`
-	UpdatedAt    *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAt    time.Time   `json:"updatedAt"`
 	union        json.RawMessage
 }
 
@@ -140,14 +140,30 @@ type ItemDetail1 struct {
 	Transactions []Transaction `json:"transactions"`
 }
 
+// ItemPostRequest defines model for itemPostRequest.
+type ItemPostRequest struct {
+	Code        *string `json:"code,omitempty"`
+	Count       *int    `json:"count,omitempty"`
+	Description string  `json:"description"`
+	ImgUrl      string  `json:"imgUrl"`
+
+	// IsBook アイテム種別 本でない/本
+	IsBook IsBook `json:"isBook"`
+
+	// IsTrapItem アイテム種別 個人所有/備品
+	IsTrapItem IsEquipment `json:"isTrapItem"`
+	Name       string      `json:"name"`
+	Tags       *[]string   `json:"tags,omitempty"`
+}
+
 // ItemPosted defines model for itemPosted.
 type ItemPosted struct {
 	Code        *string                      `json:"code,omitempty"`
 	Count       *int                         `json:"count,omitempty"`
-	CreatedAt   *time.Time                   `json:"createdAt,omitempty"`
-	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt,omitempty"`
+	CreatedAt   time.Time                    `json:"createdAt"`
+	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt"`
 	Description string                       `json:"description"`
-	Id          *int                         `json:"id,omitempty"`
+	Id          int                          `json:"id"`
 	ImgUrl      string                       `json:"imgUrl"`
 
 	// IsBook アイテム種別 本でない/本
@@ -157,7 +173,7 @@ type ItemPosted struct {
 	IsTrapItem IsEquipment `json:"isTrapItem"`
 	Name       string      `json:"name"`
 	Tags       *[]string   `json:"tags,omitempty"`
-	UpdatedAt  *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAt  time.Time   `json:"updatedAt"`
 }
 
 // ItemSummary defines model for itemSummary.
@@ -165,10 +181,10 @@ type ItemSummary struct {
 	Code        *string                      `json:"code,omitempty"`
 	Comments    *[]Comment                   `json:"comments,omitempty"`
 	Count       *int                         `json:"count,omitempty"`
-	CreatedAt   *time.Time                   `json:"createdAt,omitempty"`
-	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt,omitempty"`
+	CreatedAt   time.Time                    `json:"createdAt"`
+	DeletedAt   nullable.Nullable[time.Time] `json:"deletedAt"`
 	Description string                       `json:"description"`
-	Id          *int                         `json:"id,omitempty"`
+	Id          int                          `json:"id"`
 	ImgUrl      string                       `json:"imgUrl"`
 
 	// IsBook アイテム種別 本でない/本
@@ -180,7 +196,7 @@ type ItemSummary struct {
 	LikeCounts *int        `json:"likeCounts,omitempty"`
 	Name       string      `json:"name"`
 	Tags       *[]Tag      `json:"tags,omitempty"`
-	UpdatedAt  *time.Time  `json:"updatedAt,omitempty"`
+	UpdatedAt  time.Time   `json:"updatedAt"`
 }
 
 // Owner defines model for owner.
@@ -306,7 +322,7 @@ type GetItemsParams struct {
 }
 
 // PostItemJSONBody defines parameters for PostItem.
-type PostItemJSONBody = []ItemPosted
+type PostItemJSONBody = []ItemPostRequest
 
 // PostFileMultipartRequestBody defines body for PostFile for multipart/form-data ContentType.
 type PostFileMultipartRequestBody PostFileMultipartBody
@@ -315,7 +331,7 @@ type PostFileMultipartRequestBody PostFileMultipartBody
 type PostItemJSONRequestBody = PostItemJSONBody
 
 // EditItemJSONRequestBody defines body for EditItem for application/json ContentType.
-type EditItemJSONRequestBody = ItemPosted
+type EditItemJSONRequestBody = ItemPostRequest
 
 // PostBorrowEquipmentJSONRequestBody defines body for PostBorrowEquipment for application/json ContentType.
 type PostBorrowEquipmentJSONRequestBody = BorrowRequestEquipment
