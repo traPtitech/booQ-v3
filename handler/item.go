@@ -10,7 +10,7 @@ import (
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 )
 
-func (h *Handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	item, err := h.iu.GetItemByID(itemId)
 	if err != nil {
 		if errors.Is(err, domain.ErrItemNotFound) {

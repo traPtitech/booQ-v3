@@ -6,96 +6,102 @@ import (
 	"github.com/traPtitech/booQ-v3/usecase"
 )
 
-type Handler struct {
+type handler struct {
 	iu usecase.ItemUseCase
 }
 
-func (h *Handler) PostFile(ctx echo.Context) error {
+func NewHandler(iu usecase.ItemUseCase) openapi.ServerInterface {
+	return &handler{
+		iu: iu,
+	}
+}
+
+func (h *handler) PostFile(ctx echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) GetFile(ctx echo.Context, fileId openapi.FileIdInPath) error {
+func (h *handler) GetFile(ctx echo.Context, fileId openapi.FileIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) error {
+func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostItem(ctx echo.Context) error {
+func (h *handler) PostItem(ctx echo.Context) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) RemoveLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) RemoveLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) AddLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) AddLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+func (h *handler) PostItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) DeleteItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
+func (h *handler) DeleteItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) EditItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
+func (h *handler) EditItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
+func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (h *Handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
