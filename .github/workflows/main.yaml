@@ -50,7 +50,7 @@ jobs:
         with:
           go-version-file: ./go.mod
       - name: Install mockgen
-        run: go install github.com/golang/mock/mockgen@v0.6.0
+        run: go install go.uber.org/mock/mockgen@v0.6.0
       - name: Generate Mocks
         run: go generate ./...
       - name: Run Test
