@@ -30,6 +30,7 @@ services:
       MINIO_ROOT_PASSWORD: password
       MINIO_ACCESS_KEY: minio_access_key
       MINIO_SECRET_KEY: minio_secret_key
+    command: server /data --console-address ":9001"
   s3-init:
     image: minio/mc
     depends_on:
