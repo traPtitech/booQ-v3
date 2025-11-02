@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/traPtitech/booQ-v3/domain"
 	"gorm.io/gorm"
 )
@@ -37,6 +39,9 @@ func (i *item) toDomain() *domain.Item {
 func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
 	if err := repo.db.First(res, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrItemNotFound
+		}
 		return nil, err
 	}
 
