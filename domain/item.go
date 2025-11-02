@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type Item struct {
 	ID          int
 	Name        string
@@ -8,6 +10,10 @@ type Item struct {
 
 	BookDetail      *BookDetail
 	EquipmentDetail *EquipmentDetail
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 type BookDetail struct {
