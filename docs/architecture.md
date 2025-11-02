@@ -87,7 +87,7 @@ func (h *Handler) GetItems(c echo.Context) error {
 }
 ```
 
-また、repositoryパッケージに、ItemRepositoryインターフェースの実装を定義します。
+また、repositoryパッケージに、ItemRepositoryインターフェースの実装を定義します。(ここではsqlxを使用していますが、実際の実装はgormです)
 ```go
 package repository
 
@@ -108,3 +108,44 @@ func (r *ItemRepositoryImpl) GetAllItems() ([]domain.Item, error) {
     return items, nil
 }
 ```
+
+## テスト
+このアーキテクチャでは各パッケージが分離されているため、独立してテストができます。
+テストでは、モックを使用してパッケージ単体でテストを行います。
+
+### usecase, handlerのテスト
+モックには[gomock](https://github.com/uber-go/mock)を使用します。
+
+#### モックの生成
+`mock_generate.go`に以下のように記述します。
+```go
+//go:generate mockgen -source=item.go -destination=./mock/mock_item_repository.go -package=mock_domain
+```
+これで、`ItemRepository`インターフェースを実装した構造体を（実際にデータベースを使用することなく）テストで利用できるようになります。
+
+#### テストを書く
+モックは、例えば以下のように使用します。
+```go
+ctrl := gomock.NewController(t)
+defer ctrl.Finish()
+
+repo := mock_domain.NewMockItemRepository(ctrl)
+repo.EXPECT().
+    GetByID(2).
+    Return(nil, domain.ErrItemNotFound).
+    Times(1)
+```
+これは、`ItemRepository`のモックの振る舞いについて「`GetByID`メソッドが引数2で呼び出された場合に、`ErrItemNotFound`エラーを返す」と定義しています。
+
+これを利用すると、例えば
+```go
+item, err := usecase.GetItemByID(2)
+assert.Nil(t, item)
+assert.Equal(t, domain.ErrItemNotFound, err)
+```
+のように実際のデータベースを使わずにテストできます。
+
+### repositoryのテスト
+repositoryのテストでは、[testcontainers](https://golang.testcontainers.org/)を使用します。
+
+`testcontainers`の初期化は`db_test.go`で行われているので、その中にある`setupTestDB`関数を呼び出すことでテスト用のデータベースを利用できます。

@@ -40,18 +40,6 @@ $ ./scripts/test.sh cover
 
 `docker compose down -v`
 
-### Setup VSCode
-
-write it down in your `.vscode/settings.json`
-
-```json
-{
-  "go.testEnvVars": {
-    "MYSQL_DATABASE": "test"
-  }
-}
-```
-
 ### use oapi-codegen
 ```bash
 go generate handler/openapi/generate.go
