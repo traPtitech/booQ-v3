@@ -15,13 +15,12 @@ import (
 )
 
 func main() {
-	gormDB, err := repository.EstablishConnection()
+	db, err := repository.EstablishConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
-	db := repository.NewDB(gormDB)
 
-	err = db.Migrate()
+	err = repository.Migrate(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,14 +30,14 @@ func main() {
 	e := echo.New()
 
 	if os.Getenv("BOOQ_ENV") == "development" {
-		db.SetLoggerInfo()
+		repository.SetLoggerInfo(db)
 		e.Logger.SetLevel(log.INFO)
 	}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	h := handler.NewHandler(usecase.NewItemUseCase(db))
+	h := handler.NewHandler(usecase.NewItemUseCase(repository.NewItemRepository(db)))
 	openapi.RegisterHandlers(e, h)
 
 	e.Logger.Fatal(e.Start(":3001"))
