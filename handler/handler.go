@@ -35,11 +35,6 @@ func (h *Handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) erro
 	panic("implement me")
 }
 
-func (h *Handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (h *Handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
