@@ -6,7 +6,7 @@ type Comment struct {
 	ID        int
 	ItemID    int
 	UserID    string
-	Comment   string
+	Text      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt *time.Time
