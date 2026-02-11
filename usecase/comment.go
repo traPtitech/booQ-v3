@@ -15,22 +15,24 @@ type CommentUsecase interface {
 }
 
 type commentUsecase struct {
-	CommentRepository domain.CommentRepository
+	CommentRepo domain.CommentRepository
+	ItemRepo    domain.ItemRepository
 }
 
-func NewCommentUsecase(commentRepository domain.CommentRepository) CommentUsecase {
+func NewCommentUsecase(commentRepo domain.CommentRepository, ItemRepo domain.ItemRepository) CommentUsecase {
 	return &commentUsecase{
-		CommentRepository: commentRepository,
+		CommentRepo: commentRepo,
+		ItemRepo:    ItemRepo,
 	}
 }
 
 func (u *commentUsecase) CreateComment(itemId int, userId string, text string) (*domain.Comment, error) {
 
-	// そもそもアイテムがない場合は別のエラーを出す
-	// そのためには、domain.ItemRepository への依存が必要？
+	_, err := u.ItemRepo.GetByID(itemId)
 
-	// 先頭と末尾の空白を削除する
-	// 空白だけのコメントを投稿できないようにできる。これは必要かどうか？
+	if err != nil {
+		return nil, err
+	}
 
 	if text == "" {
 		return nil, domain.ErrCommentTextEmpty
@@ -42,7 +44,7 @@ func (u *commentUsecase) CreateComment(itemId int, userId string, text string) (
 		Text:   text,
 	}
 
-	err := u.CommentRepository.Create(comment)
+	err = u.CommentRepo.Create(comment)
 	if err != nil {
 		return nil, err
 	}
