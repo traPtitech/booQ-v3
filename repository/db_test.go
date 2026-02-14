@@ -49,7 +49,7 @@ func TestMain(m *testing.M) {
 	code := m.Run()
 
 	if err := testcontainers.TerminateContainer(container); err != nil {
-		log.Fatalf("Failed to terminate container: %v", err)
+		log.Printf("Failed to terminate container: %v", err)
 	}
 
 	os.Exit(code)
