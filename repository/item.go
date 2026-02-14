@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/traPtitech/booQ-v3/domain"
 	"gorm.io/gorm"
@@ -36,6 +37,15 @@ func (i *item) toDomain() *domain.Item {
 	}
 }
 
+func toItemModel(d *domain.Item) *item {
+	return &item{
+		GormModel:   GormModel{ID: d.ID, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt},
+		Name:        d.Name,
+		Description: d.Description,
+		ImgURL:      d.ImgUrl,
+	}
+}
+
 func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
 	if err := repo.db.First(res, id).Error; err != nil {
@@ -53,17 +63,38 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 	panic("implement me")
 }
 
-func (repo *itemRepository) Create(item *domain.Item) error {
-	//TODO implement me
-	panic("implement me")
+func (repo *itemRepository) Create(item *domain.Item) (*domain.Item, error) {
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(toItemModel(item)).Error
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create item: %w", err)
+	}
+
+	return item, nil
 }
 
-func (repo *itemRepository) Update(item *domain.Item) error {
-	//TODO implement me
-	panic("implement me")
+func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Updates(toItemModel(item)).Error
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to update item: %w", err)
+	}
+
+	return item, nil
 }
 
 func (repo *itemRepository) Delete(id int) error {
-	//TODO implement me
-	panic("implement me")
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Delete(&item{}, id).Error
+	})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrItemNotFound
+		}
+		return fmt.Errorf("failed to delete item: %w", err)
+	}
+
+	return nil
 }
