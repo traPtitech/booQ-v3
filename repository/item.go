@@ -90,7 +90,14 @@ func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 
 func (repo *itemRepository) Delete(id int) error {
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Delete(&item{}, id).Error
+		result := tx.Delete(&item{}, id)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return gorm.ErrRecordNotFound
+		}
+		return nil
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

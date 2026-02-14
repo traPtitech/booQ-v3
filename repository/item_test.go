@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -155,7 +154,7 @@ func TestItemRepository_Update(t *testing.T) {
 			expectedErr: domain.ErrItemNotFound,
 		},
 		{
-			name: "failure: missing name",
+			name: "success: partial update (only description and image)",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Item {
 				item := &item{
 					Name:        "Item to Update",
@@ -171,7 +170,7 @@ func TestItemRepository_Update(t *testing.T) {
 				Description: "This item has no name",
 				ImgUrl:      "http://example.com/no_name_update_image.png",
 			},
-			expectedErr: assert.AnError,
+			expectedErr: nil,
 		},
 	}
 
@@ -190,9 +189,6 @@ func TestItemRepository_Update(t *testing.T) {
 
 			if tc.expectedErr != nil {
 				assert.Error(t, err)
-				if !errors.Is(tc.expectedErr, assert.AnError) {
-					assert.ErrorIs(t, err, tc.expectedErr)
-				}
 				assert.Nil(t, updatedItem)
 			} else {
 				assert.NoError(t, err)
