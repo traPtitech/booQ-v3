@@ -217,3 +217,177 @@ func TestItemRepository_Delete(t *testing.T) {
 		})
 	}
 }
+
+func TestItemRepository_Search(t *testing.T) {
+	type testCase struct {
+		name        string
+		createItems []*domain.Item
+		query       domain.ItemSearchQuery
+		expected    []*domain.Item
+		wantErr     bool
+	}
+
+	testContexts := []struct {
+		name      string
+		testCases []testCase
+	}{
+
+		{
+			name: "search by name",
+			testCases: []testCase{
+				{
+					name: "success: empty query",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: exact match",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Test Item 1",
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: partial match",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Test",
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: no match",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Non-existent",
+					},
+					expected: []*domain.Item{},
+					wantErr:  false,
+				},
+				{
+					name: "success: multiple matches",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Item",
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: case insensitive match",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "test item 1",
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: japanese name",
+					createItems: []*domain.Item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "テスト物品2", Description: "なんらかの説明2", ImgUrl: "http://example.com/image2.png"},
+						{Name: "別の物品", Description: "別の説明", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "テスト物品1",
+					},
+					expected: []*domain.Item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: japanese partial match",
+					createItems: []*domain.Item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "テスト物品2", Description: "なんらかの説明2", ImgUrl: "http://example.com/image2.png"},
+						{Name: "別の物品", Description: "別の説明", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "テスト",
+					},
+					expected: []*domain.Item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "テスト物品2", Description: "なんらかの説明2", ImgUrl: "http://example.com/image2.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testContexts {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, c := range tc.testCases {
+				t.Run(c.name, func(t *testing.T) {
+					db := setupTestDB(t)
+					repo := NewItemRepository(db)
+
+					for _, item := range c.createItems {
+						_, err := repo.Create(item)
+						assert.NoError(t, err)
+					}
+
+					results, err := repo.Search(c.query)
+					if c.wantErr {
+						assert.Error(t, err)
+						assert.Nil(t, results)
+					} else {
+						assert.NoError(t, err)
+						assert.Equal(t, len(c.expected), len(results))
+						for i := range c.expected {
+							assert.Equal(t, c.expected[i].Name, results[i].Name)
+							assert.Equal(t, c.expected[i].Description, results[i].Description)
+							assert.Equal(t, c.expected[i].ImgUrl, results[i].ImgUrl)
+						}
+					}
+				})
+			}
+		})
+	}
+}
