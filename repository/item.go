@@ -79,6 +79,9 @@ func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 		return tx.Updates(toItemModel(item)).Error
 	})
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrItemNotFound
+		}
 		return nil, fmt.Errorf("failed to update item: %w", err)
 	}
 
