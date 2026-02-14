@@ -11,7 +11,7 @@ type comment struct {
 	GormModel        // ID, CreatedAt, UpdatedAt
 	ItemID    int    `gorm:"not null"`
 	UserID    string `gorm:"type:varchar(32);not null"`
-	Text      string `gorm:"type:text;not null"`
+	Text      string `gorm:"column:comment;type:text;not null"`
 	DeletedAt *time.Time
 }
 
