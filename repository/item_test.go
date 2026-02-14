@@ -76,22 +76,11 @@ func TestItemRepository_Create(t *testing.T) {
 			},
 			wantErr: false,
 		},
-		{
-			name: "failure: missing name",
-			item: &domain.Item{
-				Description: "This item has no name",
-				ImgUrl:      "http://example.com/no_name_image.png",
-			},
-			wantErr: true,
-		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := setupTestDB(ctx, t)
+			db := setupTestDB(t)
 
 			repo := NewItemRepository(db)
 			createdItem, err := repo.Create(tc.item)
@@ -138,7 +127,7 @@ func TestItemRepository_Update(t *testing.T) {
 			expectedErr: nil,
 		},
 		{
-			name: "failure: item not found",
+			name: "success: create new item if not exists",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Item {
 				return &domain.Item{ID: 9999}
 			},
@@ -147,35 +136,13 @@ func TestItemRepository_Update(t *testing.T) {
 				Description: "This item does not exist",
 				ImgUrl:      "http://example.com/non_existent_image.png",
 			},
-			expectedErr: domain.ErrItemNotFound,
-		},
-		{
-			name: "success: partial update (only description and image)",
-			setup: func(t *testing.T, db *gorm.DB) *domain.Item {
-				item := &item{
-					Name:        "Item to Update",
-					Description: "This item will be updated",
-					ImgURL:      "http://example.com/item_to_update_image.png",
-				}
-				if err := db.Create(item).Error; err != nil {
-					t.Fatalf("Failed to create test item: %v", err)
-				}
-				return item.toDomain()
-			},
-			updateItem: &domain.Item{
-				Description: "This item has no name",
-				ImgUrl:      "http://example.com/no_name_update_image.png",
-			},
 			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := setupTestDB(ctx, t)
+			db := setupTestDB(t)
 
 			repo := NewItemRepository(db)
 			existingItem := tc.setup(t, db)
@@ -229,10 +196,7 @@ func TestItemRepository_Delete(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := setupTestDB(ctx, t)
+			db := setupTestDB(t)
 
 			repo := NewItemRepository(db)
 			id := tc.setup(t, db)

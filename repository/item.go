@@ -76,12 +76,9 @@ func (repo *itemRepository) Create(item *domain.Item) (*domain.Item, error) {
 
 func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Updates(toItemModel(item)).Error
+		return tx.Save(toItemModel(item)).Error
 	})
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrItemNotFound
-		}
 		return nil, fmt.Errorf("failed to update item: %w", err)
 	}
 
