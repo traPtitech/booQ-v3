@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,10 +50,7 @@ func TestItemRepository_GetByID(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := setupTestDB(ctx, t)
+			db := setupTestDB(t)
 
 			repo := NewItemRepository(db)
 			id := tc.setup(t, db)
