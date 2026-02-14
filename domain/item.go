@@ -26,8 +26,14 @@ type EquipmentDetail struct {
 }
 
 type ItemSearchQuery struct {
-	Name string
-	// TODO
+	Name       string
+	UserID     string
+	BorrowerID string
+	Limit      int
+	Offset     int
+	Tag        []string
+	TagExclude []string
+	SortBy     string
 }
 
 type ItemRepository interface {
