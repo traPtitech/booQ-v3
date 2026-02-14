@@ -39,7 +39,7 @@ type ItemSearchQuery struct {
 type ItemRepository interface {
 	GetByID(id int) (*Item, error)
 	Search(query ItemSearchQuery) ([]*Item, error)
-	Create(item *Item) error
-	Update(item *Item) error
+	Create(item *Item) (*Item, error)
+	Update(item *Item) (*Item, error)
 	Delete(id int) error
 }

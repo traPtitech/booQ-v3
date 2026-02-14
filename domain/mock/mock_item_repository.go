@@ -41,11 +41,12 @@ func (m *MockItemRepository) EXPECT() *MockItemRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockItemRepository) Create(item *domain.Item) error {
+func (m *MockItemRepository) Create(item *domain.Item) (*domain.Item, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", item)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
@@ -99,11 +100,12 @@ func (mr *MockItemRepositoryMockRecorder) Search(query any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockItemRepository) Update(item *domain.Item) error {
+func (m *MockItemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", item)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.
