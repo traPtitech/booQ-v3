@@ -88,9 +88,10 @@ func TestHandler_GetItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, mockFileUseCase)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
