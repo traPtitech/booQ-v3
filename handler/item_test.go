@@ -235,17 +235,19 @@ func TestHandler_CreateItem(t *testing.T) {
 		requestBody  string
 		setupMock    func(u *mock_usecase.MockItemUseCase)
 		expectedCode int
-		expectedBody *openapi.Item
+		expectedBody []openapi.Item
 	}{
 		{
 			name: "success",
-			requestBody: `{
-				"name": "New Item",
-				"description": "This is a new item",
-				"imgUrl": "http://example.com/new_image.png",
-				"isBook": true,
-				"isTrapItem": false
-			}`,
+			requestBody: `[
+				{
+					"name": "New Item",
+					"description": "This is a new item",
+					"imgUrl": "http://example.com/new_image.png",
+					"isBook": true,
+					"isTrapItem": false
+				}
+			]`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
 					CreateItem(&domain.Item{
@@ -273,16 +275,114 @@ func TestHandler_CreateItem(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: &openapi.Item{
-				Id:          1,
-				Name:        "New Item",
-				Description: "This is a new item",
-				ImgUrl:      "http://example.com/new_image.png",
-				IsBook:      true,
-				IsTrapItem:  false,
-				CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-				UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-				DeletedAt:   nullable.NewNullNullable[time.Time](),
+			expectedBody: []openapi.Item{
+				{
+					Id:          1,
+					Name:        "New Item",
+					Description: "This is a new item",
+					ImgUrl:      "http://example.com/new_image.png",
+					IsBook:      true,
+					IsTrapItem:  false,
+					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					DeletedAt:   nullable.NewNullNullable[time.Time](),
+				},
+			},
+		},
+		{
+			name: "success: multiple items",
+			requestBody: `[
+				{
+					"name": "New Item 1",
+					"description": "This is the first new item",
+					"imgUrl": "http://example.com/new_image1.png",
+					"isBook": false,
+					"isTrapItem": true
+				},
+				{
+					"name": "New Item 2",
+					"description": "This is the second new item",
+					"imgUrl": "http://example.com/new_image2.png",
+					"isBook": true,
+					"isTrapItem": false
+				}
+			]`,
+			setupMock: func(u *mock_usecase.MockItemUseCase) {
+				gomock.InOrder(
+					u.EXPECT().
+						CreateItem(&domain.Item{
+							Name:        "New Item 1",
+							Description: "This is the first new item",
+							ImgUrl:      "http://example.com/new_image1.png",
+							BookDetail:  nil,
+							EquipmentDetail: &domain.EquipmentDetail{
+								Count:    0,
+								CountMax: 0,
+							},
+						}).
+						Return(&domain.Item{
+							ID:          1,
+							Name:        "New Item 1",
+							Description: "This is the first new item",
+							ImgUrl:      "http://example.com/new_image1.png",
+							BookDetail:  nil,
+							EquipmentDetail: &domain.EquipmentDetail{
+								Count:    0,
+								CountMax: 0,
+							},
+							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							DeletedAt: nil,
+						}, nil),
+					u.EXPECT().
+						CreateItem(&domain.Item{
+							Name:        "New Item 2",
+							Description: "This is the second new item",
+							ImgUrl:      "http://example.com/new_image2.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "",
+							},
+							EquipmentDetail: nil,
+						}).
+						Return(&domain.Item{
+							ID:          2,
+							Name:        "New Item 2",
+							Description: "This is the second new item",
+							ImgUrl:      "http://example.com/new_image2.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "",
+							},
+							EquipmentDetail: nil,
+							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							DeletedAt:       nil,
+						}, nil),
+				)
+			},
+			expectedCode: http.StatusOK,
+			expectedBody: []openapi.Item{
+				{
+					Id:          1,
+					Name:        "New Item 1",
+					Description: "This is the first new item",
+					ImgUrl:      "http://example.com/new_image1.png",
+					IsBook:      false,
+					IsTrapItem:  true,
+					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					DeletedAt:   nullable.NewNullNullable[time.Time](),
+				},
+				{
+					Id:          2,
+					Name:        "New Item 2",
+					Description: "This is the second new item",
+					ImgUrl:      "http://example.com/new_image2.png",
+					IsBook:      true,
+					IsTrapItem:  false,
+					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					DeletedAt:   nullable.NewNullNullable[time.Time](),
+				},
 			},
 		},
 	}
@@ -310,7 +410,7 @@ func TestHandler_CreateItem(t *testing.T) {
 			body := strings.TrimSpace(rec.Body.String())
 
 			if tc.expectedCode == http.StatusOK {
-				expectedByte, err := tc.expectedBody.MarshalJSON()
+				expectedByte, err := json.Marshal(tc.expectedBody)
 				assert.NoError(t, err)
 				assert.Equal(t, string(expectedByte), body)
 			}
