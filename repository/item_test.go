@@ -359,6 +359,72 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "limit, offset",
+			testCases: []testCase{
+				{
+					name: "success: limit results",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Limit: 2,
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+					},
+				},
+				{
+					name: "success: limit with offset",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Limit:  1,
+						Offset: 1,
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: offset exceeds total",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Offset: 5,
+					},
+					expected: []*domain.Item{},
+					wantErr:  false,
+				},
+				{
+					name: "success: limit exceeds total",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Limit: 5,
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
 	}
 
 	for _, tc := range testContexts {
