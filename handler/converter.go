@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"time"
 
 	"github.com/oapi-codegen/nullable"
@@ -32,4 +33,36 @@ func toOpenAPIItem(domainItem *domain.Item) *openapi.Item {
 		UpdatedAt:   domainItem.UpdatedAt,
 		DeletedAt:   deletedAt,
 	}
+}
+
+func postRequestToDomainItem(request *openapi.ItemPostRequest) (*domain.Item, error) {
+	if request == nil {
+		return nil, errors.New("request is nil")
+	}
+
+	item := &domain.Item{
+		Name:        request.Name,
+		Description: request.Description,
+		ImgUrl:      request.ImgUrl,
+	}
+
+	if request.IsBook {
+		if request.Code == nil {
+			return nil, errors.New("code is required for book items")
+		}
+		item.BookDetail = &domain.BookDetail{
+			ISBNCode: *request.Code,
+		}
+	}
+	if request.IsTrapItem {
+		if request.Count == nil {
+			return nil, errors.New("count and countMax are required for trap items")
+		}
+		item.EquipmentDetail = &domain.EquipmentDetail{
+			Count:    *request.Count,
+			CountMax: *request.Count, // 作ったときはすべての備品が貸出可能
+		}
+	}
+
+	return item, nil
 }
