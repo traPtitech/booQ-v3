@@ -245,7 +245,8 @@ func TestHandler_CreateItem(t *testing.T) {
 					"description": "This is a new item",
 					"imgUrl": "http://example.com/new_image.png",
 					"isBook": true,
-					"isTrapItem": false
+					"isTrapItem": false,
+					"code": "1234567890"
 				}
 			]`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
@@ -255,7 +256,7 @@ func TestHandler_CreateItem(t *testing.T) {
 						Description: "This is a new item",
 						ImgUrl:      "http://example.com/new_image.png",
 						BookDetail: &domain.BookDetail{
-							ISBNCode: "",
+							ISBNCode: "1234567890",
 						},
 						EquipmentDetail: nil,
 					}).
@@ -265,7 +266,7 @@ func TestHandler_CreateItem(t *testing.T) {
 						Description: "This is a new item",
 						ImgUrl:      "http://example.com/new_image.png",
 						BookDetail: &domain.BookDetail{
-							ISBNCode: "",
+							ISBNCode: "", // TODO
 						},
 						EquipmentDetail: nil,
 						CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -297,14 +298,16 @@ func TestHandler_CreateItem(t *testing.T) {
 					"description": "This is the first new item",
 					"imgUrl": "http://example.com/new_image1.png",
 					"isBook": false,
-					"isTrapItem": true
+					"isTrapItem": true,
+					"count": 3
 				},
 				{
 					"name": "New Item 2",
 					"description": "This is the second new item",
 					"imgUrl": "http://example.com/new_image2.png",
 					"isBook": true,
-					"isTrapItem": false
+					"isTrapItem": false,
+					"code": "0987654321"
 				}
 			]`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
@@ -316,8 +319,8 @@ func TestHandler_CreateItem(t *testing.T) {
 							ImgUrl:      "http://example.com/new_image1.png",
 							BookDetail:  nil,
 							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    0,
-								CountMax: 0,
+								Count:    3,
+								CountMax: 3,
 							},
 						}).
 						Return(&domain.Item{
@@ -340,7 +343,7 @@ func TestHandler_CreateItem(t *testing.T) {
 							Description: "This is the second new item",
 							ImgUrl:      "http://example.com/new_image2.png",
 							BookDetail: &domain.BookDetail{
-								ISBNCode: "",
+								ISBNCode: "0987654321",
 							},
 							EquipmentDetail: nil,
 						}).
@@ -435,7 +438,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"description": "This is an updated item",
 				"imgUrl": "http://example.com/updated_image.png",
 				"isBook": false,
-				"isTrapItem": true
+				"isTrapItem": true,
+				"count": 5
 			}`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
@@ -446,8 +450,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 						ImgUrl:      "http://example.com/updated_image.png",
 						BookDetail:  nil,
 						EquipmentDetail: &domain.EquipmentDetail{
-							Count:    0,
-							CountMax: 0,
+							Count:    5,
+							CountMax: 5,
 						},
 					}).
 					Return(&domain.Item{
@@ -487,7 +491,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"description": "This is an updated item",
 				"imgUrl": "http://example.com/updated_image.png",
 				"isBook": false,
-				"isTrapItem": true
+				"isTrapItem": true,
+				"count": 5
 			}`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
@@ -498,8 +503,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 						ImgUrl:      "http://example.com/updated_image.png",
 						BookDetail:  nil,
 						EquipmentDetail: &domain.EquipmentDetail{
-							Count:    0,
-							CountMax: 0,
+							Count:    5,
+							CountMax: 5,
 						},
 					}).
 					Return(nil, domain.ErrItemNotFound).
@@ -516,7 +521,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"description": "This is an updated item",
 				"imgUrl": "http://example.com/updated_image.png",
 				"isBook": false,
-				"isTrapItem": true
+				"isTrapItem": true,
+				"count": 5
 			}`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				// No calls expected
@@ -565,7 +571,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
-			req := httptest.NewRequest(http.MethodPut, fmt.Sprintf("/items/%s", tc.itemId), strings.NewReader(tc.requestBody))
+			req := httptest.NewRequest(http.MethodPatch, fmt.Sprintf("/items/%s", tc.itemId), strings.NewReader(tc.requestBody))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
