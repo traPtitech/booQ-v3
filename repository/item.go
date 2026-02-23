@@ -58,9 +58,31 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	return res.toDomain(), nil
 }
 
+// TODO: search by tags, names, etc.
 func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
-	//TODO implement me
-	panic("implement me")
+	var items []item
+	dbQuery := repo.db.Model(&item{})
+
+	if query.Name != "" {
+		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
+	}
+	if query.Limit > 0 {
+		dbQuery = dbQuery.Limit(query.Limit)
+	}
+	if query.Offset > 0 {
+		dbQuery = dbQuery.Offset(query.Offset)
+	}
+
+	if err := dbQuery.Find(&items).Error; err != nil {
+		return nil, fmt.Errorf("failed to search items: %w", err)
+	}
+
+	domainItems := make([]*domain.Item, len(items))
+	for i, item := range items {
+		domainItems[i] = item.toDomain()
+	}
+
+	return domainItems, nil
 }
 
 func (repo *itemRepository) Create(item *domain.Item) (*domain.Item, error) {

@@ -401,6 +401,7 @@ func TestItemRepository_Search(t *testing.T) {
 						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
+						Limit:  2,
 						Offset: 5,
 					},
 					expected: []*domain.Item{},
@@ -422,6 +423,22 @@ func TestItemRepository_Search(t *testing.T) {
 						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
 					},
 					wantErr: false,
+				},
+				{
+					name: "failure: no limit with offset",
+					createItems: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					query: domain.ItemSearchQuery{
+						Offset: 1,
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: true,
 				},
 			},
 		},
