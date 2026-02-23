@@ -40,6 +40,35 @@ func (m *MockItemUseCase) EXPECT() *MockItemUseCaseMockRecorder {
 	return m.recorder
 }
 
+// CreateItem mocks base method.
+func (m *MockItemUseCase) CreateItem(item *domain.Item) (*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateItem", item)
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateItem indicates an expected call of CreateItem.
+func (mr *MockItemUseCaseMockRecorder) CreateItem(item any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateItem", reflect.TypeOf((*MockItemUseCase)(nil).CreateItem), item)
+}
+
+// DeleteItem mocks base method.
+func (m *MockItemUseCase) DeleteItem(id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteItem", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteItem indicates an expected call of DeleteItem.
+func (mr *MockItemUseCaseMockRecorder) DeleteItem(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteItem", reflect.TypeOf((*MockItemUseCase)(nil).DeleteItem), id)
+}
+
 // GetItemByID mocks base method.
 func (m *MockItemUseCase) GetItemByID(id int) (*domain.Item, error) {
 	m.ctrl.T.Helper()
@@ -53,4 +82,34 @@ func (m *MockItemUseCase) GetItemByID(id int) (*domain.Item, error) {
 func (mr *MockItemUseCaseMockRecorder) GetItemByID(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemByID", reflect.TypeOf((*MockItemUseCase)(nil).GetItemByID), id)
+}
+
+// SearchItems mocks base method.
+func (m *MockItemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchItems", query)
+	ret0, _ := ret[0].([]*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchItems indicates an expected call of SearchItems.
+func (mr *MockItemUseCaseMockRecorder) SearchItems(query any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchItems", reflect.TypeOf((*MockItemUseCase)(nil).SearchItems), query)
+}
+
+// UpdateItem mocks base method.
+func (m *MockItemUseCase) UpdateItem(item *domain.Item) (*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateItem", item)
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateItem indicates an expected call of UpdateItem.
+func (mr *MockItemUseCaseMockRecorder) UpdateItem(item any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateItem", reflect.TypeOf((*MockItemUseCase)(nil).UpdateItem), item)
 }
