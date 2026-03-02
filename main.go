@@ -6,12 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 	"github.com/traPtitech/booQ-v3/repository"
-	"github.com/traPtitech/booQ-v3/usecase"
-
 	"github.com/traPtitech/booQ-v3/storage"
+	"github.com/traPtitech/booQ-v3/usecase"
 )
 
 func main() {
@@ -24,8 +24,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	setStorage()
 
 	e := echo.New()
 
@@ -42,7 +40,7 @@ func main() {
 	fileRepo := repository.NewFileRepository(db)
 
 	// Storage
-	fileStorage := storage.NewFileStorage()
+	fileStorage := newFileStorage()
 
 	// UseCase
 	itemUseCase := usecase.NewItemUseCase(itemRepo)
@@ -55,10 +53,10 @@ func main() {
 	e.Logger.Fatal(e.Start(":3001"))
 }
 
-func setStorage() {
+func newFileStorage() domain.FileStorage {
 	if os.Getenv("S3_BUCKET") != "" {
 		// S3
-		err := storage.SetS3Storage(
+		s, err := storage.NewS3Storage(
 			os.Getenv("S3_BUCKET"),
 			os.Getenv("S3_REGION"),
 			os.Getenv("S3_ENDPOINT"),
@@ -68,15 +66,17 @@ func setStorage() {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		// ローカルストレージ
-		dir := os.Getenv("UPLOAD_DIR")
-		if dir == "" {
-			dir = "./uploads"
-		}
-		err := storage.SetLocalStorage(dir)
-		if err != nil {
-			log.Fatal(err)
-		}
+		return s
 	}
+
+	// ローカルストレージ
+	dir := os.Getenv("UPLOAD_DIR")
+	if dir == "" {
+		dir = "./uploads"
+	}
+	s, err := storage.NewLocalStorage(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return s
 }

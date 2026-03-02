@@ -14,9 +14,9 @@ type Memory struct {
 	files map[string][]byte
 }
 
-// SetMemoryStorage メモリストレージをカレントストレージに設定します
-func SetMemoryStorage() {
-	current = &Memory{files: map[string][]byte{}}
+// NewMemoryStorage インメモリストレージを作成します
+func NewMemoryStorage() domain.FileStorage {
+	return &Memory{files: map[string][]byte{}}
 }
 
 func (m *Memory) Save(filename string, src io.Reader) error {

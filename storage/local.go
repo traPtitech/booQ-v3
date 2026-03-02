@@ -14,18 +14,17 @@ type Local struct {
 	localDir string
 }
 
-// SetLocalStorage ローカルストレージをカレントストレージに設定します
-func SetLocalStorage(dir string) error {
+// NewLocalStorage ローカルストレージを作成します
+func NewLocalStorage(dir string) (domain.FileStorage, error) {
 	fi, err := os.Stat(dir)
 	if err != nil {
-		return errors.New("dir doesn't exist")
+		return nil, errors.New("dir doesn't exist")
 	}
 	if !fi.IsDir() {
-		return errors.New("dir is not a directory")
+		return nil, errors.New("dir is not a directory")
 	}
 
-	current = &Local{localDir: dir}
-	return nil
+	return &Local{localDir: dir}, nil
 }
 
 func (l Local) Save(filename string, src io.Reader) error {
