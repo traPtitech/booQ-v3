@@ -51,7 +51,7 @@ func (repo *fileRepository) GetByID(id int) (*domain.File, error) {
 	f := &file{}
 	if err := repo.db.First(f, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrFileNotFound
+			return nil, domain.ErrNotFound
 		}
 		return nil, err
 	}

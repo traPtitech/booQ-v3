@@ -49,7 +49,7 @@ func (h *handler) GetFile(ctx echo.Context, fileId openapi.FileIdInPath) error {
 	// UseCase 呼び出し
 	reader, file, err := h.fu.GetFile(fileId)
 	if err != nil {
-		if errors.Is(err, domain.ErrFileNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
 		}
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get file: %v", err))

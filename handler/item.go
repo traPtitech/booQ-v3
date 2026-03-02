@@ -13,7 +13,7 @@ import (
 func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	item, err := h.iu.GetItemByID(itemId)
 	if err != nil {
-		if errors.Is(err, domain.ErrItemNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
 		}
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get item: %v", err))

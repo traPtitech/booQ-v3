@@ -65,7 +65,7 @@ func TestHandler_GetItem(t *testing.T) {
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
 					GetItemByID(2).
-					Return(nil, domain.ErrItemNotFound).
+					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,

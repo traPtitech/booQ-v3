@@ -190,7 +190,7 @@ func TestHandler_GetFile(t *testing.T) {
 			setupMock: func(f *mock_usecase.MockFileUseCase) {
 				f.EXPECT().
 					GetFile(999).
-					Return(nil, nil, domain.ErrFileNotFound).
+					Return(nil, nil, domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
