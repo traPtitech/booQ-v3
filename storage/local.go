@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/traPtitech/booQ-v3/domain"
 )
 
 // Local ローカルストレージ
@@ -40,7 +42,7 @@ func (l Local) Save(filename string, src io.Reader) error {
 func (l Local) Open(filename string) (io.ReadCloser, error) {
 	r, err := os.Open(l.getFilePath(filename))
 	if err != nil {
-		return nil, ErrFileNotFound
+		return nil, domain.ErrNotFound
 	}
 	return r, nil
 }
@@ -48,7 +50,7 @@ func (l Local) Open(filename string) (io.ReadCloser, error) {
 func (l Local) Delete(filename string) error {
 	path := l.getFilePath(filename)
 	if _, err := os.Stat(path); err != nil {
-		return ErrFileNotFound
+		return domain.ErrNotFound
 	}
 	return os.Remove(path)
 }

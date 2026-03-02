@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"io"
 	"sync"
+
+	"github.com/traPtitech/booQ-v3/domain"
 )
 
 // Memory インメモリストレージ
@@ -35,7 +37,7 @@ func (m *Memory) Open(filename string) (io.ReadCloser, error) {
 
 	b, ok := m.files[filename]
 	if !ok {
-		return nil, ErrFileNotFound
+		return nil, domain.ErrNotFound
 	}
 	return io.NopCloser(bytes.NewReader(b)), nil
 }
@@ -46,7 +48,7 @@ func (m *Memory) Delete(filename string) error {
 
 	_, ok := m.files[filename]
 	if !ok {
-		return ErrFileNotFound
+		return domain.ErrNotFound
 	}
 	delete(m.files, filename)
 	return nil

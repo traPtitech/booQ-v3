@@ -20,4 +20,5 @@ type FileRepository interface {
 type FileStorage interface {
 	Save(filename string, src io.Reader) error
 	Open(filename string) (io.ReadCloser, error)
+	Delete(filename string) error
 }
