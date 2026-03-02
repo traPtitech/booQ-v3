@@ -3,20 +3,23 @@ package usecase
 import (
 	"bytes"
 	"fmt"
+	"image"
+	"image/color"
+	"image/draw"
 	"io"
-	"net/http"
 
+	"github.com/disintegration/imaging"
 	"github.com/google/uuid"
 	"github.com/traPtitech/booQ-v3/domain"
 )
 
-const (
-	maxFileSize      = 3 * 1024 * 1024 // 3MB
-	mimeTypeJPEG     = "image/jpeg"
-	mimeTypePNG      = "image/png"
-	fileExtensionJPG = ".jpg"
-	fileExtensionPNG = ".png"
-)
+const maxFileSize = 3 * 1024 * 1024 // 3MB
+
+// アップロード可能なMIMEタイプ
+var uploadableMimes = map[string]bool{
+	"image/jpeg": true,
+	"image/png":  true,
+}
 
 type FileUseCase interface {
 	Upload(src io.Reader, contentType string, size int64) (*domain.File, error)
@@ -41,43 +44,40 @@ func (u *fileUseCase) Upload(src io.Reader, contentType string, size int64) (*do
 		return nil, domain.ErrFileTooLarge
 	}
 
-	// 先頭のバイトを読み込んで実際のMIMEタイプを検出
-	header := make([]byte, 512)
-	n, err := src.Read(header)
-	if err != nil && err != io.EOF {
-		return nil, err
-	}
-	header = header[:n]
-
-	// 実際のバイト列からMIMEタイプを検出
-	detectedType := http.DetectContentType(header)
-
-	// バリデーション: MIMEタイプ & 拡張子決定
-	var ext string
-	switch detectedType {
-	case mimeTypeJPEG:
-		ext = fileExtensionJPG
-	case mimeTypePNG:
-		ext = fileExtensionPNG
-	default:
+	// バリデーション: MIMEタイプ
+	if !uploadableMimes[contentType] {
 		return nil, domain.ErrInvalidFileType
 	}
 
-	// ファイル名生成（UUID + 拡張子）
-	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
+	// 画像をデコード（AutoOrientationでEXIF情報による向き補正）
+	orig, err := imaging.Decode(src, imaging.AutoOrientation(true))
+	if err != nil {
+		return nil, domain.ErrInvalidFileType
+	}
 
-	// 読み込んだヘッダーと残りのデータを結合
-	reader := io.MultiReader(bytes.NewReader(header), src)
+	// 新しいRGBA画像を作成し、白背景を塗る（PNG透過対応）
+	newImg := image.NewRGBA(orig.Bounds())
+	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
+	draw.Draw(newImg, newImg.Bounds(), orig, orig.Bounds().Min, draw.Over)
+
+	// JPEGにエンコード
+	buf := &bytes.Buffer{}
+	if err := imaging.Encode(buf, newImg, imaging.JPEG, imaging.JPEGQuality(85)); err != nil {
+		return nil, err
+	}
+
+	// ファイル名生成（UUID + .jpg）
+	filename := fmt.Sprintf("%s.jpg", uuid.New().String())
 
 	// ストレージに保存
-	if err := u.fileStorage.Save(filename, reader); err != nil {
+	if err := u.fileStorage.Save(filename, buf); err != nil {
 		return nil, err
 	}
 
 	// DBにメタデータ保存
 	file, err := u.fileRepo.Create(&domain.File{
 		Name:     filename,
-		MimeType: detectedType,
+		MimeType: "image/jpeg",
 	})
 	if err != nil {
 		return nil, err
