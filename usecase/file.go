@@ -59,11 +59,11 @@ func (u *fileUseCase) Upload(src io.Reader, contentType string, size int64) (*do
 	}
 
 	// DBにメタデータ保存
-	file := &domain.File{
+	file, err := u.fileRepo.Create(&domain.File{
 		Name:     filename,
 		MimeType: contentType,
-	}
-	if err := u.fileRepo.Create(file); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 

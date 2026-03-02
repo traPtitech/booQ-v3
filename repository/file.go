@@ -30,21 +30,17 @@ func (f *file) toDomain() *domain.File {
 	}
 }
 
-func (repo *fileRepository) Create(domainFile *domain.File) error {
+func (repo *fileRepository) Create(domainFile *domain.File) (*domain.File, error) {
 	f := &file{
 		Name:     domainFile.Name,
 		MimeType: domainFile.MimeType,
 	}
 
 	if err := repo.db.Create(f).Error; err != nil {
-		return err
+		return nil, err
 	}
 
-	// IDをドメインモデルに反映
-	domainFile.ID = f.ID
-	domainFile.CreatedAt = f.CreatedAt
-
-	return nil
+	return f.toDomain(), nil
 }
 
 func (repo *fileRepository) GetByID(id int) (*domain.File, error) {

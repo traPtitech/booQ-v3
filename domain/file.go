@@ -13,7 +13,7 @@ type File struct {
 }
 
 type FileRepository interface {
-	Create(file *File) error
+	Create(file *File) (*File, error)
 	GetByID(id int) (*File, error)
 }
 
