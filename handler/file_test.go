@@ -7,6 +7,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"strings"
 	"testing"
 	"time"
@@ -34,7 +35,10 @@ func TestHandler_PostFile(t *testing.T) {
 			setupRequest: func() (*http.Request, error) {
 				body := &bytes.Buffer{}
 				writer := multipart.NewWriter(body)
-				part, err := writer.CreateFormFile("file", "test.jpg")
+				h := make(textproto.MIMEHeader)
+				h.Set("Content-Disposition", `form-data; name="file"; filename="test.jpg"`)
+				h.Set("Content-Type", "image/jpeg")
+				part, err := writer.CreatePart(h)
 				if err != nil {
 					return nil, err
 				}
@@ -49,7 +53,7 @@ func TestHandler_PostFile(t *testing.T) {
 				// Upload メソッドが呼ばれることを期待
 				f.EXPECT().
 					Upload(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(&domain.File{ // 成功時の戻り値
+					Return(&domain.File{
 						ID:        1,
 						Name:      "abc123.jpg",
 						MimeType:  "image/jpeg",
@@ -65,7 +69,10 @@ func TestHandler_PostFile(t *testing.T) {
 			setupRequest: func() (*http.Request, error) {
 				body := &bytes.Buffer{}
 				writer := multipart.NewWriter(body)
-				part, err := writer.CreateFormFile("file", "test.jpg")
+				h := make(textproto.MIMEHeader)
+				h.Set("Content-Disposition", `form-data; name="file"; filename="test.jpg"`)
+				h.Set("Content-Type", "image/jpeg")
+				part, err := writer.CreatePart(h)
 				if err != nil {
 					return nil, err
 				}
@@ -79,7 +86,7 @@ func TestHandler_PostFile(t *testing.T) {
 			setupMock: func(f *mock_usecase.MockFileUseCase) {
 				f.EXPECT().
 					Upload(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, domain.ErrFileTooLarge). // エラーを返す
+					Return(nil, domain.ErrFileTooLarge).
 					Times(1)
 			},
 			expectedCode: http.StatusBadRequest,               // 400 Bad Request を期待
@@ -102,10 +109,7 @@ func TestHandler_PostFile(t *testing.T) {
 				return req, nil
 			},
 			setupMock: func(f *mock_usecase.MockFileUseCase) {
-				f.EXPECT().
-					Upload(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, domain.ErrInvalidFileType). // ファイル形式エラー
-					Times(1)
+				// invalid file typeはUploadが呼ばれないためmock不要
 			},
 			expectedCode: http.StatusBadRequest,
 			expectedBody: `"invalid file type: only JPEG and PNG are allowed"`,
@@ -146,7 +150,6 @@ func TestHandler_PostFile(t *testing.T) {
 			e.ServeHTTP(rec, req)
 
 			assert.Equal(t, tc.expectedCode, rec.Code)
-
 			body := strings.TrimSpace(rec.Body.String())
 			assert.Equal(t, tc.expectedBody, body)
 		})
