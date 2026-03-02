@@ -1,8 +1,10 @@
 package usecase
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/traPtitech/booQ-v3/domain"
@@ -39,9 +41,20 @@ func (u *fileUseCase) Upload(src io.Reader, contentType string, size int64) (*do
 		return nil, domain.ErrFileTooLarge
 	}
 
+	// 先頭のバイトを読み込んで実際のMIMEタイプを検出
+	header := make([]byte, 512)
+	n, err := src.Read(header)
+	if err != nil && err != io.EOF {
+		return nil, err
+	}
+	header = header[:n]
+
+	// 実際のバイト列からMIMEタイプを検出
+	detectedType := http.DetectContentType(header)
+
 	// バリデーション: MIMEタイプ & 拡張子決定
 	var ext string
-	switch contentType {
+	switch detectedType {
 	case mimeTypeJPEG:
 		ext = fileExtensionJPG
 	case mimeTypePNG:
@@ -53,15 +66,18 @@ func (u *fileUseCase) Upload(src io.Reader, contentType string, size int64) (*do
 	// ファイル名生成（UUID + 拡張子）
 	filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
 
+	// 読み込んだヘッダーと残りのデータを結合
+	reader := io.MultiReader(bytes.NewReader(header), src)
+
 	// ストレージに保存
-	if err := u.fileStorage.Save(filename, src); err != nil {
+	if err := u.fileStorage.Save(filename, reader); err != nil {
 		return nil, err
 	}
 
 	// DBにメタデータ保存
 	file, err := u.fileRepo.Create(&domain.File{
 		Name:     filename,
-		MimeType: contentType,
+		MimeType: detectedType,
 	})
 	if err != nil {
 		return nil, err

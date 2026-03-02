@@ -26,6 +26,11 @@ func (h *handler) PostFile(ctx echo.Context) error {
 	// Content-Type 取得
 	contentType := file.Header.Get("Content-Type")
 
+	// Content-Type ヘッダーのバリデーション
+	if contentType != "image/jpeg" && contentType != "image/png" {
+		return ctx.JSON(http.StatusBadRequest, "invalid file type: only JPEG and PNG are allowed")
+	}
+
 	// UseCase 呼び出し
 	uploadedFile, err := h.fu.Upload(src, contentType, file.Size)
 	if err != nil {
