@@ -8,22 +8,14 @@ import (
 
 type handler struct {
 	iu usecase.ItemUseCase
+	fu usecase.FileUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase) openapi.ServerInterface {
+func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase) openapi.ServerInterface {
 	return &handler{
 		iu: iu,
+		fu: fu,
 	}
-}
-
-func (h *handler) PostFile(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) GetFile(ctx echo.Context, fileId openapi.FileIdInPath) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) error {

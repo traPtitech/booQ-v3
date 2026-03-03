@@ -40,7 +40,7 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
 	if err := repo.db.First(res, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrItemNotFound
+			return nil, domain.ErrNotFound
 		}
 		return nil, err
 	}

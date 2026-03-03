@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/traPtitech/booQ-v3/domain"
 )
 
 type S3Storage struct {
@@ -16,14 +17,14 @@ type S3Storage struct {
 	client *s3.Client
 }
 
-// S3 (互換) オブジェクトストレージをカレントストレージに設定する
-func SetS3Storage(bucket, region, endpoint, apiKey, apiSecret string) error {
+// NewS3Storage S3 (互換) オブジェクトストレージを作成します
+func NewS3Storage(bucket, region, endpoint, apiKey, apiSecret string) (domain.FileStorage, error) {
 	cfg, err := config.LoadDefaultConfig(context.Background(),
 		config.WithRegion(region),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(apiKey, apiSecret, "")),
 	)
 	if err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+		return nil, fmt.Errorf("failed to load configuration: %w", err)
 	}
 
 	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
@@ -31,12 +32,10 @@ func SetS3Storage(bucket, region, endpoint, apiKey, apiSecret string) error {
 		o.BaseEndpoint = &endpoint
 	})
 
-	current = &S3Storage{
+	return &S3Storage{
 		bucket: bucket,
 		client: client,
-	}
-
-	return nil
+	}, nil
 }
 
 func (s *S3Storage) Save(filename string, src io.Reader) error {
