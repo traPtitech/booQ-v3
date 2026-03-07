@@ -41,17 +41,33 @@ func (m *MockItemRepository) EXPECT() *MockItemRepositoryMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockItemRepository) Create(item *domain.Item) error {
+func (m *MockItemRepository) Create(item *domain.Item) (*domain.Item, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", item)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
 func (mr *MockItemRepositoryMockRecorder) Create(item any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockItemRepository)(nil).Create), item)
+}
+
+// CreateBatch mocks base method.
+func (m *MockItemRepository) CreateBatch(items []*domain.Item) ([]*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBatch", items)
+	ret0, _ := ret[0].([]*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBatch indicates an expected call of CreateBatch.
+func (mr *MockItemRepositoryMockRecorder) CreateBatch(items any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBatch", reflect.TypeOf((*MockItemRepository)(nil).CreateBatch), items)
 }
 
 // Delete mocks base method.
@@ -99,11 +115,12 @@ func (mr *MockItemRepositoryMockRecorder) Search(query any) *gomock.Call {
 }
 
 // Update mocks base method.
-func (m *MockItemRepository) Update(item *domain.Item) error {
+func (m *MockItemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", item)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.

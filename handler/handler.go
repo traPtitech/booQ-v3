@@ -18,26 +18,6 @@ func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase) openapi.ServerIn
 	}
 }
 
-func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostItem(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
