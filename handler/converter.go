@@ -56,7 +56,7 @@ func postRequestToDomainItem(request *openapi.ItemPostRequest) (*domain.Item, er
 	}
 	if request.IsTrapItem {
 		if request.Count == nil {
-			return nil, errors.New("count and countMax are required for trap items")
+			return nil, errors.New("count is required for trap items")
 		}
 		item.EquipmentDetail = &domain.EquipmentDetail{
 			Count:    *request.Count,
