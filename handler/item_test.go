@@ -90,10 +90,9 @@ func TestHandler_GetItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
-			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, mockFileUseCase)
+			h := NewHandler(mockItemUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -208,7 +207,7 @@ func TestHandler_GetItems(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -252,27 +251,31 @@ func TestHandler_CreateItem(t *testing.T) {
 			]`,
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
-					CreateItem(&domain.Item{
-						Name:        "New Item",
-						Description: "This is a new item",
-						ImgUrl:      "http://example.com/new_image.png",
-						BookDetail: &domain.BookDetail{
-							ISBNCode: "1234567890",
+					CreateItems([]*domain.Item{
+						{
+							Name:        "New Item",
+							Description: "This is a new item",
+							ImgUrl:      "http://example.com/new_image.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "1234567890",
+							},
+							EquipmentDetail: nil,
 						},
-						EquipmentDetail: nil,
 					}).
-					Return(&domain.Item{
-						ID:          1,
-						Name:        "New Item",
-						Description: "This is a new item",
-						ImgUrl:      "http://example.com/new_image.png",
-						BookDetail: &domain.BookDetail{
-							ISBNCode: "", // TODO
+					Return([]*domain.Item{
+						{
+							ID:          1,
+							Name:        "New Item",
+							Description: "This is a new item",
+							ImgUrl:      "http://example.com/new_image.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "", // TODO
+							},
+							EquipmentDetail: nil,
+							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							DeletedAt:       nil,
 						},
-						EquipmentDetail: nil,
-						CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						UpdatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						DeletedAt:       nil,
 					}, nil).
 					Times(1)
 			},
@@ -314,53 +317,57 @@ func TestHandler_CreateItem(t *testing.T) {
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				gomock.InOrder(
 					u.EXPECT().
-						CreateItem(&domain.Item{
-							Name:        "New Item 1",
-							Description: "This is the first new item",
-							ImgUrl:      "http://example.com/new_image1.png",
-							BookDetail:  nil,
-							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    3,
-								CountMax: 3,
+						CreateItems([]*domain.Item{
+							{
+								Name:        "New Item 1",
+								Description: "This is the first new item",
+								ImgUrl:      "http://example.com/new_image1.png",
+								BookDetail:  nil,
+								EquipmentDetail: &domain.EquipmentDetail{
+									Count:    3,
+									CountMax: 3,
+								},
+							},
+							{
+								Name:        "New Item 2",
+								Description: "This is the second new item",
+								ImgUrl:      "http://example.com/new_image2.png",
+								BookDetail: &domain.BookDetail{
+									ISBNCode: "0987654321",
+								},
+								EquipmentDetail: nil,
 							},
 						}).
-						Return(&domain.Item{
-							ID:          1,
-							Name:        "New Item 1",
-							Description: "This is the first new item",
-							ImgUrl:      "http://example.com/new_image1.png",
-							BookDetail:  nil,
-							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    3,
-								CountMax: 3,
+						Return([]*domain.Item{
+							{
+								ID:          1,
+								Name:        "New Item 1",
+								Description: "This is the first new item",
+								ImgUrl:      "http://example.com/new_image1.png",
+								BookDetail:  nil,
+								EquipmentDetail: &domain.EquipmentDetail{
+									Count:    0,
+									CountMax: 0,
+								},
+								CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								UpdatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								DeletedAt: nil,
 							},
-							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							UpdatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							DeletedAt: nil,
-						}, nil),
-					u.EXPECT().
-						CreateItem(&domain.Item{
-							Name:        "New Item 2",
-							Description: "This is the second new item",
-							ImgUrl:      "http://example.com/new_image2.png",
-							BookDetail: &domain.BookDetail{
-								ISBNCode: "0987654321",
+							{
+								ID:          2,
+								Name:        "New Item 2",
+								Description: "This is the second new item",
+								ImgUrl:      "http://example.com/new_image2.png",
+								BookDetail: &domain.BookDetail{
+									ISBNCode: "", // TODO
+								},
+								EquipmentDetail: nil,
+								CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								UpdatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								DeletedAt:       nil,
 							},
-							EquipmentDetail: nil,
-						}).
-						Return(&domain.Item{
-							ID:          2,
-							Name:        "New Item 2",
-							Description: "This is the second new item",
-							ImgUrl:      "http://example.com/new_image2.png",
-							BookDetail: &domain.BookDetail{
-								ISBNCode: "",
-							},
-							EquipmentDetail: nil,
-							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							UpdatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							DeletedAt:       nil,
-						}, nil),
+						}, nil).
+						Times(1),
 				)
 			},
 			expectedCode: http.StatusOK,
@@ -399,7 +406,7 @@ func TestHandler_CreateItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -567,7 +574,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -637,7 +644,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)

@@ -55,6 +55,21 @@ func (mr *MockItemUseCaseMockRecorder) CreateItem(item any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateItem", reflect.TypeOf((*MockItemUseCase)(nil).CreateItem), item)
 }
 
+// CreateItems mocks base method.
+func (m *MockItemUseCase) CreateItems(items []*domain.Item) ([]*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateItems", items)
+	ret0, _ := ret[0].([]*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateItems indicates an expected call of CreateItems.
+func (mr *MockItemUseCaseMockRecorder) CreateItems(items any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateItems", reflect.TypeOf((*MockItemUseCase)(nil).CreateItems), items)
+}
+
 // DeleteItem mocks base method.
 func (m *MockItemUseCase) DeleteItem(id int) error {
 	m.ctrl.T.Helper()
