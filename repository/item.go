@@ -86,23 +86,35 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 }
 
 func (repo *itemRepository) Create(item *domain.Item) (*domain.Item, error) {
+	model := toItemModel(item)
+
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Create(toItemModel(item)).Error
+		return tx.Create(model).Error
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create item: %w", err)
 	}
 
+	item.ID = model.ID
+	item.CreatedAt = model.CreatedAt
+	item.UpdatedAt = model.UpdatedAt
+
 	return item, nil
 }
 
 func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
+	model := toItemModel(item)
+
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Save(toItemModel(item)).Error
+		return tx.Save(model).Error
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update item: %w", err)
 	}
+
+	item.ID = model.ID
+	item.CreatedAt = model.CreatedAt
+	item.UpdatedAt = model.UpdatedAt
 
 	return item, nil
 }

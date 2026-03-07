@@ -94,6 +94,14 @@ func TestItemRepository_Create(t *testing.T) {
 				assert.Equal(t, tc.item.Name, createdItem.Name)
 				assert.Equal(t, tc.item.Description, createdItem.Description)
 				assert.Equal(t, tc.item.ImgUrl, createdItem.ImgUrl)
+				assert.NotEqual(t, 0, createdItem.ID)
+
+				var item item
+				err = db.First(&item, createdItem.ID).Error
+				assert.NoError(t, err)
+				assert.Equal(t, tc.item.Name, item.Name)
+				assert.Equal(t, tc.item.Description, item.Description)
+				assert.Equal(t, tc.item.ImgUrl, item.ImgURL)
 			}
 		})
 	}
@@ -159,6 +167,14 @@ func TestItemRepository_Update(t *testing.T) {
 				assert.Equal(t, tc.updateItem.Name, updatedItem.Name)
 				assert.Equal(t, tc.updateItem.Description, updatedItem.Description)
 				assert.Equal(t, tc.updateItem.ImgUrl, updatedItem.ImgUrl)
+				assert.Equal(t, existingItem.ID, updatedItem.ID)
+
+				var item item
+				err = db.First(&item, existingItem.ID).Error
+				assert.NoError(t, err)
+				assert.Equal(t, tc.updateItem.Name, item.Name)
+				assert.Equal(t, tc.updateItem.Description, item.Description)
+				assert.Equal(t, tc.updateItem.ImgUrl, item.ImgURL)
 			}
 		})
 	}
