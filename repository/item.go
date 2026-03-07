@@ -50,7 +50,7 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
 	if err := repo.db.First(res, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrItemNotFound
+			return nil, domain.ErrNotFound
 		}
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (repo *itemRepository) Delete(id int) error {
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return domain.ErrItemNotFound
+			return domain.ErrNotFound
 		}
 		return fmt.Errorf("failed to delete item: %w", err)
 	}

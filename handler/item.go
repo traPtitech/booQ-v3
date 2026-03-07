@@ -14,7 +14,7 @@ import (
 func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	item, err := h.iu.GetItemByID(itemId)
 	if err != nil {
-		if errors.Is(err, domain.ErrItemNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
 		}
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get item: %v", err))
@@ -98,7 +98,7 @@ func (h *handler) PostItem(ctx echo.Context) error {
 func (h *handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	err := h.iu.DeleteItem(itemId)
 	if err != nil {
-		if errors.Is(err, domain.ErrItemNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
 		}
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to delete item: %v", err))
@@ -121,7 +121,7 @@ func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error 
 
 	updatedItem, err := h.iu.UpdateItem(item)
 	if err != nil {
-		if errors.Is(err, domain.ErrItemNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
 		}
 		if errors.Is(err, usecase.ErrUpdateNotAllowed) {

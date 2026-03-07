@@ -53,12 +53,12 @@ func TestItemUseCase_GetItemByID(t *testing.T) {
 			setupMock: func(repo *mock_domain.MockItemRepository) {
 				repo.EXPECT().
 					GetByID(2).
-					Return(nil, domain.ErrItemNotFound).
+					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			id:           2,
 			expectedItem: nil,
-			expectedErr:  domain.ErrItemNotFound,
+			expectedErr:  domain.ErrNotFound,
 		},
 	}
 
@@ -308,7 +308,7 @@ func TestItemUseCase_UpdateItem(t *testing.T) {
 			setupMock: func(repo *mock_domain.MockItemRepository) {
 				repo.EXPECT().
 					GetByID(2).
-					Return(nil, domain.ErrItemNotFound).
+					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			inputItem: &domain.Item{
@@ -320,7 +320,7 @@ func TestItemUseCase_UpdateItem(t *testing.T) {
 				EquipmentDetail: nil,
 			},
 			expectedItem: nil,
-			expectedErr:  domain.ErrItemNotFound,
+			expectedErr:  domain.ErrNotFound,
 		},
 		{
 			name: "failure: cannot change book detail",
@@ -422,11 +422,11 @@ func TestItemUseCase_DeleteItem(t *testing.T) {
 			setupMock: func(repo *mock_domain.MockItemRepository) {
 				repo.EXPECT().
 					Delete(2).
-					Return(domain.ErrItemNotFound).
+					Return(domain.ErrNotFound).
 					Times(1)
 			},
 			id:          2,
-			expectedErr: domain.ErrItemNotFound,
+			expectedErr: domain.ErrNotFound,
 		},
 	}
 

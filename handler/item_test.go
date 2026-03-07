@@ -508,7 +508,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 							CountMax: 5,
 						},
 					}).
-					Return(nil, domain.ErrItemNotFound).
+					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
@@ -614,7 +614,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
 					DeleteItem(2).
-					Return(domain.ErrItemNotFound).
+					Return(domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,

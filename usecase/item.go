@@ -55,7 +55,7 @@ func (u *itemUseCase) CreateItems(items []*domain.Item) ([]*domain.Item, error) 
 func (u *itemUseCase) UpdateItem(item *domain.Item) (*domain.Item, error) {
 	itemOld, err := u.itemRepo.GetByID(item.ID)
 	if err != nil {
-		if errors.Is(err, domain.ErrItemNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return nil, err
 		}
 		return nil, fmt.Errorf("failed to get item: %w", err)

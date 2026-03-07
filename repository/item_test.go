@@ -257,7 +257,7 @@ func TestItemRepository_Delete(t *testing.T) {
 			setup: func(t *testing.T, db *gorm.DB) int {
 				return 9999
 			},
-			expectedErr: domain.ErrItemNotFound,
+			expectedErr: domain.ErrNotFound,
 		},
 	}
 
