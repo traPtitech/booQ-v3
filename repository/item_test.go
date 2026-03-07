@@ -42,7 +42,7 @@ func TestItemRepository_GetByID(t *testing.T) {
 			},
 			verify: func(t *testing.T, item *domain.Item, err error) {
 				assert.Error(t, err)
-				assert.ErrorIs(t, err, domain.ErrItemNotFound)
+				assert.ErrorIs(t, err, domain.ErrNotFound)
 				assert.Nil(t, item)
 			},
 		},

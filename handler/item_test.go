@@ -67,7 +67,7 @@ func TestHandler_GetItem(t *testing.T) {
 			setupMock: func(u *mock_usecase.MockItemUseCase) {
 				u.EXPECT().
 					GetItemByID(2).
-					Return(nil, domain.ErrItemNotFound).
+					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
@@ -90,9 +90,10 @@ func TestHandler_GetItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase)
+			h := NewHandler(mockItemUseCase, mockFileUseCase)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
