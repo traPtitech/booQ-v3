@@ -11,6 +11,7 @@ type ItemUseCase interface {
 	GetItemByID(id int) (*domain.Item, error)
 	SearchItems(query domain.ItemSearchQuery) ([]*domain.Item, error)
 	CreateItem(item *domain.Item) (*domain.Item, error)
+	CreateItems(items []*domain.Item) ([]*domain.Item, error)
 	UpdateItem(item *domain.Item) (*domain.Item, error)
 	DeleteItem(id int) error
 }
@@ -39,6 +40,15 @@ func (u *itemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.Item,
 
 func (u *itemUseCase) CreateItem(item *domain.Item) (*domain.Item, error) {
 	return u.itemRepo.Create(item)
+}
+
+func (u *itemUseCase) CreateItems(items []*domain.Item) ([]*domain.Item, error) {
+	created, err := u.itemRepo.CreateBatch(items)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create items: %w", err)
+	}
+
+	return created, nil
 }
 
 // TODO: updateの認可

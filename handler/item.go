@@ -82,13 +82,9 @@ func (h *handler) PostItem(ctx echo.Context) error {
 		items = append(items, item)
 	}
 
-	createdItems := make([]*domain.Item, 0, len(items))
-	for _, item := range items {
-		createdItem, err := h.iu.CreateItem(item)
-		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to create item: %v", err))
-		}
-		createdItems = append(createdItems, createdItem)
+	createdItems, err := h.iu.CreateItems(items)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to create items: %v", err))
 	}
 
 	openAPIItems := make([]openapi.Item, 0, len(createdItems))
