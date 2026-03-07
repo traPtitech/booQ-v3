@@ -102,6 +102,32 @@ func (repo *itemRepository) Create(item *domain.Item) (*domain.Item, error) {
 	return item, nil
 }
 
+func (repo *itemRepository) CreateBatch(items []*domain.Item) ([]*domain.Item, error) {
+	if len(items) == 0 {
+		return items, nil
+	}
+
+	models := make([]*item, 0, len(items))
+	for _, item := range items {
+		models = append(models, toItemModel(item))
+	}
+
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(models).Error
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to create items in batch: %w", err)
+	}
+
+	for i, model := range models {
+		items[i].ID = model.ID
+		items[i].CreatedAt = model.CreatedAt
+		items[i].UpdatedAt = model.UpdatedAt
+	}
+
+	return items, nil
+}
+
 func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	model := toItemModel(item)
 

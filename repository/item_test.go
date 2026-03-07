@@ -107,6 +107,57 @@ func TestItemRepository_Create(t *testing.T) {
 	}
 }
 
+func TestItemRepository_CreateBatch(t *testing.T) {
+	testCases := []struct {
+		name    string
+		items   []*domain.Item
+		wantErr bool
+	}{
+		{
+			name: "success: batch create multiple items",
+			items: []*domain.Item{
+				{Name: "Batch Item 1", Description: "Description 1", ImgUrl: "http://example.com/1.png"},
+				{Name: "Batch Item 2", Description: "Description 2", ImgUrl: "http://example.com/2.png"},
+				{Name: "Batch Item 3", Description: "Description 3", ImgUrl: "http://example.com/3.png"},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "success: batch create empty slice",
+			items:   []*domain.Item{},
+			wantErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			db := setupTestDB(t)
+
+			repo := NewItemRepository(db)
+			createdItems, err := repo.CreateBatch(tc.items)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+				assert.Nil(t, createdItems)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, len(tc.items), len(createdItems))
+				for i, expected := range tc.items {
+					assert.Equal(t, expected.Name, createdItems[i].Name)
+					assert.Equal(t, expected.Description, createdItems[i].Description)
+					assert.Equal(t, expected.ImgUrl, createdItems[i].ImgUrl)
+					assert.NotEqual(t, 0, createdItems[i].ID)
+
+					var item item
+					err = db.First(&item, createdItems[i].ID).Error
+					assert.NoError(t, err)
+					assert.Equal(t, expected.Name, item.Name)
+				}
+			}
+		})
+	}
+}
+
 func TestItemRepository_Update(t *testing.T) {
 	testCases := []struct {
 		name        string

@@ -55,6 +55,21 @@ func (mr *MockItemRepositoryMockRecorder) Create(item any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockItemRepository)(nil).Create), item)
 }
 
+// CreateBatch mocks base method.
+func (m *MockItemRepository) CreateBatch(items []*domain.Item) ([]*domain.Item, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBatch", items)
+	ret0, _ := ret[0].([]*domain.Item)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateBatch indicates an expected call of CreateBatch.
+func (mr *MockItemRepositoryMockRecorder) CreateBatch(items any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBatch", reflect.TypeOf((*MockItemRepository)(nil).CreateBatch), items)
+}
+
 // Delete mocks base method.
 func (m *MockItemRepository) Delete(id int) error {
 	m.ctrl.T.Helper()
