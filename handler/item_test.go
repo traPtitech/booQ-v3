@@ -330,8 +330,8 @@ func TestHandler_CreateItem(t *testing.T) {
 							ImgUrl:      "http://example.com/new_image1.png",
 							BookDetail:  nil,
 							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    0,
-								CountMax: 0,
+								Count:    3,
+								CountMax: 3,
 							},
 							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 							UpdatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),

@@ -434,11 +434,8 @@ func TestItemRepository_Search(t *testing.T) {
 					query: domain.ItemSearchQuery{
 						Offset: 1,
 					},
-					expected: []*domain.Item{
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
-					},
-					wantErr: true,
+					expected: nil,
+					wantErr:  true,
 				},
 			},
 		},
