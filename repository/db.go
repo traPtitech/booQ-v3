@@ -13,6 +13,8 @@ import (
 
 var allTables = []interface{}{
 	item{},
+	book{},
+	equipment{},
 	file{},
 }
 
