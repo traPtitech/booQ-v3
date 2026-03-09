@@ -10,10 +10,24 @@ import (
 
 type item struct {
 	GormModel
-	Name        string `gorm:"type:text;not null"`
-	Description string `gorm:"type:text"`
-	ImgURL      string `gorm:"type:text"`
-	// TODO
+	Name        string    `gorm:"type:text;not null"`
+	Description string    `gorm:"type:text"`
+	ImgURL      string    `gorm:"type:text"`
+	Book        book      `gorm:"foreignKey:item_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Equipment   equipment `gorm:"foreignKey:item_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+
+type book struct {
+	GormModelWithoutID
+	ItemID   int    `gorm:"primaryKey"`
+	ISBNCode string `gorm:"type:varchar(13);"`
+}
+
+type equipment struct {
+	GormModelWithoutID
+	ItemID   int `gorm:"primaryKey"`
+	Count    int `gorm:"type:int;not null"`
+	CountMax int `gorm:"type:int;not null"`
 }
 
 type itemRepository struct {
