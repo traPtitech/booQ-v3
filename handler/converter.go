@@ -83,3 +83,13 @@ func postRequestToDomainItem(request *openapi.ItemPostRequest) (*domain.Item, er
 
 	return item, nil
 }
+
+func toOpenAPIOwnership(d *domain.Ownership) openapi.Ownership {
+	return openapi.Ownership{
+		Id:         &d.ID,
+		ItemId:     &d.ItemID,
+		UserId:     d.UserID,
+		Rentalable: d.Rentable,
+		Memo:       d.Memo,
+	}
+}

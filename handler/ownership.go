@@ -83,13 +83,3 @@ func (h *handler) DeleteItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath
 
 	return ctx.NoContent(http.StatusOK)
 }
-
-func toOpenAPIOwnership(d *domain.Ownership) openapi.Ownership {
-	return openapi.Ownership{
-		Id:         &d.ID,
-		ItemId:     &d.ItemID,
-		UserId:     d.UserID,
-		Rentalable: d.Rentable,
-		Memo:       d.Memo,
-	}
-}
