@@ -225,6 +225,19 @@ func TestOwnershipRepository_Update(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "success: create new ownership if not exist",
+			setup: func(t *testing.T, db *gorm.DB) *domain.Ownership {
+				return &domain.Ownership{
+					ID:       9999,
+					ItemID:   12,
+					UserID:   "user2",
+					Rentable: true,
+					Memo:     "new ownership",
+				}
+			},
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range testCases {
