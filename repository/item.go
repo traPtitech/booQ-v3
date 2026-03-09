@@ -10,11 +10,11 @@ import (
 
 type item struct {
 	GormModel
-	Name        string    `gorm:"type:text;not null"`
-	Description string    `gorm:"type:text"`
-	ImgURL      string    `gorm:"type:text"`
-	Book        book      `gorm:"foreignKey:item_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Equipment   equipment `gorm:"foreignKey:item_id;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Name        string     `gorm:"type:text;not null"`
+	Description string     `gorm:"type:text"`
+	ImgURL      string     `gorm:"type:text"`
+	Book        *book      `gorm:"foreignKey:ItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Equipment   *equipment `gorm:"foreignKey:ItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type book struct {

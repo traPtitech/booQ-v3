@@ -53,7 +53,7 @@ func TestItemRepository_GetByID(t *testing.T) {
 					Name:        "Book Item",
 					Description: "This is a book item",
 					ImgURL:      "http://example.com/book_image.png",
-					Book: book{
+					Book: &book{
 						ISBNCode: "1234567890123",
 					},
 				}
@@ -80,7 +80,7 @@ func TestItemRepository_GetByID(t *testing.T) {
 					Name:        "Equipment Item",
 					Description: "This is an equipment item",
 					ImgURL:      "http://example.com/equipment_image.png",
-					Equipment: equipment{
+					Equipment: &equipment{
 						Count:    5,
 						CountMax: 10,
 					},
@@ -109,10 +109,10 @@ func TestItemRepository_GetByID(t *testing.T) {
 					Name:        "Complex Item",
 					Description: "This item has both book and equipment details",
 					ImgURL:      "http://example.com/complex_image.png",
-					Book: book{
+					Book: &book{
 						ISBNCode: "9876543210123",
 					},
-					Equipment: equipment{
+					Equipment: &equipment{
 						Count:    3,
 						CountMax: 5,
 					},
@@ -402,7 +402,7 @@ func TestItemRepository_Update(t *testing.T) {
 					Name:        "Book Item",
 					Description: "This is a book item",
 					ImgURL:      "http://example.com/book_image.png",
-					Book: book{
+					Book: &book{
 						ISBNCode: "1234567890123",
 					},
 				}
@@ -428,7 +428,7 @@ func TestItemRepository_Update(t *testing.T) {
 					Name:        "Equipment Item",
 					Description: "This is an equipment item",
 					ImgURL:      "http://example.com/equipment_image.png",
-					Equipment: equipment{
+					Equipment: &equipment{
 						Count:    5,
 						CountMax: 10,
 					},
@@ -523,10 +523,10 @@ func TestItemRepository_Delete(t *testing.T) {
 					Name:        "Item with Detail to Delete",
 					Description: "This item has details and will be deleted",
 					ImgURL:      "http://example.com/item_with_detail_to_delete_image.png",
-					Book: book{
+					Book: &book{
 						ISBNCode: "1234567890123",
 					},
-					Equipment: equipment{
+					Equipment: &equipment{
 						Count:    5,
 						CountMax: 10,
 					},
