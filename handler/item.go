@@ -20,7 +20,11 @@ func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, toOpenAPIItem(item))
+	i, err := toOpenAPIItem(item)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
+	}
+	return ctx.JSON(http.StatusOK, i)
 }
 
 func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) error {
@@ -61,7 +65,11 @@ func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) erro
 
 	openAPIItems := make([]openapi.Item, 0, len(items))
 	for _, item := range items {
-		openAPIItems = append(openAPIItems, *toOpenAPIItem(item))
+		i, err := toOpenAPIItem(item)
+		if err != nil {
+			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
+		}
+		openAPIItems = append(openAPIItems, *i)
 	}
 
 	return ctx.JSON(http.StatusOK, openAPIItems)
@@ -89,7 +97,11 @@ func (h *handler) PostItem(ctx echo.Context) error {
 
 	openAPIItems := make([]openapi.Item, 0, len(createdItems))
 	for _, item := range createdItems {
-		openAPIItems = append(openAPIItems, *toOpenAPIItem(item))
+		i, err := toOpenAPIItem(item)
+		if err != nil {
+			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
+		}
+		openAPIItems = append(openAPIItems, *i)
 	}
 
 	return ctx.JSON(http.StatusOK, openAPIItems)
@@ -130,5 +142,9 @@ func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error 
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to update item: %v", err))
 	}
 
-	return ctx.JSON(http.StatusOK, toOpenAPIItem(updatedItem))
+	i, err := toOpenAPIItem(updatedItem)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
+	}
+	return ctx.JSON(http.StatusOK, i)
 }
