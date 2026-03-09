@@ -12,7 +12,7 @@ import (
 
 func toOpenAPIItem(domainItem *domain.Item) (*openapi.Item, error) {
 	if domainItem == nil {
-		return nil, nil
+		return nil, errors.New("domain item is nil")
 	}
 
 	var deletedAt nullable.Nullable[time.Time]
