@@ -39,25 +39,49 @@ func NewItemRepository(db *gorm.DB) domain.ItemRepository {
 }
 
 func (i *item) toDomain() *domain.Item {
-	return &domain.Item{
-		ID:              i.ID,
-		Name:            i.Name,
-		Description:     i.Description,
-		ImgUrl:          i.ImgURL,
-		BookDetail:      nil,
-		EquipmentDetail: nil,
-		CreatedAt:       i.CreatedAt,
-		UpdatedAt:       i.UpdatedAt,
+	item := &domain.Item{
+		ID:          i.ID,
+		Name:        i.Name,
+		Description: i.Description,
+		ImgUrl:      i.ImgURL,
+		CreatedAt:   i.CreatedAt,
+		UpdatedAt:   i.UpdatedAt,
 	}
+	if i.Book != nil {
+		item.BookDetail = &domain.BookDetail{
+			ISBNCode: i.Book.ISBNCode,
+		}
+	}
+	if i.Equipment != nil {
+		item.EquipmentDetail = &domain.EquipmentDetail{
+			Count:    i.Equipment.Count,
+			CountMax: i.Equipment.CountMax,
+		}
+	}
+	return item
 }
 
 func toItemModel(d *domain.Item) *item {
-	return &item{
+	item := &item{
 		GormModel:   GormModel{ID: d.ID, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt},
 		Name:        d.Name,
 		Description: d.Description,
 		ImgURL:      d.ImgUrl,
 	}
+	if d.BookDetail != nil {
+		item.Book = &book{
+			ItemID:   d.ID,
+			ISBNCode: d.BookDetail.ISBNCode,
+		}
+	}
+	if d.EquipmentDetail != nil {
+		item.Equipment = &equipment{
+			ItemID:   d.ID,
+			Count:    d.EquipmentDetail.Count,
+			CountMax: d.EquipmentDetail.CountMax,
+		}
+	}
+	return item
 }
 
 func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {

@@ -438,6 +438,16 @@ func TestItemRepository_Update(t *testing.T) {
 				}
 				return item.toDomain()
 			},
+			updateItem: &domain.Item{
+				Name:        "Updated Equipment Item",
+				Description: "This is an updated equipment item",
+				ImgUrl:      "http://example.com/updated_equipment_image.png",
+				EquipmentDetail: &domain.EquipmentDetail{
+					Count:    3,
+					CountMax: 5,
+				},
+			},
+			expectedErr: nil,
 		},
 	}
 
