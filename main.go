@@ -4,11 +4,12 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
+	"github.com/traPtitech/booQ-v3/middleware"
 	"github.com/traPtitech/booQ-v3/repository"
 	"github.com/traPtitech/booQ-v3/storage"
 	"github.com/traPtitech/booQ-v3/usecase"
@@ -32,8 +33,9 @@ func main() {
 		e.Logger.SetLevel(log.INFO)
 	}
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echomiddleware.Logger())
+	e.Use(echomiddleware.Recover())
+	e.Use(middleware.AuthMiddleware)
 
 	// Repository
 	itemRepo := repository.NewItemRepository(db)
