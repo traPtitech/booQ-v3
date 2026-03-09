@@ -10,10 +10,24 @@ import (
 
 type item struct {
 	GormModel
-	Name        string `gorm:"type:text;not null"`
-	Description string `gorm:"type:text"`
-	ImgURL      string `gorm:"type:text"`
-	// TODO
+	Name        string     `gorm:"type:text;not null"`
+	Description string     `gorm:"type:text"`
+	ImgURL      string     `gorm:"type:text"`
+	Book        *book      `gorm:"foreignKey:ItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Equipment   *equipment `gorm:"foreignKey:ItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+
+type book struct {
+	GormModelWithoutID
+	ItemID   int    `gorm:"primaryKey"`
+	ISBNCode string `gorm:"type:varchar(13);"`
+}
+
+type equipment struct {
+	GormModelWithoutID
+	ItemID   int `gorm:"primaryKey"`
+	Count    int `gorm:"type:int;not null"`
+	CountMax int `gorm:"type:int;not null"`
 }
 
 type itemRepository struct {
@@ -25,30 +39,56 @@ func NewItemRepository(db *gorm.DB) domain.ItemRepository {
 }
 
 func (i *item) toDomain() *domain.Item {
-	return &domain.Item{
-		ID:              i.ID,
-		Name:            i.Name,
-		Description:     i.Description,
-		ImgUrl:          i.ImgURL,
-		BookDetail:      nil,
-		EquipmentDetail: nil,
-		CreatedAt:       i.CreatedAt,
-		UpdatedAt:       i.UpdatedAt,
+	item := &domain.Item{
+		ID:          i.ID,
+		Name:        i.Name,
+		Description: i.Description,
+		ImgUrl:      i.ImgURL,
+		CreatedAt:   i.CreatedAt,
+		UpdatedAt:   i.UpdatedAt,
 	}
+	if i.Book != nil {
+		item.BookDetail = &domain.BookDetail{
+			ISBNCode: i.Book.ISBNCode,
+		}
+	}
+	if i.Equipment != nil {
+		item.EquipmentDetail = &domain.EquipmentDetail{
+			Count:    i.Equipment.Count,
+			CountMax: i.Equipment.CountMax,
+		}
+	}
+	return item
 }
 
 func toItemModel(d *domain.Item) *item {
-	return &item{
+	item := &item{
 		GormModel:   GormModel{ID: d.ID, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt},
 		Name:        d.Name,
 		Description: d.Description,
 		ImgURL:      d.ImgUrl,
 	}
+	if d.BookDetail != nil {
+		item.Book = &book{
+			ItemID:   d.ID,
+			ISBNCode: d.BookDetail.ISBNCode,
+		}
+	}
+	if d.EquipmentDetail != nil {
+		item.Equipment = &equipment{
+			ItemID:   d.ID,
+			Count:    d.EquipmentDetail.Count,
+			CountMax: d.EquipmentDetail.CountMax,
+		}
+	}
+	return item
 }
 
 func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
-	if err := repo.db.First(res, id).Error; err != nil {
+
+	model := repo.db.Preload("Book").Preload("Equipment").Model(&item{})
+	if err := model.First(res, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, domain.ErrNotFound
 		}
@@ -61,7 +101,7 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 // TODO: search by tags, names, etc.
 func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
 	var items []item
-	dbQuery := repo.db.Model(&item{})
+	dbQuery := repo.db.Preload("Book").Preload("Equipment").Model(&item{})
 
 	if query.Name != "" {
 		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
@@ -132,7 +172,7 @@ func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	model := toItemModel(item)
 
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Save(model).Error
+		return tx.Session(&gorm.Session{FullSaveAssociations: true}).Save(model).Error
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update item: %w", err)

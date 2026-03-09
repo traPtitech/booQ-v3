@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/oapi-codegen/nullable"
@@ -9,9 +10,9 @@ import (
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 )
 
-func toOpenAPIItem(domainItem *domain.Item) *openapi.Item {
+func toOpenAPIItem(domainItem *domain.Item) (*openapi.Item, error) {
 	if domainItem == nil {
-		return nil
+		return nil, errors.New("domain item is nil")
 	}
 
 	var deletedAt nullable.Nullable[time.Time]
@@ -22,7 +23,7 @@ func toOpenAPIItem(domainItem *domain.Item) *openapi.Item {
 	}
 
 	// TODO: add tags, comments, likes, transactions, etc.
-	return &openapi.Item{
+	item := &openapi.Item{
 		Id:          domainItem.ID,
 		Name:        domainItem.Name,
 		Description: domainItem.Description,
@@ -33,6 +34,22 @@ func toOpenAPIItem(domainItem *domain.Item) *openapi.Item {
 		UpdatedAt:   domainItem.UpdatedAt,
 		DeletedAt:   deletedAt,
 	}
+
+	if domainItem.BookDetail != nil {
+		item.Code = &domainItem.BookDetail.ISBNCode
+	}
+	if domainItem.EquipmentDetail != nil {
+		i := openapi.Item0{
+			Count:    domainItem.EquipmentDetail.Count,
+			CountMax: domainItem.EquipmentDetail.CountMax,
+		}
+		err := item.FromItem0(i)
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert equipment detail: %w", err)
+		}
+	}
+
+	return item, nil
 }
 
 func postRequestToDomainItem(request *openapi.ItemPostRequest) (*domain.Item, error) {
