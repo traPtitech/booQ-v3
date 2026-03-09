@@ -414,7 +414,7 @@ func TestHandler_CreateItem(t *testing.T) {
 		requestBody  string
 		setupMock    func(u *mock_usecase.MockItemUseCase)
 		expectedCode int
-		expectedBody []openapi.Item
+		expectedBody func() []openapi.Item
 	}{
 		{
 			name: "success",
@@ -448,7 +448,7 @@ func TestHandler_CreateItem(t *testing.T) {
 							Description: "This is a new item",
 							ImgUrl:      "http://example.com/new_image.png",
 							BookDetail: &domain.BookDetail{
-								ISBNCode: "", // TODO
+								ISBNCode: "1234567890",
 							},
 							EquipmentDetail: nil,
 							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -459,18 +459,22 @@ func TestHandler_CreateItem(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: []openapi.Item{
-				{
-					Id:          1,
-					Name:        "New Item",
-					Description: "This is a new item",
-					ImgUrl:      "http://example.com/new_image.png",
-					IsBook:      true,
-					IsTrapItem:  false,
-					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					DeletedAt:   nullable.NewNullNullable[time.Time](),
-				},
+			expectedBody: func() []openapi.Item {
+				code := "1234567890"
+				return []openapi.Item{
+					{
+						Id:          1,
+						Name:        "New Item",
+						Description: "This is a new item",
+						ImgUrl:      "http://example.com/new_image.png",
+						IsBook:      true,
+						IsTrapItem:  false,
+						Code:        &code,
+						CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+						UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+						DeletedAt:   nullable.NewNullNullable[time.Time](),
+					},
+				}
 			},
 		},
 		{
@@ -525,8 +529,8 @@ func TestHandler_CreateItem(t *testing.T) {
 								ImgUrl:      "http://example.com/new_image1.png",
 								BookDetail:  nil,
 								EquipmentDetail: &domain.EquipmentDetail{
-									Count:    0,
-									CountMax: 0,
+									Count:    3,
+									CountMax: 3,
 								},
 								CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 								UpdatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -538,7 +542,7 @@ func TestHandler_CreateItem(t *testing.T) {
 								Description: "This is the second new item",
 								ImgUrl:      "http://example.com/new_image2.png",
 								BookDetail: &domain.BookDetail{
-									ISBNCode: "", // TODO
+									ISBNCode: "0987654321",
 								},
 								EquipmentDetail: nil,
 								CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -550,8 +554,8 @@ func TestHandler_CreateItem(t *testing.T) {
 				)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: []openapi.Item{
-				{
+			expectedBody: func() []openapi.Item {
+				equipment := &openapi.Item{
 					Id:          1,
 					Name:        "New Item 1",
 					Description: "This is the first new item",
@@ -561,18 +565,26 @@ func TestHandler_CreateItem(t *testing.T) {
 					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 					DeletedAt:   nullable.NewNullNullable[time.Time](),
-				},
-				{
+				}
+				_ = equipment.FromItem0(openapi.Item0{
+					Count:    3,
+					CountMax: 3,
+				})
+
+				code := "0987654321"
+				book := &openapi.Item{
 					Id:          2,
 					Name:        "New Item 2",
 					Description: "This is the second new item",
 					ImgUrl:      "http://example.com/new_image2.png",
 					IsBook:      true,
 					IsTrapItem:  false,
+					Code:        &code,
 					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					DeletedAt:   nullable.NewNullNullable[time.Time](),
-				},
+				}
+
+				return []openapi.Item{*equipment, *book}
 			},
 		},
 	}
@@ -600,7 +612,7 @@ func TestHandler_CreateItem(t *testing.T) {
 			body := strings.TrimSpace(rec.Body.String())
 
 			if tc.expectedCode == http.StatusOK {
-				expectedByte, err := json.Marshal(tc.expectedBody)
+				expectedByte, err := json.Marshal(tc.expectedBody())
 				assert.NoError(t, err)
 				assert.Equal(t, string(expectedByte), body)
 			}
@@ -615,7 +627,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 		requestBody  string
 		setupMock    func(u *mock_usecase.MockItemUseCase)
 		expectedCode int
-		expectedBody *openapi.Item
+		expectedBody func() *openapi.Item
 	}{
 		{
 			name:   "success",
@@ -648,8 +660,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 						ImgUrl:      "http://example.com/updated_image.png",
 						BookDetail:  nil,
 						EquipmentDetail: &domain.EquipmentDetail{
-							Count:    0,
-							CountMax: 0,
+							Count:    5,
+							CountMax: 5,
 						},
 						CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
@@ -658,16 +670,23 @@ func TestHandler_UpdateItem(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: &openapi.Item{
-				Id:          1,
-				Name:        "Updated Item",
-				Description: "This is an updated item",
-				ImgUrl:      "http://example.com/updated_image.png",
-				IsBook:      false,
-				IsTrapItem:  true,
-				CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-				UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-				DeletedAt:   nullable.NewNullNullable[time.Time](),
+			expectedBody: func() *openapi.Item {
+				item := &openapi.Item{
+					Id:          1,
+					Name:        "Updated Item",
+					Description: "This is an updated item",
+					ImgUrl:      "http://example.com/updated_image.png",
+					IsBook:      false,
+					IsTrapItem:  true,
+					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+					DeletedAt:   nullable.NewNullNullable[time.Time](),
+				}
+				_ = item.FromItem0(openapi.Item0{
+					Count:    5,
+					CountMax: 5,
+				})
+				return item
 			},
 		},
 		{
@@ -698,7 +717,9 @@ func TestHandler_UpdateItem(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
-			expectedBody: nil,
+			expectedBody: func() *openapi.Item {
+				return nil
+			},
 		},
 		{
 			name:   "failure: invalid item ID",
@@ -715,7 +736,9 @@ func TestHandler_UpdateItem(t *testing.T) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
-			expectedBody: nil,
+			expectedBody: func() *openapi.Item {
+				return nil
+			},
 		},
 		{
 			name:   "failure: cannot change item type",
@@ -741,7 +764,9 @@ func TestHandler_UpdateItem(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusBadRequest,
-			expectedBody: nil,
+			expectedBody: func() *openapi.Item {
+				return nil
+			},
 		},
 	}
 
@@ -768,7 +793,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 			body := strings.TrimSpace(rec.Body.String())
 
 			if tc.expectedCode == http.StatusOK {
-				expectedByte, err := tc.expectedBody.MarshalJSON()
+				expectedByte, err := tc.expectedBody().MarshalJSON()
 				assert.NoError(t, err)
 				assert.Equal(t, string(expectedByte), body)
 			}
