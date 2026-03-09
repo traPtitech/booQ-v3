@@ -101,7 +101,7 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 // TODO: search by tags, names, etc.
 func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
 	var items []item
-	dbQuery := repo.db.Model(&item{})
+	dbQuery := repo.db.Preload("Book").Preload("Equipment").Model(&item{})
 
 	if query.Name != "" {
 		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
@@ -172,7 +172,7 @@ func (repo *itemRepository) Update(item *domain.Item) (*domain.Item, error) {
 	model := toItemModel(item)
 
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
-		return tx.Save(model).Error
+		return tx.Session(&gorm.Session{FullSaveAssociations: true}).Save(model).Error
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update item: %w", err)
