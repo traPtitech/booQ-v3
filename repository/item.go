@@ -62,7 +62,9 @@ func toItemModel(d *domain.Item) *item {
 
 func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	res := &item{}
-	if err := repo.db.First(res, id).Error; err != nil {
+
+	model := repo.db.Preload("Book").Preload("Equipment").Model(&item{})
+	if err := model.First(res, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, domain.ErrNotFound
 		}
