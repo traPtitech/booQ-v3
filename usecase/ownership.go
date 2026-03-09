@@ -10,7 +10,7 @@ type OwnershipUseCase interface {
 	GetByItemID(itemID int) ([]*domain.Ownership, error)
 	CreateOwnership(ownership *domain.Ownership) (*domain.Ownership, error)
 	UpdateOwnership(ownership *domain.Ownership, userID string) (*domain.Ownership, error)
-	DeleteOwnership(id int, userID string) error
+	DeleteOwnership(id int, itemID int, userID string) error
 }
 
 type ownershipUseCase struct {
@@ -45,7 +45,7 @@ func (u *ownershipUseCase) UpdateOwnership(ownership *domain.Ownership, userID s
 	return u.ownershipRepo.Update(ownership)
 }
 
-func (u *ownershipUseCase) DeleteOwnership(id int, userID string) error {
+func (u *ownershipUseCase) DeleteOwnership(id int, itemID int, userID string) error {
 	o, err := u.ownershipRepo.GetByID(id)
 	if err != nil {
 		return err
@@ -53,6 +53,10 @@ func (u *ownershipUseCase) DeleteOwnership(id int, userID string) error {
 
 	if o.UserID != userID {
 		return fmt.Errorf("%w: you can only delete your own ownership", ErrForbidden)
+	}
+
+	if o.ItemID != itemID {
+		return fmt.Errorf("%w: ownership does not belong to the specified item", domain.ErrNotFound)
 	}
 
 	return u.ownershipRepo.Delete(id)
