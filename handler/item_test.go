@@ -400,7 +400,7 @@ func TestHandler_GetItems(t *testing.T) {
 			body := strings.TrimSpace(rec.Body.String())
 
 			if tc.expectedCode == http.StatusOK {
-				expectedByte, err := json.Marshal(tc.expectedBody)
+				expectedByte, err := json.Marshal(tc.expectedBody())
 				assert.NoError(t, err)
 				assert.Equal(t, string(expectedByte), body)
 			}
@@ -582,6 +582,7 @@ func TestHandler_CreateItem(t *testing.T) {
 					Code:        &code,
 					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 					UpdatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					DeletedAt:   nullable.NewNullNullable[time.Time](),
 				}
 
 				return []openapi.Item{*equipment, *book}
