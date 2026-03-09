@@ -46,6 +46,95 @@ func TestItemRepository_GetByID(t *testing.T) {
 				assert.Nil(t, item)
 			},
 		},
+		{
+			name: "success: item with book detail",
+			setup: func(t *testing.T, db *gorm.DB) int {
+				item := &item{
+					Name:        "Book Item",
+					Description: "This is a book item",
+					ImgURL:      "http://example.com/book_image.png",
+					Book: book{
+						ISBNCode: "1234567890123",
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with book detail: %v", err)
+				}
+				return item.ID
+			},
+			verify: func(t *testing.T, item *domain.Item, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, item)
+				assert.Equal(t, "Book Item", item.Name)
+				assert.Equal(t, "This is a book item", item.Description)
+				assert.Equal(t, "http://example.com/book_image.png", item.ImgUrl)
+				assert.NotNil(t, item.BookDetail)
+				assert.Equal(t, "1234567890123", item.BookDetail.ISBNCode)
+				assert.Nil(t, item.EquipmentDetail)
+			},
+		},
+		{
+			name: "success: item with equipment detail",
+			setup: func(t *testing.T, db *gorm.DB) int {
+				item := &item{
+					Name:        "Equipment Item",
+					Description: "This is an equipment item",
+					ImgURL:      "http://example.com/equipment_image.png",
+					Equipment: equipment{
+						Count:    5,
+						CountMax: 10,
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with equipment detail: %v", err)
+				}
+				return item.ID
+			},
+			verify: func(t *testing.T, item *domain.Item, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, item)
+				assert.Equal(t, "Equipment Item", item.Name)
+				assert.Equal(t, "This is an equipment item", item.Description)
+				assert.Equal(t, "http://example.com/equipment_image.png", item.ImgUrl)
+				assert.NotNil(t, item.EquipmentDetail)
+				assert.Equal(t, 5, item.EquipmentDetail.Count)
+				assert.Equal(t, 10, item.EquipmentDetail.CountMax)
+				assert.Nil(t, item.BookDetail)
+			},
+		},
+		{
+			name: "success: item with both book and equipment detail",
+			setup: func(t *testing.T, db *gorm.DB) int {
+				item := &item{
+					Name:        "Complex Item",
+					Description: "This item has both book and equipment details",
+					ImgURL:      "http://example.com/complex_image.png",
+					Book: book{
+						ISBNCode: "9876543210123",
+					},
+					Equipment: equipment{
+						Count:    3,
+						CountMax: 5,
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with both details: %v", err)
+				}
+				return item.ID
+			},
+			verify: func(t *testing.T, item *domain.Item, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, item)
+				assert.Equal(t, "Complex Item", item.Name)
+				assert.Equal(t, "This item has both book and equipment details", item.Description)
+				assert.Equal(t, "http://example.com/complex_image.png", item.ImgUrl)
+				assert.NotNil(t, item.BookDetail)
+				assert.Equal(t, "9876543210123", item.BookDetail.ISBNCode)
+				assert.NotNil(t, item.EquipmentDetail)
+				assert.Equal(t, 3, item.EquipmentDetail.Count)
+				assert.Equal(t, 5, item.EquipmentDetail.CountMax)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -76,6 +165,47 @@ func TestItemRepository_Create(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "success: item with book detail",
+			item: &domain.Item{
+				Name:        "Book Item",
+				Description: "This is a book item",
+				ImgUrl:      "http://example.com/book_image.png",
+				BookDetail: &domain.BookDetail{
+					ISBNCode: "1234567890123",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "success: item with equipment detail",
+			item: &domain.Item{
+				Name:        "Equipment Item",
+				Description: "This is an equipment item",
+				ImgUrl:      "http://example.com/equipment_image.png",
+				EquipmentDetail: &domain.EquipmentDetail{
+					Count:    5,
+					CountMax: 10,
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "success: item with both book and equipment detail",
+			item: &domain.Item{
+				Name:        "Complex Item",
+				Description: "This item has both book and equipment details",
+				ImgUrl:      "http://example.com/complex_image.png",
+				BookDetail: &domain.BookDetail{
+					ISBNCode: "9876543210123",
+				},
+				EquipmentDetail: &domain.EquipmentDetail{
+					Count:    3,
+					CountMax: 5,
+				},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -96,12 +226,42 @@ func TestItemRepository_Create(t *testing.T) {
 				assert.Equal(t, tc.item.ImgUrl, createdItem.ImgUrl)
 				assert.NotEqual(t, 0, createdItem.ID)
 
+				if tc.item.BookDetail != nil {
+					assert.NotNil(t, createdItem.BookDetail)
+					assert.Equal(t, tc.item.BookDetail.ISBNCode, createdItem.BookDetail.ISBNCode)
+				} else {
+					assert.Nil(t, createdItem.BookDetail)
+				}
+
+				if tc.item.EquipmentDetail != nil {
+					assert.NotNil(t, createdItem.EquipmentDetail)
+					assert.Equal(t, tc.item.EquipmentDetail.Count, createdItem.EquipmentDetail.Count)
+					assert.Equal(t, tc.item.EquipmentDetail.CountMax, createdItem.EquipmentDetail.CountMax)
+				} else {
+					assert.Nil(t, createdItem.EquipmentDetail)
+				}
+
 				var item item
 				err = db.First(&item, createdItem.ID).Error
 				assert.NoError(t, err)
 				assert.Equal(t, tc.item.Name, item.Name)
 				assert.Equal(t, tc.item.Description, item.Description)
 				assert.Equal(t, tc.item.ImgUrl, item.ImgURL)
+
+				if tc.item.BookDetail != nil {
+					var book book
+					err = db.First(&book, "item_id = ?", createdItem.ID).Error
+					assert.NoError(t, err)
+					assert.Equal(t, tc.item.BookDetail.ISBNCode, book.ISBNCode)
+				}
+
+				if tc.item.EquipmentDetail != nil {
+					var equipment equipment
+					err = db.First(&equipment, "item_id = ?", createdItem.ID).Error
+					assert.NoError(t, err)
+					assert.Equal(t, tc.item.EquipmentDetail.Count, equipment.Count)
+					assert.Equal(t, tc.item.EquipmentDetail.CountMax, equipment.CountMax)
+				}
 			}
 		})
 	}
@@ -127,6 +287,29 @@ func TestItemRepository_CreateBatch(t *testing.T) {
 			items:   []*domain.Item{},
 			wantErr: false,
 		},
+		{
+			name: "success: batch create items with details",
+			items: []*domain.Item{
+				{
+					Name:        "Batch Book Item",
+					Description: "This is a batch book item",
+					ImgUrl:      "http://example.com/book.png",
+					BookDetail: &domain.BookDetail{
+						ISBNCode: "1234567890123",
+					},
+				},
+				{
+					Name:        "Batch Equipment Item",
+					Description: "This is a batch equipment item",
+					ImgUrl:      "http://example.com/equipment.png",
+					EquipmentDetail: &domain.EquipmentDetail{
+						Count:    5,
+						CountMax: 10,
+					},
+				},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -147,6 +330,21 @@ func TestItemRepository_CreateBatch(t *testing.T) {
 					assert.Equal(t, expected.Description, createdItems[i].Description)
 					assert.Equal(t, expected.ImgUrl, createdItems[i].ImgUrl)
 					assert.NotEqual(t, 0, createdItems[i].ID)
+
+					if expected.BookDetail != nil {
+						assert.NotNil(t, createdItems[i].BookDetail)
+						assert.Equal(t, expected.BookDetail.ISBNCode, createdItems[i].BookDetail.ISBNCode)
+					} else {
+						assert.Nil(t, createdItems[i].BookDetail)
+					}
+
+					if expected.EquipmentDetail != nil {
+						assert.NotNil(t, createdItems[i].EquipmentDetail)
+						assert.Equal(t, expected.EquipmentDetail.Count, createdItems[i].EquipmentDetail.Count)
+						assert.Equal(t, expected.EquipmentDetail.CountMax, createdItems[i].EquipmentDetail.CountMax)
+					} else {
+						assert.Nil(t, createdItems[i].EquipmentDetail)
+					}
 
 					var item item
 					err = db.First(&item, createdItems[i].ID).Error
@@ -197,6 +395,50 @@ func TestItemRepository_Update(t *testing.T) {
 			},
 			expectedErr: nil,
 		},
+		{
+			name: "success: update item with book detail",
+			setup: func(t *testing.T, db *gorm.DB) *domain.Item {
+				item := &item{
+					Name:        "Book Item",
+					Description: "This is a book item",
+					ImgURL:      "http://example.com/book_image.png",
+					Book: book{
+						ISBNCode: "1234567890123",
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with book detail: %v", err)
+				}
+				return item.toDomain()
+			},
+			updateItem: &domain.Item{
+				Name:        "Updated Book Item",
+				Description: "This is an updated book item",
+				ImgUrl:      "http://example.com/updated_book_image.png",
+				BookDetail: &domain.BookDetail{
+					ISBNCode: "9876543210123",
+				},
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "success: update item with equipment detail",
+			setup: func(t *testing.T, db *gorm.DB) *domain.Item {
+				item := &item{
+					Name:        "Equipment Item",
+					Description: "This is an equipment item",
+					ImgURL:      "http://example.com/equipment_image.png",
+					Equipment: equipment{
+						Count:    5,
+						CountMax: 10,
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with equipment detail: %v", err)
+				}
+				return item.toDomain()
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -219,6 +461,21 @@ func TestItemRepository_Update(t *testing.T) {
 				assert.Equal(t, tc.updateItem.Description, updatedItem.Description)
 				assert.Equal(t, tc.updateItem.ImgUrl, updatedItem.ImgUrl)
 				assert.Equal(t, existingItem.ID, updatedItem.ID)
+
+				if tc.updateItem.BookDetail != nil {
+					assert.NotNil(t, updatedItem.BookDetail)
+					assert.Equal(t, tc.updateItem.BookDetail.ISBNCode, updatedItem.BookDetail.ISBNCode)
+				} else {
+					assert.Nil(t, updatedItem.BookDetail)
+				}
+
+				if tc.updateItem.EquipmentDetail != nil {
+					assert.NotNil(t, updatedItem.EquipmentDetail)
+					assert.Equal(t, tc.updateItem.EquipmentDetail.Count, updatedItem.EquipmentDetail.Count)
+					assert.Equal(t, tc.updateItem.EquipmentDetail.CountMax, updatedItem.EquipmentDetail.CountMax)
+				} else {
+					assert.Nil(t, updatedItem.EquipmentDetail)
+				}
 
 				var item item
 				err = db.First(&item, existingItem.ID).Error
@@ -259,6 +516,28 @@ func TestItemRepository_Delete(t *testing.T) {
 			},
 			expectedErr: domain.ErrNotFound,
 		},
+		{
+			name: "success: delete item detail on cascade",
+			setup: func(t *testing.T, db *gorm.DB) int {
+				item := &item{
+					Name:        "Item with Detail to Delete",
+					Description: "This item has details and will be deleted",
+					ImgURL:      "http://example.com/item_with_detail_to_delete_image.png",
+					Book: book{
+						ISBNCode: "1234567890123",
+					},
+					Equipment: equipment{
+						Count:    5,
+						CountMax: 10,
+					},
+				}
+				if err := db.Create(item).Error; err != nil {
+					t.Fatalf("Failed to create test item with details: %v", err)
+				}
+				return item.ID
+			},
+			expectedErr: nil,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -278,6 +557,16 @@ func TestItemRepository_Delete(t *testing.T) {
 
 				var item item
 				err = db.First(&item, id).Error
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
+
+				var book book
+				err = db.First(&book, "item_id = ?", id).Error
+				assert.Error(t, err)
+				assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
+
+				var equipment equipment
+				err = db.First(&equipment, "item_id = ?", id).Error
 				assert.Error(t, err)
 				assert.ErrorIs(t, err, gorm.ErrRecordNotFound)
 			}
