@@ -20,7 +20,10 @@ func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInP
 		return ctx.JSON(http.StatusBadRequest, "dueDate is required")
 	}
 
-	userID := 1
+	userID, ok := ctx.Get("userID").(int)
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{"message": "unauthorized"})
+	}
 
 	res, err := h.bu.BorrowEquipment(int(itemId), userID, reqBody)
 	if err != nil {
@@ -50,9 +53,12 @@ func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.Ite
 		return ctx.JSON(http.StatusBadRequest, "text is required")
 	}
 
-	userID := 1
+	userID, ok := ctx.Get("userID").(int)
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, map[string]string{"message": "unauthorized"})
+	}
 
-	_, err := h.bu.ReturnEquipment(int(itemId), userID, reqBody)
+	res, err := h.bu.ReturnEquipment(int(itemId), userID, reqBody)
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrBorrowingNotFound):
@@ -64,5 +70,5 @@ func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.Ite
 		}
 	}
 
-	return ctx.JSON(http.StatusCreated, reqBody)
+	return ctx.JSON(http.StatusCreated, res)
 }
