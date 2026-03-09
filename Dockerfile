@@ -1,4 +1,4 @@
-FROM golang:1.23.0-alpine AS build
+FROM golang:1.25.3-alpine AS build
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -11,6 +11,9 @@ FROM alpine:3 AS runtime
 
 WORKDIR /app
 COPY --from=build /app/app .
+
+RUN apk add tzdata
+ENV TZ=Asia/Tokyo
 
 RUN mkdir -p /app/data
 

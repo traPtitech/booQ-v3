@@ -44,30 +44,17 @@ jobs:
     name: Server test
     runs-on: ubuntu-latest
     needs: [build]
-    env:
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: booq_test
-    services:
-      mysql:
-        image: mariadb:10.11.7
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: booq_test
-        ports:
-          - 3306:3306
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: ./go.mod
-      - name: Setup DB
-        run: go run .github/workflows/init.go
-      - name: Run model tests
-        run: go test . ./model -v -covermode=atomic -vet=off
-      - name: Run router tests
-        run: go test . ./router -v -covermode=atomic -vet=off
+      - name: Install mockgen
+        run: go install go.uber.org/mock/mockgen@v0.6.0
+      - name: Generate Mocks
+        run: go generate ./...
+      - name: Run Test
+        run: go test -v ./usecase ./repository ./handler
   spectral:
     name: OpenApi Lint
     runs-on: ubuntu-latest

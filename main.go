@@ -6,19 +6,21 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/traPtitech/booQ-v3/handler"
+	"github.com/traPtitech/booQ-v3/handler/openapi"
+	"github.com/traPtitech/booQ-v3/repository"
+	"github.com/traPtitech/booQ-v3/usecase"
 
-	"github.com/traPtitech/booQ-v3/model"
-	"github.com/traPtitech/booQ-v3/router"
 	"github.com/traPtitech/booQ-v3/storage"
 )
 
 func main() {
-	err := model.EstablishConnection()
+	db, err := repository.EstablishConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = model.Migrate()
+	err = repository.Migrate(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,16 +28,25 @@ func main() {
 	setStorage()
 
 	e := echo.New()
-	router.SetValidator(e)
 
 	if os.Getenv("BOOQ_ENV") == "development" {
+		repository.SetLoggerInfo(db)
 		e.Logger.SetLevel(log.INFO)
 	}
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	itemRepo := repository.NewItemRepository(db)
+	itemUC := usecase.NewItemUseCase(itemRepo)
+
+	equipmentRepo := repository.NewEquipmentBorrowingRepository(db)
+	equipmentUC := usecase.NewEquipmentBorrowingUseCase(equipmentRepo)
+
+	h := handler.NewHandler(itemUC, equipmentUC)
+
+	openapi.RegisterHandlers(e, h)
+
 	e.Logger.Fatal(e.Start(":3001"))
 }
 

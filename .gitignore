@@ -27,3 +27,6 @@ booQ-v3
 /uploads/*
 
 .tool-versions
+
+# mock
+mock/
