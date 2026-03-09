@@ -56,17 +56,17 @@ func (mr *MockOwnershipUseCaseMockRecorder) CreateOwnership(ownership any) *gomo
 }
 
 // DeleteOwnership mocks base method.
-func (m *MockOwnershipUseCase) DeleteOwnership(id int, userID string) error {
+func (m *MockOwnershipUseCase) DeleteOwnership(id, itemID int, userID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteOwnership", id, userID)
+	ret := m.ctrl.Call(m, "DeleteOwnership", id, itemID, userID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteOwnership indicates an expected call of DeleteOwnership.
-func (mr *MockOwnershipUseCaseMockRecorder) DeleteOwnership(id, userID any) *gomock.Call {
+func (mr *MockOwnershipUseCaseMockRecorder) DeleteOwnership(id, itemID, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteOwnership", reflect.TypeOf((*MockOwnershipUseCase)(nil).DeleteOwnership), id, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteOwnership", reflect.TypeOf((*MockOwnershipUseCase)(nil).DeleteOwnership), id, itemID, userID)
 }
 
 // GetByItemID mocks base method.
