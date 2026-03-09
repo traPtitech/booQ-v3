@@ -8,11 +8,13 @@ import (
 
 type handler struct {
 	iu usecase.ItemUseCase
+	bu usecase.EquipmentBorrowingUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase) openapi.ServerInterface {
+func NewHandler(iu usecase.ItemUseCase, bu usecase.EquipmentBorrowingUseCase) openapi.ServerInterface {
 	return &handler{
 		iu: iu,
+		bu: bu,
 	}
 }
 
@@ -42,16 +44,6 @@ func (h *handler) DeleteItem(ctx echo.Context, itemId openapi.ItemIdInPath) erro
 }
 
 func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }

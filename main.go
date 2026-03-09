@@ -37,7 +37,14 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	h := handler.NewHandler(usecase.NewItemUseCase(repository.NewItemRepository(db)))
+	itemRepo := repository.NewItemRepository(db)
+	itemUC := usecase.NewItemUseCase(itemRepo)
+
+	equipmentRepo := repository.NewEquipmentBorrowingRepository(db)
+	equipmentUC := usecase.NewEquipmentBorrowingUseCase(equipmentRepo)
+
+	h := handler.NewHandler(itemUC, equipmentUC)
+
 	openapi.RegisterHandlers(e, h)
 
 	e.Logger.Fatal(e.Start(":3001"))

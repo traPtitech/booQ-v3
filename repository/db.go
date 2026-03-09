@@ -13,6 +13,7 @@ import (
 
 var allTables = []interface{}{
 	item{},
+	equipmentTransaction{},
 }
 
 type GormModel struct {
