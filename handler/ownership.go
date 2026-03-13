@@ -18,6 +18,14 @@ func (h *handler) PostItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath) 
 		return ctx.JSON(http.StatusBadRequest, fmt.Sprintf("invalid request body: %v", err))
 	}
 
+	userID, ok := middleware.GetUserID(ctx.Request().Context())
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
+	}
+	if userID != req.UserId {
+		return ctx.JSON(http.StatusForbidden, "you cannot create ownership for another user")
+	}
+
 	ownership := &domain.Ownership{
 		ItemID:   itemId,
 		UserID:   req.UserId,

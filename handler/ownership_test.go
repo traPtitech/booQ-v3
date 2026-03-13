@@ -22,14 +22,16 @@ func TestHandler_PostItemOwners(t *testing.T) {
 	testCases := []struct {
 		name         string
 		itemID       string
+		ctxUserID    string
 		requestBody  string
 		setupMock    func(u *mock_usecase.MockOwnershipUseCase)
 		expectedCode int
 		expectedBody func() *openapi.Ownership
 	}{
 		{
-			name:   "success",
-			itemID: "1",
+			name:      "success",
+			itemID:    "1",
+			ctxUserID: "user1",
 			requestBody: `{
 				"userId": "user1",
 				"rentalable": true,
@@ -51,6 +53,7 @@ func TestHandler_PostItemOwners(t *testing.T) {
 		{
 			name:        "failure: invalid request body",
 			itemID:      "1",
+			ctxUserID:   "user1",
 			requestBody: `{`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				// no calls expected
@@ -58,8 +61,9 @@ func TestHandler_PostItemOwners(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 		{
-			name:   "failure: usecase error",
-			itemID: "1",
+			name:      "failure: usecase error",
+			itemID:    "1",
+			ctxUserID: "user1",
 			requestBody: `{
 				"userId": "user1",
 				"rentalable": true,
@@ -73,6 +77,20 @@ func TestHandler_PostItemOwners(t *testing.T) {
 			},
 			expectedCode: http.StatusInternalServerError,
 		},
+		{
+			name:      "failure: user ID mismatch",
+			itemID:    "1",
+			ctxUserID: "user2",
+			requestBody: `{
+				"userId": "user1",
+				"rentalable": true,
+				"memo": "owner memo"
+			}`,
+			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
+				// no calls expected
+			},
+			expectedCode: http.StatusForbidden,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -85,6 +103,14 @@ func TestHandler_PostItemOwners(t *testing.T) {
 
 			h := NewHandler(nil, nil, mockOwnershipUseCase)
 			e := echo.New()
+			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					ctx := c.Request().Context()
+					ctx = middleware.WithUserID(ctx, tc.ctxUserID)
+					c.SetRequest(c.Request().WithContext(ctx))
+					return next(c)
+				}
+			})
 			openapi.RegisterHandlers(e, h)
 
 			req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/items/%s/owners", tc.itemID), strings.NewReader(tc.requestBody))
@@ -122,7 +148,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "owner").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "owner").
 					Return(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, nil).
 					Times(1)
 			},
@@ -162,7 +188,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "another-user").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "another-user").
 					Return(nil, usecase.ErrForbidden).
 					Times(1)
 			},
@@ -176,7 +202,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "owner").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "owner").
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
