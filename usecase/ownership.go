@@ -9,7 +9,7 @@ import (
 type OwnershipUseCase interface {
 	GetByItemID(itemID int) ([]*domain.Ownership, error)
 	CreateOwnership(ownership *domain.Ownership) (*domain.Ownership, error)
-	UpdateOwnership(ownership *domain.Ownership, userID string) (*domain.Ownership, error)
+	UpdateOwnership(ownership *domain.Ownership, itemID int, userID string) (*domain.Ownership, error)
 	DeleteOwnership(id int, itemID int, userID string) error
 }
 
@@ -32,10 +32,14 @@ func (u *ownershipUseCase) CreateOwnership(ownership *domain.Ownership) (*domain
 }
 
 // TODO: 管理者も変えられるように
-func (u *ownershipUseCase) UpdateOwnership(ownership *domain.Ownership, userID string) (*domain.Ownership, error) {
+func (u *ownershipUseCase) UpdateOwnership(ownership *domain.Ownership, itemID int, userID string) (*domain.Ownership, error) {
 	o, err := u.ownershipRepo.GetByID(ownership.ID)
 	if err != nil {
 		return nil, err
+	}
+
+	if o.ItemID != itemID {
+		return nil, fmt.Errorf("%w: ownership does not belong to the specified item", domain.ErrNotFound)
 	}
 
 	if o.UserID != userID {
@@ -51,12 +55,12 @@ func (u *ownershipUseCase) DeleteOwnership(id int, itemID int, userID string) er
 		return err
 	}
 
-	if o.UserID != userID {
-		return fmt.Errorf("%w: you can only delete your own ownership", ErrForbidden)
-	}
-
 	if o.ItemID != itemID {
 		return fmt.Errorf("%w: ownership does not belong to the specified item", domain.ErrNotFound)
+	}
+
+	if o.UserID != userID {
+		return fmt.Errorf("%w: you can only delete your own ownership", ErrForbidden)
 	}
 
 	return u.ownershipRepo.Delete(id)
