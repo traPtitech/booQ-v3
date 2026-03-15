@@ -222,7 +222,7 @@ func TestHandler_GetItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -386,7 +386,7 @@ func TestHandler_GetItems(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -598,7 +598,7 @@ func TestHandler_CreateItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -779,7 +779,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -849,7 +849,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)

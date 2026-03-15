@@ -7,14 +7,16 @@ import (
 )
 
 type handler struct {
-	iu usecase.ItemUseCase
 	fu usecase.FileUseCase
+	iu usecase.ItemUseCase
+	ou usecase.OwnershipUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase) openapi.ServerInterface {
+func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase) openapi.ServerInterface {
 	return &handler{
-		iu: iu,
 		fu: fu,
+		iu: iu,
+		ou: ou,
 	}
 }
 
@@ -39,21 +41,6 @@ func (h *handler) RemoveLike(ctx echo.Context, itemId openapi.ItemIdInPath) erro
 }
 
 func (h *handler) AddLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) DeleteItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) EditItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }
