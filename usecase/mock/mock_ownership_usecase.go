@@ -85,16 +85,16 @@ func (mr *MockOwnershipUseCaseMockRecorder) GetByItemID(itemID any) *gomock.Call
 }
 
 // UpdateOwnership mocks base method.
-func (m *MockOwnershipUseCase) UpdateOwnership(ownership *domain.Ownership, itemID int, userID string) (*domain.Ownership, error) {
+func (m *MockOwnershipUseCase) UpdateOwnership(ownership *domain.Ownership, userID string) (*domain.Ownership, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateOwnership", ownership, itemID, userID)
+	ret := m.ctrl.Call(m, "UpdateOwnership", ownership, userID)
 	ret0, _ := ret[0].(*domain.Ownership)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateOwnership indicates an expected call of UpdateOwnership.
-func (mr *MockOwnershipUseCaseMockRecorder) UpdateOwnership(ownership, itemID, userID any) *gomock.Call {
+func (mr *MockOwnershipUseCaseMockRecorder) UpdateOwnership(ownership, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOwnership", reflect.TypeOf((*MockOwnershipUseCase)(nil).UpdateOwnership), ownership, itemID, userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOwnership", reflect.TypeOf((*MockOwnershipUseCase)(nil).UpdateOwnership), ownership, userID)
 }

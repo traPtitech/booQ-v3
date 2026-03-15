@@ -114,7 +114,6 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 	testCases := []struct {
 		name              string
 		inputOwnership    *domain.Ownership
-		itemID            int
 		userID            string
 		setupMock         func(repo *mock_domain.MockOwnershipRepository)
 		expectedOwnership *domain.Ownership
@@ -129,7 +128,6 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 				Rentable: false,
 				Memo:     "updated memo",
 			},
-			itemID: 1,
 			userID: "owner",
 			setupMock: func(repo *mock_domain.MockOwnershipRepository) {
 				repo.EXPECT().
@@ -153,7 +151,6 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 				Rentable: true,
 				Memo:     "memo",
 			},
-			itemID: 1,
 			userID: "owner",
 			setupMock: func(repo *mock_domain.MockOwnershipRepository) {
 				repo.EXPECT().
@@ -164,7 +161,7 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 			expectedErr: domain.ErrNotFound,
 		},
 		{
-			name: "failure: forbidden",
+			name: "failure: cannot change other user's ownership",
 			inputOwnership: &domain.Ownership{
 				ID:       1,
 				ItemID:   1,
@@ -172,7 +169,24 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 				Rentable: false,
 				Memo:     "updated memo",
 			},
-			itemID: 1,
+			userID: "another-user",
+			setupMock: func(repo *mock_domain.MockOwnershipRepository) {
+				repo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{ID: 1, ItemID: 1, UserID: "owner", Rentable: true, Memo: "before"}, nil).
+					Times(1)
+			},
+			expectedErr: ErrForbidden,
+		},
+		{
+			name: "failure: cannot change other user's ownership, although ownership.userID is matched",
+			inputOwnership: &domain.Ownership{
+				ID:       1,
+				ItemID:   1,
+				UserID:   "owner",
+				Rentable: false,
+				Memo:     "updated memo",
+			},
 			userID: "another-user",
 			setupMock: func(repo *mock_domain.MockOwnershipRepository) {
 				repo.EXPECT().
@@ -191,7 +205,6 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 				Rentable: false,
 				Memo:     "updated memo",
 			},
-			itemID: 1,
 			userID: "owner",
 			setupMock: func(repo *mock_domain.MockOwnershipRepository) {
 				repo.EXPECT().
@@ -213,7 +226,7 @@ func TestOwnershipUseCase_UpdateOwnership(t *testing.T) {
 
 			ownershipUseCase := NewOwnershipUseCase(mockOwnershipRepo)
 
-			ownership, err := ownershipUseCase.UpdateOwnership(tc.inputOwnership, tc.itemID, tc.userID)
+			ownership, err := ownershipUseCase.UpdateOwnership(tc.inputOwnership, tc.userID)
 
 			assert.Equal(t, tc.expectedOwnership, ownership)
 			assert.True(t, errors.Is(err, tc.expectedErr))

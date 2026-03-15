@@ -60,7 +60,7 @@ func (h *handler) EditItemOwners(ctx echo.Context, itemId openapi.ItemIdInPath, 
 		Memo:     req.Memo,
 	}
 
-	updated, err := h.ou.UpdateOwnership(ownership, itemId, userID)
+	updated, err := h.ou.UpdateOwnership(ownership, userID)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
