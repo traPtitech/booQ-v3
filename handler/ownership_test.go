@@ -148,7 +148,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "owner").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "owner").
 					Return(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, nil).
 					Times(1)
 			},
@@ -188,7 +188,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "another-user").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "another-user").
 					Return(nil, usecase.ErrForbidden).
 					Times(1)
 			},
@@ -202,7 +202,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			requestBody: `{"userId":"owner","rentalable":false,"memo":"updated memo"}`,
 			setupMock: func(u *mock_usecase.MockOwnershipUseCase) {
 				u.EXPECT().
-					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, 1, "owner").
+					UpdateOwnership(&domain.Ownership{ID: 10, ItemID: 1, UserID: "owner", Rentable: false, Memo: "updated memo"}, "owner").
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
