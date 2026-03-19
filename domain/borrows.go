@@ -71,7 +71,7 @@ func NewTransaction(itemID int, userID string, ownershipID int, purpose string, 
 
 func (t *Transaction) Approve(message string) error {
 	if t.Status != BorrowingStatusRequested {
-		return fmt.Errorf("transaction is not in requested status")
+		return fmt.Errorf("%w: transaction is not in requested status", ErrInvalidTransactionStatus)
 	}
 
 	t.Status = BorrowingStatusBorrowed
@@ -83,7 +83,7 @@ func (t *Transaction) Approve(message string) error {
 
 func (t *Transaction) Reject(message string) error {
 	if t.Status != BorrowingStatusRequested {
-		return fmt.Errorf("transaction is not in requested status")
+		return fmt.Errorf("%w: transaction is not in requested status", ErrInvalidTransactionStatus)
 	}
 
 	t.Status = BorrowingStatusRejected
@@ -93,7 +93,7 @@ func (t *Transaction) Reject(message string) error {
 
 func (t *Transaction) Return(message string) error {
 	if t.Status != BorrowingStatusBorrowed {
-		return fmt.Errorf("transaction is not in borrowed status")
+		return fmt.Errorf("%w: transaction is not in borrowed status", ErrInvalidTransactionStatus)
 	}
 
 	t.Status = BorrowingStatusReturned
