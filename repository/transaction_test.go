@@ -20,7 +20,6 @@ func TestTransactionRepository_GetByID(t *testing.T) {
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) int {
 				model := &transaction{
-					ItemID:           1,
 					UserID:           "user1",
 					OwnershipID:      1,
 					Status:           string(domain.BorrowingStatusRequested),
@@ -34,7 +33,6 @@ func TestTransactionRepository_GetByID(t *testing.T) {
 				return model.ID
 			},
 			expected: &domain.Transaction{
-				ItemID:           1,
 				UserID:           "user1",
 				OwnershipID:      1,
 				Status:           domain.BorrowingStatusRequested,
@@ -66,7 +64,6 @@ func TestTransactionRepository_GetByID(t *testing.T) {
 				assert.Nil(t, transaction)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expected.ItemID, transaction.ItemID)
 				assert.Equal(t, tc.expected.UserID, transaction.UserID)
 				assert.Equal(t, tc.expected.OwnershipID, transaction.OwnershipID)
 				assert.Equal(t, tc.expected.Status, transaction.Status)
@@ -93,7 +90,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 			setup: func(t *testing.T, db *gorm.DB) string {
 				models := []*transaction{
 					{
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      "requested",
@@ -101,7 +97,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 						DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 					},
 					{
-						ItemID:      2,
 						UserID:      "user1",
 						OwnershipID: 2,
 						Status:      "requested",
@@ -109,7 +104,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 						DueDate:     time.Date(2024, 7, 2, 0, 0, 0, 0, time.UTC),
 					},
 					{
-						ItemID:      3,
 						UserID:      "user2",
 						OwnershipID: 3,
 						Status:      "requested",
@@ -124,7 +118,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 			},
 			expected: []*domain.Transaction{
 				{
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 1,
 					Status:      "requested",
@@ -132,7 +125,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 				},
 				{
-					ItemID:      2,
 					UserID:      "user1",
 					OwnershipID: 2,
 					Status:      "requested",
@@ -166,7 +158,6 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Len(t, transactions, len(tc.expected))
 				for i, tr := range transactions {
-					assert.Equal(t, tc.expected[i].ItemID, tr.ItemID)
 					assert.Equal(t, tc.expected[i].UserID, tr.UserID)
 					assert.Equal(t, tc.expected[i].OwnershipID, tr.OwnershipID)
 					assert.Equal(t, tc.expected[i].Status, tr.Status)
@@ -190,7 +181,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 			setup: func(t *testing.T, db *gorm.DB) int {
 				models := []*transaction{
 					{
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      "requested",
@@ -198,7 +188,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 						DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 					},
 					{
-						ItemID:      2,
 						UserID:      "user2",
 						OwnershipID: 1,
 						Status:      "requested",
@@ -206,7 +195,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 						DueDate:     time.Date(2024, 7, 2, 0, 0, 0, 0, time.UTC),
 					},
 					{
-						ItemID:      3,
 						UserID:      "user3",
 						OwnershipID: 2,
 						Status:      "requested",
@@ -221,7 +209,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 			},
 			expected: []*domain.Transaction{
 				{
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 1,
 					Status:      "requested",
@@ -229,7 +216,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 				},
 				{
-					ItemID:      2,
 					UserID:      "user2",
 					OwnershipID: 1,
 					Status:      "requested",
@@ -263,7 +249,6 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Len(t, transactions, len(tc.expected))
 				for i, tr := range transactions {
-					assert.Equal(t, tc.expected[i].ItemID, tr.ItemID)
 					assert.Equal(t, tc.expected[i].UserID, tr.UserID)
 					assert.Equal(t, tc.expected[i].OwnershipID, tr.OwnershipID)
 					assert.Equal(t, tc.expected[i].Status, tr.Status)
@@ -286,7 +271,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
 				return &domain.Transaction{
-					ItemID:           1,
 					UserID:           "user1",
 					OwnershipID:      1,
 					Status:           domain.BorrowingStatusRequested,
@@ -296,7 +280,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 				}
 			},
 			expected: &domain.Transaction{
-				ItemID:           1,
 				UserID:           "user1",
 				OwnershipID:      1,
 				Status:           domain.BorrowingStatusRequested,
@@ -307,34 +290,9 @@ func TestTransactionRepository_Create(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure: item does not exist",
-			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
-				model := &transaction{
-					ItemID:      9999, // 存在しないItemID
-					UserID:      "user1",
-					OwnershipID: 1,
-					Status:      string(domain.BorrowingStatusRequested),
-					Purpose:     "create test",
-					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
-				}
-				db.Create(model)
-				return &domain.Transaction{
-					ItemID:      9999,
-					UserID:      "user1",
-					OwnershipID: 1,
-					Status:      domain.BorrowingStatusRequested,
-					Purpose:     "create test",
-					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
-				}
-			},
-			expected: nil,
-			wantErr:  true,
-		},
-		{
 			name: "failure: ownership does not exist",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
 				model := &transaction{
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 9999, // 存在しないOwnershipID
 					Status:      string(domain.BorrowingStatusRequested),
@@ -343,7 +301,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 				}
 				db.Create(model)
 				return &domain.Transaction{
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 9999,
 					Status:      domain.BorrowingStatusRequested,
@@ -366,7 +323,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 				assert.Nil(t, created)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expected.ItemID, created.ItemID)
 				assert.Equal(t, tc.expected.UserID, created.UserID)
 				assert.Equal(t, tc.expected.OwnershipID, created.OwnershipID)
 				assert.Equal(t, tc.expected.Status, created.Status)
@@ -379,7 +335,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 
 				var model transaction
 				db.First(&model, created.ID)
-				assert.Equal(t, tc.expected.ItemID, model.ItemID)
 				assert.Equal(t, tc.expected.UserID, model.UserID)
 				assert.Equal(t, tc.expected.OwnershipID, model.OwnershipID)
 				assert.Equal(t, string(tc.expected.Status), model.Status)
@@ -402,7 +357,6 @@ func TestTransactionRepository_Update(t *testing.T) {
 			name: "success: approve transaction",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
 				model := &transaction{
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 1,
 					Status:      string(domain.BorrowingStatusRequested),
@@ -416,7 +370,6 @@ func TestTransactionRepository_Update(t *testing.T) {
 				return tr
 			},
 			expected: &domain.Transaction{
-				ItemID:      1,
 				UserID:      "user1",
 				OwnershipID: 1,
 				Status:      domain.BorrowingStatusBorrowed,
@@ -431,7 +384,6 @@ func TestTransactionRepository_Update(t *testing.T) {
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
 				return &domain.Transaction{
 					ID:          9999, // 存在しないID
-					ItemID:      1,
 					UserID:      "user1",
 					OwnershipID: 1,
 					Status:      domain.BorrowingStatusRequested,
@@ -456,7 +408,6 @@ func TestTransactionRepository_Update(t *testing.T) {
 				assert.Nil(t, updated)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tc.expected.ItemID, updated.ItemID)
 				assert.Equal(t, tc.expected.UserID, updated.UserID)
 				assert.Equal(t, tc.expected.OwnershipID, updated.OwnershipID)
 				assert.Equal(t, tc.expected.Status, updated.Status)
@@ -469,7 +420,6 @@ func TestTransactionRepository_Update(t *testing.T) {
 
 				var model transaction
 				db.First(&model, updated.ID)
-				assert.Equal(t, tc.expected.ItemID, model.ItemID)
 				assert.Equal(t, tc.expected.UserID, model.UserID)
 				assert.Equal(t, tc.expected.OwnershipID, model.OwnershipID)
 				assert.Equal(t, string(tc.expected.Status), model.Status)
