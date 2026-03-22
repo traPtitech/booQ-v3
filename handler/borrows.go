@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	openapi_types "github.com/oapi-codegen/runtime/types"
+	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 	"github.com/traPtitech/booQ-v3/middleware"
+	"github.com/traPtitech/booQ-v3/usecase"
 )
 
 func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
@@ -31,6 +34,12 @@ func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, owne
 
 	post, err := h.bu.PostRequest(itemId, userID, ownershipId, purpose, date, request.BorrowInClubRoom)
 	if err != nil {
+		if errors.Is(err, usecase.ErrInvalidDueDate) {
+			return ctx.JSON(http.StatusBadRequest, "due date must be in the future")
+		}
+		if errors.Is(err, domain.ErrNotFound) {
+			return ctx.JSON(http.StatusNotFound, "item or ownership not found")
+		}
 		return ctx.JSON(http.StatusInternalServerError, "failed to create borrow request")
 	}
 
@@ -53,6 +62,9 @@ func (h *handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath
 
 	borrowing, err := h.bu.GetRequest(itemId, userID, ownershipId, borrowingId)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return ctx.JSON(http.StatusNotFound, "borrow request not found")
+		}
 		return ctx.JSON(http.StatusInternalServerError, "failed to get borrow request")
 	}
 
@@ -79,6 +91,9 @@ func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath,
 
 	reply, err := h.bu.ReplyRequest(itemId, userID, ownershipId, borrowingId, request.Answer, request.Comment)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return ctx.JSON(http.StatusNotFound, "borrow request not found")
+		}
 		return ctx.JSON(http.StatusInternalServerError, "failed to reply to borrow request")
 	}
 
@@ -103,6 +118,9 @@ func (h *handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, owne
 
 	err := h.bu.ReturnItem(itemId, userID, ownershipId, borrowingId, request.Text)
 	if err != nil {
+		if errors.Is(err, domain.ErrNotFound) {
+			return ctx.JSON(http.StatusNotFound, "borrow request not found")
+		}
 		return ctx.JSON(http.StatusInternalServerError, "failed to return item")
 	}
 
