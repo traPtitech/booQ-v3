@@ -101,7 +101,7 @@ func TestHandler_PostItemOwners(t *testing.T) {
 			mockOwnershipUseCase := mock_usecase.NewMockOwnershipUseCase(ctrl)
 			tc.setupMock(mockOwnershipUseCase)
 
-			h := NewHandler(nil, nil, mockOwnershipUseCase)
+			h := NewHandler(nil, nil, mockOwnershipUseCase, nil)
 			e := echo.New()
 			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 				return func(c echo.Context) error {
@@ -218,7 +218,7 @@ func TestHandler_EditItemOwners(t *testing.T) {
 			mockOwnershipUseCase := mock_usecase.NewMockOwnershipUseCase(ctrl)
 			tc.setupMock(mockOwnershipUseCase)
 
-			h := NewHandler(nil, nil, mockOwnershipUseCase)
+			h := NewHandler(nil, nil, mockOwnershipUseCase, nil)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -299,7 +299,7 @@ func TestHandler_DeleteItemOwners(t *testing.T) {
 			mockOwnershipUseCase := mock_usecase.NewMockOwnershipUseCase(ctrl)
 			tc.setupMock(mockOwnershipUseCase)
 
-			h := NewHandler(nil, nil, mockOwnershipUseCase)
+			h := NewHandler(nil, nil, mockOwnershipUseCase, nil)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
