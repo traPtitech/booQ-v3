@@ -8,33 +8,26 @@ import (
 )
 
 type BorrowingUseCase interface {
-	PostRequest(itemID int, userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error)
-	GetRequest(itemID int, userID string, ownershipID int, borrowingID int) (*domain.Transaction, error)
-	ReplyRequest(itemID int, userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error)
-	ReturnItem(itemID int, userID string, ownershipID int, borrowingID int, message string) error
+	PostRequest(userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error)
+	GetRequest(userID string, ownershipID int, borrowingID int) (*domain.Transaction, error)
+	ReplyRequest(userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error)
+	ReturnItem(userID string, ownershipID int, borrowingID int, message string) error
 }
 
 type borrowingUseCase struct {
 	transactionRepo domain.TransactionRepository
-	itemRepo        domain.ItemRepository
 	ownershipRepo   domain.OwnershipRepository
 }
 
-func NewBorrowingUseCase(transactionRepo domain.TransactionRepository, itemRepo domain.ItemRepository, ownershipRepo domain.OwnershipRepository) BorrowingUseCase {
+func NewBorrowingUseCase(transactionRepo domain.TransactionRepository, ownershipRepo domain.OwnershipRepository) BorrowingUseCase {
 	return &borrowingUseCase{
 		transactionRepo: transactionRepo,
-		itemRepo:        itemRepo,
 		ownershipRepo:   ownershipRepo,
 	}
 }
 
-func (b *borrowingUseCase) PostRequest(itemID int, userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error) {
-	_, err := b.itemRepo.GetByID(itemID)
-	if err != nil {
-		return nil, fmt.Errorf("item with ID %d not found: %w", itemID, err)
-	}
-
-	_, err = b.ownershipRepo.GetByID(ownershipID)
+func (b *borrowingUseCase) PostRequest(userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error) {
+	_, err := b.ownershipRepo.GetByID(ownershipID)
 	if err != nil {
 		return nil, fmt.Errorf("ownership with ID %d not found: %w", ownershipID, err)
 	}
@@ -43,18 +36,14 @@ func (b *borrowingUseCase) PostRequest(itemID int, userID string, ownershipID in
 		return nil, ErrInvalidDueDate
 	}
 
-	t := domain.NewTransaction(itemID, userID, ownershipID, purpose, borrowInClubRoom, dueDate)
+	t := domain.NewTransaction(userID, ownershipID, purpose, borrowInClubRoom, dueDate)
 	return b.transactionRepo.Create(t)
 }
 
-func (b *borrowingUseCase) GetRequest(itemID int, userID string, ownershipID int, borrowingID int) (*domain.Transaction, error) {
+func (b *borrowingUseCase) GetRequest(userID string, ownershipID int, borrowingID int) (*domain.Transaction, error) {
 	t, err := b.transactionRepo.GetByID(borrowingID)
 	if err != nil {
 		return nil, fmt.Errorf("transaction with ID %d not found: %w", borrowingID, err)
-	}
-
-	if t.ItemID != itemID {
-		return nil, fmt.Errorf("transaction with ID %d does not belong to item with ID %d", borrowingID, itemID)
 	}
 
 	if t.OwnershipID != ownershipID {
@@ -68,8 +57,8 @@ func (b *borrowingUseCase) GetRequest(itemID int, userID string, ownershipID int
 	return t, nil
 }
 
-func (b *borrowingUseCase) ReplyRequest(itemID int, userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error) {
-	t, err := b.GetRequest(itemID, userID, ownershipID, borrowingID)
+func (b *borrowingUseCase) ReplyRequest(userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error) {
+	t, err := b.GetRequest(userID, ownershipID, borrowingID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,8 +75,8 @@ func (b *borrowingUseCase) ReplyRequest(itemID int, userID string, ownershipID i
 	return b.transactionRepo.Update(t)
 }
 
-func (b *borrowingUseCase) ReturnItem(itemID int, userID string, ownershipID int, borrowingID int, message string) error {
-	t, err := b.GetRequest(itemID, userID, ownershipID, borrowingID)
+func (b *borrowingUseCase) ReturnItem(userID string, ownershipID int, borrowingID int, message string) error {
+	t, err := b.GetRequest(userID, ownershipID, borrowingID)
 	if err != nil {
 		return err
 	}

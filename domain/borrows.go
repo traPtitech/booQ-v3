@@ -35,7 +35,6 @@ func ParseBorrowingStatus(s string) (BorrowingStatus, error) {
 
 type Transaction struct {
 	ID          int
-	ItemID      int
 	UserID      string // 借りる側
 	OwnershipID int
 	Status      BorrowingStatus
@@ -57,9 +56,8 @@ type Transaction struct {
 	UpdatedAt time.Time
 }
 
-func NewTransaction(itemID int, userID string, ownershipID int, purpose string, borrowInClubRoom bool, dueDate time.Time) *Transaction {
+func NewTransaction(userID string, ownershipID int, purpose string, borrowInClubRoom bool, dueDate time.Time) *Transaction {
 	return &Transaction{
-		ItemID:           itemID,
 		UserID:           userID,
 		OwnershipID:      ownershipID,
 		Status:           BorrowingStatusRequested,

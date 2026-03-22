@@ -10,10 +10,11 @@ import (
 
 type ownership struct {
 	GormModel
-	ItemID   int    `gorm:"type:int;not null"`
-	UserID   string `gorm:"type:text;not null"`
-	Rentable bool   `gorm:"type:boolean;not null"`
-	Memo     string `gorm:"type:text"`
+	ItemID      int           `gorm:"type:int;not null"`
+	UserID      string        `gorm:"type:text;not null"`
+	Rentable    bool          `gorm:"type:boolean;not null"`
+	Memo        string        `gorm:"type:text"`
+	Transaction []transaction `gorm:"foreignKey:OwnershipID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type ownershipRepository struct {

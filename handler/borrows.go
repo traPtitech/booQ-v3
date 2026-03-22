@@ -13,7 +13,7 @@ import (
 	"github.com/traPtitech/booQ-v3/usecase"
 )
 
-func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
+func (h *handler) PostBorrow(ctx echo.Context, _ openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
 	request := openapi.PostBorrowJSONRequestBody{}
 	if err := ctx.Bind(&request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "invalid request body")
@@ -32,7 +32,7 @@ func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, owne
 		purpose = *request.Propose
 	}
 
-	post, err := h.bu.PostRequest(itemId, userID, ownershipId, purpose, date, request.BorrowInClubRoom)
+	post, err := h.bu.PostRequest(userID, ownershipId, purpose, date, request.BorrowInClubRoom)
 	if err != nil {
 		if errors.Is(err, usecase.ErrInvalidDueDate) {
 			return ctx.JSON(http.StatusBadRequest, "due date must be in the future")
@@ -54,13 +54,13 @@ func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, owne
 	return ctx.JSON(http.StatusCreated, res)
 }
 
-func (h *handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) GetBorrowingById(ctx echo.Context, _ openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	userID, ok := middleware.GetUserID(ctx.Request().Context())
 	if !ok {
 		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
 	}
 
-	borrowing, err := h.bu.GetRequest(itemId, userID, ownershipId, borrowingId)
+	borrowing, err := h.bu.GetRequest(userID, ownershipId, borrowingId)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")
@@ -78,7 +78,7 @@ func (h *handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) PostBorrowReply(ctx echo.Context, _ openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	request := openapi.PostBorrowReplyJSONRequestBody{}
 	if err := ctx.Bind(&request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "invalid request body")
@@ -89,7 +89,7 @@ func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath,
 		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
 	}
 
-	reply, err := h.bu.ReplyRequest(itemId, userID, ownershipId, borrowingId, request.Answer, request.Comment)
+	reply, err := h.bu.ReplyRequest(userID, ownershipId, borrowingId, request.Answer, request.Comment)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")
@@ -105,7 +105,7 @@ func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath,
 	return ctx.JSON(http.StatusOK, res)
 }
 
-func (h *handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+func (h *handler) PostReturn(ctx echo.Context, _ openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	request := openapi.PostReturnJSONRequestBody{}
 	if err := ctx.Bind(&request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "invalid request body")
@@ -116,7 +116,7 @@ func (h *handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, owne
 		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
 	}
 
-	err := h.bu.ReturnItem(itemId, userID, ownershipId, borrowingId, request.Text)
+	err := h.bu.ReturnItem(userID, ownershipId, borrowingId, request.Text)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")

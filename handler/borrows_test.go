@@ -40,10 +40,9 @@ func TestHandler_PostBorrow(t *testing.T) {
 			requestBody: `{"dueDate":"2200-07-01","propose":"for study","borrowInClubRoom":false}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					PostRequest(1, "user1", 2, "for study", dueDate, false).
+					PostRequest("user1", 2, "for study", dueDate, false).
 					Return(&domain.Transaction{
 						ID:               100,
-						ItemID:           1,
 						UserID:           "user1",
 						OwnershipID:      2,
 						Purpose:          "for study",
@@ -88,25 +87,11 @@ func TestHandler_PostBorrow(t *testing.T) {
 			requestBody: `{"dueDate":"2200-07-01","propose":"for study","borrowInClubRoom":false}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					PostRequest(1, "user1", 2, "for study", dueDate, false).
+					PostRequest("user1", 2, "for study", dueDate, false).
 					Return(nil, assert.AnError).
 					Times(1)
 			},
 			expectedCode: http.StatusInternalServerError,
-		},
-		{
-			name:        "failure: item not found",
-			itemID:      "999",
-			ownershipID: "2",
-			userID:      "user1",
-			requestBody: `{"dueDate":"2200-07-01","propose":"for study","borrowInClubRoom":false}`,
-			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
-				u.EXPECT().
-					PostRequest(999, "user1", 2, "for study", dueDate, false).
-					Return(nil, domain.ErrNotFound).
-					Times(1)
-			},
-			expectedCode: http.StatusNotFound,
 		},
 		{
 			name:        "failure: ownership not found",
@@ -116,7 +101,7 @@ func TestHandler_PostBorrow(t *testing.T) {
 			requestBody: `{"dueDate":"2200-07-01","propose":"for study","borrowInClubRoom":false}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					PostRequest(1, "user1", 999, "for study", dueDate, false).
+					PostRequest("user1", 999, "for study", dueDate, false).
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
@@ -130,7 +115,7 @@ func TestHandler_PostBorrow(t *testing.T) {
 			requestBody: `{"dueDate":"2020-01-01","propose":"for study","borrowInClubRoom":false}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					PostRequest(1, "user1", 2, "for study", time.Date(2020, 1, 1, 23, 59, 59, 0, time.UTC), false).
+					PostRequest("user1", 2, "for study", time.Date(2020, 1, 1, 23, 59, 59, 0, time.UTC), false).
 					Return(nil, usecase.ErrInvalidDueDate).
 					Times(1)
 			},
@@ -189,10 +174,9 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			userID:      "user1",
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					GetRequest(1, "user1", 2, 100).
+					GetRequest("user1", 2, 100).
 					Return(&domain.Transaction{
 						ID:               100,
-						ItemID:           1,
 						UserID:           "user1",
 						OwnershipID:      2,
 						Purpose:          "for study",
@@ -220,7 +204,7 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			userID:      "user1",
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					GetRequest(1, "user1", 2, 100).
+					GetRequest("user1", 2, 100).
 					Return(nil, assert.AnError).
 					Times(1)
 			},
@@ -238,20 +222,6 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			expectedCode: http.StatusUnauthorized,
 		},
 		{
-			name:        "failure: item not found",
-			itemID:      "999",
-			ownershipID: "2",
-			borrowingID: "100",
-			userID:      "user1",
-			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
-				u.EXPECT().
-					GetRequest(999, "user1", 2, 100).
-					Return(nil, domain.ErrNotFound).
-					Times(1)
-			},
-			expectedCode: http.StatusNotFound,
-		},
-		{
 			name:        "failure: ownership not found",
 			itemID:      "1",
 			ownershipID: "999",
@@ -259,7 +229,7 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			userID:      "user1",
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					GetRequest(1, "user1", 999, 100).
+					GetRequest("user1", 999, 100).
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
@@ -318,7 +288,7 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			requestBody: `{"answer":true,"comment":"ok"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReplyRequest(1, "owner1", 2, 100, true, "ok").
+					ReplyRequest("owner1", 2, 100, true, "ok").
 					Return(&domain.Transaction{
 						Message: "ok",
 					}, nil).
@@ -341,7 +311,7 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			requestBody: `{"answer":false,"comment":"no"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReplyRequest(1, "owner1", 2, 100, false, "no").
+					ReplyRequest("owner1", 2, 100, false, "no").
 					Return(&domain.Transaction{
 						Message: "no",
 					}, nil).
@@ -364,7 +334,7 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			requestBody: `{"answer":true,"comment":"ok"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReplyRequest(1, "owner1", 2, 100, true, "ok").
+					ReplyRequest("owner1", 2, 100, true, "ok").
 					Return(nil, assert.AnError).
 					Times(1)
 			},
@@ -383,21 +353,6 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			expectedCode: http.StatusUnauthorized,
 		},
 		{
-			name:        "failure: item not found",
-			itemID:      "999",
-			ownershipID: "2",
-			borrowingID: "100",
-			userID:      "owner1",
-			requestBody: `{"answer":true,"comment":"ok"}`,
-			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
-				u.EXPECT().
-					ReplyRequest(999, "owner1", 2, 100, true, "ok").
-					Return(nil, domain.ErrNotFound).
-					Times(1)
-			},
-			expectedCode: http.StatusNotFound,
-		},
-		{
 			name:        "failure: ownership not found",
 			itemID:      "1",
 			ownershipID: "999",
@@ -406,7 +361,7 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			requestBody: `{"answer":true,"comment":"ok"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReplyRequest(1, "owner1", 999, 100, true, "ok").
+					ReplyRequest("owner1", 999, 100, true, "ok").
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
@@ -465,7 +420,7 @@ func TestHandler_PostReturn(t *testing.T) {
 			requestBody: `{"text":"returning"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReturnItem(1, "user1", 2, 100, "returning").
+					ReturnItem("user1", 2, 100, "returning").
 					Return(nil).
 					Times(1)
 			},
@@ -480,7 +435,7 @@ func TestHandler_PostReturn(t *testing.T) {
 			requestBody: `{"text":"returning"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReturnItem(1, "user1", 2, 100, "returning").
+					ReturnItem("user1", 2, 100, "returning").
 					Return(assert.AnError).
 					Times(1)
 			},
@@ -499,21 +454,6 @@ func TestHandler_PostReturn(t *testing.T) {
 			expectedCode: http.StatusUnauthorized,
 		},
 		{
-			name:        "failure: item not found",
-			itemID:      "999",
-			ownershipID: "2",
-			borrowingID: "100",
-			userID:      "user1",
-			requestBody: `{"text":"returning"}`,
-			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
-				u.EXPECT().
-					ReturnItem(999, "user1", 2, 100, "returning").
-					Return(domain.ErrNotFound).
-					Times(1)
-			},
-			expectedCode: http.StatusNotFound,
-		},
-		{
 			name:        "failure: ownership not found",
 			itemID:      "1",
 			ownershipID: "999",
@@ -522,7 +462,7 @@ func TestHandler_PostReturn(t *testing.T) {
 			requestBody: `{"text":"returning"}`,
 			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
 				u.EXPECT().
-					ReturnItem(1, "user1", 999, 100, "returning").
+					ReturnItem("user1", 999, 100, "returning").
 					Return(domain.ErrNotFound).
 					Times(1)
 			},

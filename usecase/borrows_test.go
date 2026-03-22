@@ -14,34 +14,28 @@ import (
 func TestBorrowingUseCase_PostRequest(t *testing.T) {
 	testCases := []struct {
 		name                string
-		itemID              int
 		userID              string
 		ownershipID         int
 		purpose             string
 		dueDate             time.Time
 		borrowInClubRoom    bool
-		setupMock           func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository)
+		setupMock           func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository)
 		expectedTransaction *domain.Transaction
 		expectedError       error
 	}{
 		{
 			name:             "success",
-			itemID:           1,
 			userID:           "user1",
 			ownershipID:      1,
 			purpose:          "for study",
 			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
-			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
-				itemRepo.EXPECT().
-					GetByID(1).
-					Return(&domain.Item{ID: 1}, nil)
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				ownershipRepo.EXPECT().
 					GetByID(1).
 					Return(&domain.Ownership{ID: 1}, nil)
 				transactionRepo.EXPECT().
 					Create(&domain.Transaction{
-						ItemID:           1,
 						UserID:           "user1",
 						OwnershipID:      1,
 						Status:           domain.BorrowingStatusRequested,
@@ -51,7 +45,6 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 					}).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Purpose:     "for study",
@@ -61,7 +54,6 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			},
 			expectedTransaction: &domain.Transaction{
 				ID:          1,
-				ItemID:      1,
 				UserID:      "user1",
 				OwnershipID: 1,
 				Purpose:     "for study",
@@ -71,33 +63,13 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name:             "failure: item not found",
-			itemID:           999,
-			userID:           "user1",
-			ownershipID:      1,
-			purpose:          "for study",
-			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
-			borrowInClubRoom: false,
-			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
-				itemRepo.EXPECT().
-					GetByID(999).
-					Return(nil, domain.ErrNotFound)
-			},
-			expectedTransaction: nil,
-			expectedError:       domain.ErrNotFound,
-		},
-		{
 			name:             "failure: ownership not found",
-			itemID:           1,
 			userID:           "user1",
 			ownershipID:      999,
 			purpose:          "for study",
 			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
-			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
-				itemRepo.EXPECT().
-					GetByID(1).
-					Return(&domain.Item{ID: 1}, nil)
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				ownershipRepo.EXPECT().
 					GetByID(999).
 					Return(nil, domain.ErrNotFound)
@@ -107,16 +79,12 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 		},
 		{
 			name:             "failure: due date in the past",
-			itemID:           1,
 			userID:           "user1",
 			ownershipID:      1,
 			purpose:          "for study",
 			dueDate:          time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
-			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
-				itemRepo.EXPECT().
-					GetByID(1).
-					Return(&domain.Item{ID: 1}, nil)
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				ownershipRepo.EXPECT().
 					GetByID(1).
 					Return(&domain.Ownership{ID: 1}, nil)
@@ -131,21 +99,20 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			itemRepo := mock_domain.NewMockItemRepository(ctrl)
 			ownershipRepo := mock_domain.NewMockOwnershipRepository(ctrl)
 			transactionRepo := mock_domain.NewMockTransactionRepository(ctrl)
 
-			tc.setupMock(itemRepo, ownershipRepo, transactionRepo)
+			tc.setupMock(ownershipRepo, transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, itemRepo, ownershipRepo)
-			transaction, err := u.PostRequest(tc.itemID, tc.userID, tc.ownershipID, tc.purpose, tc.dueDate, tc.borrowInClubRoom)
+			u := NewBorrowingUseCase(transactionRepo, ownershipRepo)
+			transaction, err := u.PostRequest(tc.userID, tc.ownershipID, tc.purpose, tc.dueDate, tc.borrowInClubRoom)
 
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)
 				return
 			}
 
-			assert .Equal(t, tc.expectedTransaction, transaction)
+			assert.Equal(t, tc.expectedTransaction, transaction)
 		})
 	}
 }
@@ -172,7 +139,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
@@ -180,7 +146,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 			},
 			expectedTransaction: &domain.Transaction{
 				ID:          1,
-				ItemID:      1,
 				UserID:      "user1",
 				OwnershipID: 1,
 				Status:      domain.BorrowingStatusRequested,
@@ -212,7 +177,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 					}, nil)
@@ -231,7 +195,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 					}, nil)
@@ -250,7 +213,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 					}, nil)
@@ -269,8 +231,8 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 
 			tc.setupMock(transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil, nil)
-			transaction, err := u.GetRequest(tc.itemID, tc.userID, tc.ownershipID, tc.borrowingID)
+			u := NewBorrowingUseCase(transactionRepo, nil)
+			transaction, err := u.GetRequest(tc.userID, tc.ownershipID, tc.borrowingID)
 
 			if tc.expectedError != nil {
 				if errors.Is(tc.expectedError, assert.AnError) {
@@ -289,7 +251,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 	testCases := []struct {
 		name                string
-		itemID              int
 		userID              string
 		ownershipID         int
 		borrowingID         int
@@ -301,7 +262,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 	}{
 		{
 			name:        "success: approve",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -312,7 +272,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
@@ -327,7 +286,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			},
 			expectedTransaction: &domain.Transaction{
 				ID:          1,
-				ItemID:      1,
 				UserID:      "user1",
 				OwnershipID: 1,
 				Status:      domain.BorrowingStatusBorrowed,
@@ -337,7 +295,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 		},
 		{
 			name:        "success: reject",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -348,7 +305,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
@@ -363,7 +319,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			},
 			expectedTransaction: &domain.Transaction{
 				ID:          1,
-				ItemID:      1,
 				UserID:      "user1",
 				OwnershipID: 1,
 				Status:      domain.BorrowingStatusRejected,
@@ -373,7 +328,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 		},
 		{
 			name:        "failure: get request error",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -389,7 +343,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 		},
 		{
 			name:        "failure: invalid status",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -400,7 +353,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusBorrowed,
@@ -420,8 +372,8 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 
 			tc.setupMock(transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil, nil)
-			transaction, err := u.ReplyRequest(tc.itemID, tc.userID, tc.ownershipID, tc.borrowingID, tc.approve, tc.message)
+			u := NewBorrowingUseCase(transactionRepo, nil)
+			transaction, err := u.ReplyRequest(tc.userID, tc.ownershipID, tc.borrowingID, tc.approve, tc.message)
 
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)
@@ -438,7 +390,6 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 	testCases := []struct {
 		name          string
-		itemID        int
 		userID        string
 		ownershipID   int
 		borrowingID   int
@@ -448,7 +399,6 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 	}{
 		{
 			name:        "success",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -458,7 +408,6 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusBorrowed,
@@ -475,7 +424,6 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 		},
 		{
 			name:        "failure: get request error",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -489,7 +437,6 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 		},
 		{
 			name:        "failure: invalid status",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -499,7 +446,6 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 					GetByID(1).
 					Return(&domain.Transaction{
 						ID:          1,
-						ItemID:      1,
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
@@ -518,8 +464,8 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 
 			tc.setupMock(transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil, nil)
-			err := u.ReturnItem(tc.itemID, tc.userID, tc.ownershipID, tc.borrowingID, tc.message)
+			u := NewBorrowingUseCase(transactionRepo, nil)
+			err := u.ReturnItem(tc.userID, tc.ownershipID, tc.borrowingID, tc.message)
 
 			if tc.expectedError != nil {
 				assert.ErrorIs(t, err, tc.expectedError)

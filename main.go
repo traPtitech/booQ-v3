@@ -49,7 +49,7 @@ func main() {
 	itemUseCase := usecase.NewItemUseCase(itemRepo)
 	fileUseCase := usecase.NewFileUseCase(fileRepo, fileStorage)
 	ownershipUseCase := usecase.NewOwnershipUseCase(ownershipRepo)
-	borrowingUseCase := usecase.NewBorrowingUseCase(nil, itemRepo, ownershipRepo)
+	borrowingUseCase := usecase.NewBorrowingUseCase(nil, ownershipRepo)
 
 	// Handler
 	h := handler.NewHandler(itemUseCase, fileUseCase, ownershipUseCase, borrowingUseCase)

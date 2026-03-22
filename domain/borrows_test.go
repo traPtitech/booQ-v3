@@ -116,8 +116,7 @@ func TestNewTransaction(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tr := NewTransaction(tt.itemID, tt.userID, tt.ownershipID, tt.purpose, tt.borrowInClubRoom, tt.dueDate)
-			assert.Equal(t, tt.itemID, tr.ItemID)
+			tr := NewTransaction(tt.userID, tt.ownershipID, tt.purpose, tt.borrowInClubRoom, tt.dueDate)
 			assert.Equal(t, tt.userID, tr.UserID)
 			assert.Equal(t, tt.ownershipID, tr.OwnershipID)
 			assert.Equal(t, tt.purpose, tr.Purpose)

@@ -42,60 +42,60 @@ func (m *MockBorrowingUseCase) EXPECT() *MockBorrowingUseCaseMockRecorder {
 }
 
 // GetRequest mocks base method.
-func (m *MockBorrowingUseCase) GetRequest(itemID int, userID string, ownershipID, borrowingID int) (*domain.Transaction, error) {
+func (m *MockBorrowingUseCase) GetRequest(userID string, ownershipID, borrowingID int) (*domain.Transaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRequest", itemID, userID, ownershipID, borrowingID)
+	ret := m.ctrl.Call(m, "GetRequest", userID, ownershipID, borrowingID)
 	ret0, _ := ret[0].(*domain.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRequest indicates an expected call of GetRequest.
-func (mr *MockBorrowingUseCaseMockRecorder) GetRequest(itemID, userID, ownershipID, borrowingID any) *gomock.Call {
+func (mr *MockBorrowingUseCaseMockRecorder) GetRequest(userID, ownershipID, borrowingID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).GetRequest), itemID, userID, ownershipID, borrowingID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).GetRequest), userID, ownershipID, borrowingID)
 }
 
 // PostRequest mocks base method.
-func (m *MockBorrowingUseCase) PostRequest(itemID int, userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error) {
+func (m *MockBorrowingUseCase) PostRequest(userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PostRequest", itemID, userID, ownershipID, purpose, dueDate, borrowInClubRoom)
+	ret := m.ctrl.Call(m, "PostRequest", userID, ownershipID, purpose, dueDate, borrowInClubRoom)
 	ret0, _ := ret[0].(*domain.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // PostRequest indicates an expected call of PostRequest.
-func (mr *MockBorrowingUseCaseMockRecorder) PostRequest(itemID, userID, ownershipID, purpose, dueDate, borrowInClubRoom any) *gomock.Call {
+func (mr *MockBorrowingUseCaseMockRecorder) PostRequest(userID, ownershipID, purpose, dueDate, borrowInClubRoom any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).PostRequest), itemID, userID, ownershipID, purpose, dueDate, borrowInClubRoom)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).PostRequest), userID, ownershipID, purpose, dueDate, borrowInClubRoom)
 }
 
 // ReplyRequest mocks base method.
-func (m *MockBorrowingUseCase) ReplyRequest(itemID int, userID string, ownershipID, borrowingID int, approve bool, message string) (*domain.Transaction, error) {
+func (m *MockBorrowingUseCase) ReplyRequest(userID string, ownershipID, borrowingID int, approve bool, message string) (*domain.Transaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReplyRequest", itemID, userID, ownershipID, borrowingID, approve, message)
+	ret := m.ctrl.Call(m, "ReplyRequest", userID, ownershipID, borrowingID, approve, message)
 	ret0, _ := ret[0].(*domain.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReplyRequest indicates an expected call of ReplyRequest.
-func (mr *MockBorrowingUseCaseMockRecorder) ReplyRequest(itemID, userID, ownershipID, borrowingID, approve, message any) *gomock.Call {
+func (mr *MockBorrowingUseCaseMockRecorder) ReplyRequest(userID, ownershipID, borrowingID, approve, message any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReplyRequest), itemID, userID, ownershipID, borrowingID, approve, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReplyRequest), userID, ownershipID, borrowingID, approve, message)
 }
 
 // ReturnItem mocks base method.
-func (m *MockBorrowingUseCase) ReturnItem(itemID int, userID string, ownershipID, borrowingID int, message string) error {
+func (m *MockBorrowingUseCase) ReturnItem(userID string, ownershipID, borrowingID int, message string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReturnItem", itemID, userID, ownershipID, borrowingID, message)
+	ret := m.ctrl.Call(m, "ReturnItem", userID, ownershipID, borrowingID, message)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ReturnItem indicates an expected call of ReturnItem.
-func (mr *MockBorrowingUseCaseMockRecorder) ReturnItem(itemID, userID, ownershipID, borrowingID, message any) *gomock.Call {
+func (mr *MockBorrowingUseCaseMockRecorder) ReturnItem(userID, ownershipID, borrowingID, message any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReturnItem", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReturnItem), itemID, userID, ownershipID, borrowingID, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReturnItem", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReturnItem), userID, ownershipID, borrowingID, message)
 }

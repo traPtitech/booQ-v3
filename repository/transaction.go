@@ -10,7 +10,6 @@ import (
 
 type transaction struct {
 	GormModel
-	ItemID           int        `gorm:"type:int;not null"`
 	UserID           string     `gorm:"type:varchar(32);not null"`
 	OwnershipID      int        `gorm:"type:int;not null"`
 	Status           string     `gorm:"type:varchar(32);not null"`
@@ -26,7 +25,6 @@ type transaction struct {
 func (t transaction) toDomain() *domain.Transaction {
 	return &domain.Transaction{
 		ID:               t.ID,
-		ItemID:           t.ItemID,
 		UserID:           t.UserID,
 		OwnershipID:      t.OwnershipID,
 		Status:           domain.BorrowingStatus(t.Status),
@@ -45,7 +43,6 @@ func (t transaction) toDomain() *domain.Transaction {
 func toTransactionModel(t *domain.Transaction) *transaction {
 	return &transaction{
 		GormModel:        GormModel{ID: t.ID, CreatedAt: t.CreatedAt, UpdatedAt: t.UpdatedAt},
-		ItemID:           t.ItemID,
 		UserID:           t.UserID,
 		OwnershipID:      t.OwnershipID,
 		Status:           string(t.Status),
