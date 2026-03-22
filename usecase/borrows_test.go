@@ -30,7 +30,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			userID:           "user1",
 			ownershipID:      1,
 			purpose:          "for study",
-			dueDate:          time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
 			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				itemRepo.EXPECT().
@@ -46,7 +46,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 						OwnershipID:      1,
 						Status:           domain.BorrowingStatusRequested,
 						Purpose:          "for study",
-						DueDate:          time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+						DueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 						BorrowInClubRoom: false,
 					}).
 					Return(&domain.Transaction{
@@ -55,7 +55,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 						UserID:      "user1",
 						OwnershipID: 1,
 						Purpose:     "for study",
-						DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+						DueDate:     time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 						Status:      domain.BorrowingStatusRequested,
 					}, nil)
 			},
@@ -65,7 +65,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 				UserID:      "user1",
 				OwnershipID: 1,
 				Purpose:     "for study",
-				DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+				DueDate:     time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 				Status:      domain.BorrowingStatusRequested,
 			},
 			expectedError: nil,
@@ -76,7 +76,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			userID:           "user1",
 			ownershipID:      1,
 			purpose:          "for study",
-			dueDate:          time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
 			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				itemRepo.EXPECT().
@@ -92,7 +92,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			userID:           "user1",
 			ownershipID:      999,
 			purpose:          "for study",
-			dueDate:          time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
+			dueDate:          time.Date(2200, 7, 1, 0, 0, 0, 0, time.UTC),
 			borrowInClubRoom: false,
 			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				itemRepo.EXPECT().
@@ -145,7 +145,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 				return
 			}
 
-			assert.Equal(t, tc.expectedTransaction, transaction)
+			assert .Equal(t, tc.expectedTransaction, transaction)
 		})
 	}
 }
