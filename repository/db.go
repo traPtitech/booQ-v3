@@ -17,6 +17,7 @@ var allTables = []interface{}{
 	equipment{},
 	file{},
 	ownership{},
+	transaction{},
 }
 
 type GormModel struct {
