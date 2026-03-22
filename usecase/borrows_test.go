@@ -105,6 +105,25 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 			expectedTransaction: nil,
 			expectedError:       domain.ErrNotFound,
 		},
+		{
+			name:             "failure: due date in the past",
+			itemID:           1,
+			userID:           "user1",
+			ownershipID:      1,
+			purpose:          "for study",
+			dueDate:          time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			borrowInClubRoom: false,
+			setupMock: func(itemRepo *mock_domain.MockItemRepository, ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
+				itemRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Item{ID: 1}, nil)
+				ownershipRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{ID: 1}, nil)
+			},
+			expectedTransaction: nil,
+			expectedError:       ErrInvalidDueDate,
+		},
 	}
 
 	for _, tc := range testCases {

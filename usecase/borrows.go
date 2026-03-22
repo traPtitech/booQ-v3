@@ -39,6 +39,10 @@ func (b *borrowingUseCase) PostRequest(itemID int, userID string, ownershipID in
 		return nil, fmt.Errorf("ownership with ID %d not found: %w", ownershipID, err)
 	}
 
+	if dueDate.Before(time.Now()) {
+		return nil, ErrInvalidDueDate
+	}
+
 	t := domain.NewTransaction(itemID, userID, ownershipID, purpose, borrowInClubRoom, dueDate)
 	return b.transactionRepo.Create(t)
 }
