@@ -10,13 +10,15 @@ type handler struct {
 	fu usecase.FileUseCase
 	iu usecase.ItemUseCase
 	ou usecase.OwnershipUseCase
+	bu usecase.BorrowingUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase) openapi.ServerInterface {
+func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase) openapi.ServerInterface {
 	return &handler{
 		fu: fu,
 		iu: iu,
 		ou: ou,
+		bu: bu,
 	}
 }
 
@@ -41,26 +43,6 @@ func (h *handler) RemoveLike(ctx echo.Context, itemId openapi.ItemIdInPath) erro
 }
 
 func (h *handler) AddLike(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostBorrow(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) GetBorrowingById(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostBorrowReply(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostReturn(ctx echo.Context, itemId openapi.ItemIdInPath, ownershipId openapi.OwnershipIdInPath, borrowingId openapi.BorrowingIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }

@@ -10,10 +10,11 @@ import (
 
 type ownership struct {
 	GormModel
-	ItemID   int    `gorm:"type:int;not null"`
-	UserID   string `gorm:"type:text;not null"`
-	Rentable bool   `gorm:"type:boolean;not null"`
-	Memo     string `gorm:"type:text"`
+	ItemID      int           `gorm:"type:int;not null"`
+	UserID      string        `gorm:"type:text;not null"`
+	Rentable    bool          `gorm:"type:boolean;not null"`
+	Memo        string        `gorm:"type:text"`
+	Transaction []transaction `gorm:"foreignKey:OwnershipID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type ownershipRepository struct {
@@ -113,6 +114,7 @@ func (repo *ownershipRepository) Update(d *domain.Ownership) (*domain.Ownership,
 	return model.toDomain(), nil
 }
 
+// TODO: まだ借りている途中のtransactionがある場合にどうする？
 func (repo *ownershipRepository) Delete(id int) error {
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
 		result := tx.Delete(&ownership{}, id)
