@@ -114,6 +114,7 @@ func (repo *ownershipRepository) Update(d *domain.Ownership) (*domain.Ownership,
 	return model.toDomain(), nil
 }
 
+// TODO: まだ借りている途中のtransactionがある場合にどうする？
 func (repo *ownershipRepository) Delete(id int) error {
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
 		result := tx.Delete(&ownership{}, id)

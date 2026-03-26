@@ -194,7 +194,7 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 		name     string
 		setup    func(t *testing.T, db *gorm.DB) int
 		expected []*domain.Transaction
-		wamtErr  bool
+		wantErr  bool
 	}{
 		{
 			name: "success",
@@ -245,7 +245,7 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 					DueDate:     time.Date(2024, 7, 2, 0, 0, 0, 0, time.UTC),
 				},
 			},
-			wamtErr: false,
+			wantErr: false,
 		},
 		{
 			name: "success: empty result",
@@ -253,7 +253,7 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 				return 9999
 			},
 			expected: []*domain.Transaction{},
-			wamtErr:  false,
+			wantErr:  false,
 		},
 	}
 
@@ -264,7 +264,7 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 			ownershipID := tc.setup(t, db)
 
 			transactions, err := repo.GetByOwnershipID(ownershipID)
-			if tc.wamtErr {
+			if tc.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, transactions)
 			} else {
