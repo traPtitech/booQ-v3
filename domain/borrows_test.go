@@ -96,7 +96,6 @@ func TestNewTransaction(t *testing.T) {
 	dueDate := time.Now().Add(24 * time.Hour)
 	tests := []struct {
 		name             string
-		itemID           int
 		userID           string
 		ownershipID      int
 		purpose          string
@@ -105,7 +104,6 @@ func TestNewTransaction(t *testing.T) {
 	}{
 		{
 			name:             "success",
-			itemID:           1,
 			userID:           "user1",
 			ownershipID:      1,
 			purpose:          "purpose",
