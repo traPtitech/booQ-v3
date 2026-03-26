@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"errors"
 	"testing"
 	"time"
 
@@ -178,7 +177,7 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					}, nil)
 			},
 			expectedTransaction: nil,
-			expectedError:       assert.AnError,
+			expectedError:       ErrForbidden,
 		},
 		{
 			name:        "failure: ownershipID mismatch",
@@ -195,7 +194,7 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 					}, nil)
 			},
 			expectedTransaction: nil,
-			expectedError:       assert.AnError,
+			expectedError:       domain.ErrNotFound,
 		},
 	}
 
@@ -212,11 +211,7 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 			transaction, err := u.GetRequest(tc.userID, tc.ownershipID, tc.borrowingID)
 
 			if tc.expectedError != nil {
-				if errors.Is(tc.expectedError, assert.AnError) {
-					assert.Error(t, err)
-				} else {
-					assert.ErrorIs(t, err, tc.expectedError)
-				}
+				assert.ErrorIs(t, err, tc.expectedError)
 				return
 			}
 

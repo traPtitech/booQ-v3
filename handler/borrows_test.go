@@ -235,6 +235,20 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			},
 			expectedCode: http.StatusNotFound,
 		},
+		{
+			name:        "failure: forbidden",
+			itemID:      "1",
+			ownershipID: "2",
+			borrowingID: "100",
+			userID:      "user1",
+			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
+				u.EXPECT().
+					GetRequest("user1", 2, 100).
+					Return(nil, usecase.ErrForbidden).
+					Times(1)
+			},
+			expectedCode: http.StatusForbidden,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -367,6 +381,21 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			},
 			expectedCode: http.StatusNotFound,
 		},
+		{
+			name:        "failure: forbidden",
+			itemID:      "1",
+			ownershipID: "2",
+			borrowingID: "100",
+			userID:      "owner1",
+			requestBody: `{"answer":true,"comment":"ok"}`,
+			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
+				u.EXPECT().
+					ReplyRequest("owner1", 2, 100, true, "ok").
+					Return(nil, usecase.ErrForbidden).
+					Times(1)
+			},
+			expectedCode: http.StatusForbidden,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -467,6 +496,21 @@ func TestHandler_PostReturn(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
+		},
+		{
+			name:        "failure: forbidden",
+			itemID:      "1",
+			ownershipID: "2",
+			borrowingID: "100",
+			userID:      "user1",
+			requestBody: `{"text":"returning"}`,
+			setupMock: func(u *mock_usecase.MockBorrowingUseCase) {
+				u.EXPECT().
+					ReturnItem("user1", 2, 100, "returning").
+					Return(usecase.ErrForbidden).
+					Times(1)
+			},
+			expectedCode: http.StatusForbidden,
 		},
 	}
 

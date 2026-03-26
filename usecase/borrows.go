@@ -47,11 +47,11 @@ func (b *borrowingUseCase) GetRequest(userID string, ownershipID int, borrowingI
 	}
 
 	if t.OwnershipID != ownershipID {
-		return nil, fmt.Errorf("transaction with ID %d does not belong to ownership with ID %d", borrowingID, ownershipID)
+		return nil, fmt.Errorf("%w: transaction with ID %d does not belong to ownership with ID %d", domain.ErrNotFound, borrowingID, ownershipID)
 	}
 
 	if t.UserID != userID {
-		return nil, fmt.Errorf("transaction with ID %d does not belong to user with ID %s", borrowingID, userID)
+		return nil, fmt.Errorf("%w: transaction with ID %d does not belong to user with ID %s", ErrForbidden, borrowingID, userID)
 	}
 
 	return t, nil

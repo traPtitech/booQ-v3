@@ -62,6 +62,9 @@ func (h *handler) GetBorrowingById(ctx echo.Context, _ openapi.ItemIdInPath, own
 
 	borrowing, err := h.bu.GetRequest(userID, ownershipId, borrowingId)
 	if err != nil {
+		if errors.Is(err, usecase.ErrForbidden) {
+			return ctx.JSON(http.StatusForbidden, "you cannot access this borrow request")
+		}
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")
 		}
@@ -91,6 +94,9 @@ func (h *handler) PostBorrowReply(ctx echo.Context, _ openapi.ItemIdInPath, owne
 
 	reply, err := h.bu.ReplyRequest(userID, ownershipId, borrowingId, request.Answer, request.Comment)
 	if err != nil {
+		if errors.Is(err, usecase.ErrForbidden) {
+			return ctx.JSON(http.StatusForbidden, "you cannot reply to this borrow request")
+		}
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")
 		}
@@ -118,6 +124,9 @@ func (h *handler) PostReturn(ctx echo.Context, _ openapi.ItemIdInPath, ownership
 
 	err := h.bu.ReturnItem(userID, ownershipId, borrowingId, request.Text)
 	if err != nil {
+		if errors.Is(err, usecase.ErrForbidden) {
+			return ctx.JSON(http.StatusForbidden, "you cannot return this borrow request")
+		}
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "borrow request not found")
 		}
