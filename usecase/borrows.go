@@ -58,9 +58,22 @@ func (b *borrowingUseCase) GetRequest(userID string, ownershipID int, borrowingI
 }
 
 func (b *borrowingUseCase) ReplyRequest(userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error) {
-	t, err := b.GetRequest(userID, ownershipID, borrowingID)
+	t, err := b.transactionRepo.GetByID(borrowingID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("transaction with ID %d not found: %w", borrowingID, err)
+	}
+
+	if t.OwnershipID != ownershipID {
+		return nil, fmt.Errorf("%w: transaction with ID %d does not belong to ownership with ID %d", domain.ErrNotFound, borrowingID, ownershipID)
+	}
+
+	o, err := b.ownershipRepo.GetByID(ownershipID)
+	if err != nil {
+		return nil, fmt.Errorf("ownership with ID %d not found: %w", ownershipID, err)
+	}
+
+	if o.UserID != userID {
+		return nil, fmt.Errorf("%w: ownership with ID %d does not belong to user with ID %s", ErrForbidden, ownershipID, userID)
 	}
 
 	if approve {
