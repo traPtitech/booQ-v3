@@ -109,15 +109,13 @@ func (h *handler) PostItem(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to create items: %v", err))
 	}
 
-	if h.tu != nil {
-		for i, createdItem := range createdItems {
-			var tags []string
-			if itemRequest[i].Tags != nil {
-				tags = *itemRequest[i].Tags
-			}
-			if err := h.tu.ReplaceByItemID(createdItem.ID, tags); err != nil {
-				return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to save tags: %v", err))
-			}
+	for i, createdItem := range createdItems {
+		var tags []string
+		if itemRequest[i].Tags != nil {
+			tags = *itemRequest[i].Tags
+		}
+		if err := h.tu.ReplaceByItemID(createdItem.ID, tags); err != nil {
+			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to save tags: %v", err))
 		}
 	}
 

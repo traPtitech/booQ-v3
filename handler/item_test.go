@@ -220,9 +220,20 @@ func TestHandler_GetItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
+			mockTagUseCase.
+				EXPECT().
+				GetByItemID(gomock.Any()).
+				Return([]*domain.Tag{}, nil).
+				AnyTimes()
+			mockTagUseCase.
+				EXPECT().
+				ReplaceByItemID(gomock.Any(), gomock.Any()).
+				Return(nil).
+				AnyTimes()
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil, nil, nil)
+			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -384,9 +395,20 @@ func TestHandler_GetItems(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
+			mockTagUseCase.
+				EXPECT().
+				GetByItemID(gomock.Any()).
+				Return([]*domain.Tag{}, nil).
+				AnyTimes()
+			mockTagUseCase.
+				EXPECT().
+				ReplaceByItemID(gomock.Any(), gomock.Any()).
+				Return(nil).
+				AnyTimes()
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil, nil, nil)
+			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -596,9 +618,20 @@ func TestHandler_CreateItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
+			mockTagUseCase.
+				EXPECT().
+				GetByItemID(gomock.Any()).
+				Return([]*domain.Tag{}, nil).
+				AnyTimes()
+			mockTagUseCase.
+				EXPECT().
+				ReplaceByItemID(gomock.Any(), gomock.Any()).
+				Return(nil).
+				AnyTimes()
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil, nil, nil)
+			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -777,9 +810,20 @@ func TestHandler_UpdateItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
+			mockTagUseCase.
+				EXPECT().
+				GetByItemID(gomock.Any()).
+				Return([]*domain.Tag{}, nil).
+				AnyTimes()
+			mockTagUseCase.
+				EXPECT().
+				ReplaceByItemID(gomock.Any(), gomock.Any()).
+				Return(nil).
+				AnyTimes()
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil, nil, nil)
+			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -847,9 +891,20 @@ func TestHandler_DeleteItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
+			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
+			mockTagUseCase.
+				EXPECT().
+				GetByItemID(gomock.Any()).
+				Return([]*domain.Tag{}, nil).
+				AnyTimes()
+			mockTagUseCase.
+				EXPECT().
+				ReplaceByItemID(gomock.Any(), gomock.Any()).
+				Return(nil).
+				AnyTimes()
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, nil, nil, nil)
+			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)

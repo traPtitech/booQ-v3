@@ -137,6 +137,7 @@ func TestLikeRepository_Create(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			db := setupTestDB(t)
 			repo := NewLikeRepository(db)
+			tc.setup(t, db)
 
 			err := repo.Create(tc.like)
 			if tc.wantErr {
