@@ -120,7 +120,6 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 func TestBorrowingUseCase_GetRequest(t *testing.T) {
 	testCases := []struct {
 		name                string
-		itemID              int
 		userID              string
 		ownershipID         int
 		borrowingID         int
@@ -130,7 +129,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 	}{
 		{
 			name:        "success",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -154,7 +152,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 		},
 		{
 			name:        "failure: transaction not found",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 1,
 			borrowingID: 999,
@@ -167,26 +164,7 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 			expectedError:       domain.ErrNotFound,
 		},
 		{
-			name:        "failure: itemID mismatch",
-			itemID:      2,
-			userID:      "user1",
-			ownershipID: 1,
-			borrowingID: 1,
-			setupMock: func(transactionRepo *mock_domain.MockTransactionRepository) {
-				transactionRepo.EXPECT().
-					GetByID(1).
-					Return(&domain.Transaction{
-						ID:          1,
-						UserID:      "user1",
-						OwnershipID: 1,
-					}, nil)
-			},
-			expectedTransaction: nil,
-			expectedError:       assert.AnError, // Will check error message or use a more specific error if possible
-		},
-		{
 			name:        "failure: userID mismatch",
-			itemID:      1,
 			userID:      "user2",
 			ownershipID: 1,
 			borrowingID: 1,
@@ -204,7 +182,6 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 		},
 		{
 			name:        "failure: ownershipID mismatch",
-			itemID:      1,
 			userID:      "user1",
 			ownershipID: 2,
 			borrowingID: 1,
