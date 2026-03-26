@@ -9,6 +9,22 @@ import (
 	"gorm.io/gorm"
 )
 
+func createTestOwnership(t *testing.T, db *gorm.DB, userID string) *ownership {
+	t.Helper()
+
+	model := &ownership{
+		ItemID:   1,
+		UserID:   userID,
+		Rentable: true,
+		Memo:     "test ownership",
+	}
+	if err := db.Create(model).Error; err != nil {
+		t.Fatalf("failed to create test ownership: %v", err)
+	}
+
+	return model
+}
+
 func TestTransactionRepository_GetByID(t *testing.T) {
 	testCases := []struct {
 		name     string
@@ -19,9 +35,10 @@ func TestTransactionRepository_GetByID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) int {
+				o := createTestOwnership(t, db, "owner1")
 				model := &transaction{
 					UserID:           "user1",
-					OwnershipID:      1,
+					OwnershipID:      o.ID,
 					Status:           string(domain.BorrowingStatusRequested),
 					Purpose:          "test purpose",
 					BorrowInClubRoom: false,
@@ -88,24 +105,27 @@ func TestTransactionRepository_GetByUserID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) string {
+				o1 := createTestOwnership(t, db, "owner1")
+				o2 := createTestOwnership(t, db, "owner2")
+				o3 := createTestOwnership(t, db, "owner3")
 				models := []*transaction{
 					{
 						UserID:      "user1",
-						OwnershipID: 1,
+						OwnershipID: o1.ID,
 						Status:      "requested",
 						Purpose:     "p1",
 						DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 					},
 					{
 						UserID:      "user1",
-						OwnershipID: 2,
+						OwnershipID: o2.ID,
 						Status:      "requested",
 						Purpose:     "p2",
 						DueDate:     time.Date(2024, 7, 2, 0, 0, 0, 0, time.UTC),
 					},
 					{
 						UserID:      "user2",
-						OwnershipID: 3,
+						OwnershipID: o3.ID,
 						Status:      "requested",
 						Purpose:     "p3",
 						DueDate:     time.Date(2024, 7, 3, 0, 0, 0, 0, time.UTC),
@@ -179,24 +199,26 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) int {
+				o1 := createTestOwnership(t, db, "owner1")
+				o2 := createTestOwnership(t, db, "owner2")
 				models := []*transaction{
 					{
 						UserID:      "user1",
-						OwnershipID: 1,
+						OwnershipID: o1.ID,
 						Status:      "requested",
 						Purpose:     "p1",
 						DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 					},
 					{
 						UserID:      "user2",
-						OwnershipID: 1,
+						OwnershipID: o1.ID,
 						Status:      "requested",
 						Purpose:     "p2",
 						DueDate:     time.Date(2024, 7, 2, 0, 0, 0, 0, time.UTC),
 					},
 					{
 						UserID:      "user3",
-						OwnershipID: 2,
+						OwnershipID: o2.ID,
 						Status:      "requested",
 						Purpose:     "p3",
 						DueDate:     time.Date(2024, 7, 3, 0, 0, 0, 0, time.UTC),
@@ -205,7 +227,7 @@ func TestTransactionRepository_GetByOwnershipID(t *testing.T) {
 				for _, m := range models {
 					db.Create(m)
 				}
-				return 1
+				return o1.ID
 			},
 			expected: []*domain.Transaction{
 				{
@@ -270,9 +292,10 @@ func TestTransactionRepository_Create(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
+				o := createTestOwnership(t, db, "owner1")
 				return &domain.Transaction{
 					UserID:           "user1",
-					OwnershipID:      1,
+					OwnershipID:      o.ID,
 					Status:           domain.BorrowingStatusRequested,
 					Purpose:          "create test",
 					BorrowInClubRoom: true,
@@ -292,14 +315,6 @@ func TestTransactionRepository_Create(t *testing.T) {
 		{
 			name: "failure: ownership does not exist",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
-				model := &transaction{
-					UserID:      "user1",
-					OwnershipID: 9999, // 存在しないOwnershipID
-					Status:      string(domain.BorrowingStatusRequested),
-					Purpose:     "create test",
-					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
-				}
-				db.Create(model)
 				return &domain.Transaction{
 					UserID:      "user1",
 					OwnershipID: 9999,
@@ -308,6 +323,7 @@ func TestTransactionRepository_Create(t *testing.T) {
 					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
 				}
 			},
+			wantErr: true,
 		},
 	}
 
@@ -356,9 +372,10 @@ func TestTransactionRepository_Update(t *testing.T) {
 		{
 			name: "success: approve transaction",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
+				o := createTestOwnership(t, db, "owner1")
 				model := &transaction{
 					UserID:      "user1",
-					OwnershipID: 1,
+					OwnershipID: o.ID,
 					Status:      string(domain.BorrowingStatusRequested),
 					Purpose:     "initial purpose",
 					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -380,12 +397,12 @@ func TestTransactionRepository_Update(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failure: transaction does not exist",
+			name: "failure: ownership does not exist",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
 				return &domain.Transaction{
-					ID:          9999, // 存在しないID
+					ID:          9999,
 					UserID:      "user1",
-					OwnershipID: 1,
+					OwnershipID: 9999,
 					Status:      domain.BorrowingStatusRequested,
 					Purpose:     "test purpose",
 					DueDate:     time.Date(2024, 7, 1, 0, 0, 0, 0, time.UTC),
@@ -393,6 +410,28 @@ func TestTransactionRepository_Update(t *testing.T) {
 			},
 			expected: nil,
 			wantErr:  true,
+		},
+		{
+			name: "success: create new transaction when id does not exist",
+			setup: func(t *testing.T, db *gorm.DB) *domain.Transaction {
+				o := createTestOwnership(t, db, "owner2")
+				return &domain.Transaction{
+					ID:          9999,
+					UserID:      "user2",
+					OwnershipID: o.ID,
+					Status:      domain.BorrowingStatusRequested,
+					Purpose:     "new transaction",
+					DueDate:     time.Date(2024, 7, 10, 0, 0, 0, 0, time.UTC),
+				}
+			},
+			expected: &domain.Transaction{
+				UserID:      "user2",
+				OwnershipID: 1,
+				Status:      domain.BorrowingStatusRequested,
+				Purpose:     "new transaction",
+				DueDate:     time.Date(2024, 7, 10, 0, 0, 0, 0, time.UTC),
+			},
+			wantErr: false,
 		},
 	}
 
