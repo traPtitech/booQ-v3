@@ -31,7 +31,7 @@ func (l *like) toDomain() *domain.Like {
 
 func (repo *likeRepository) GetByItemID(itemID int) ([]*domain.Like, error) {
 	var models []like
-	if err := repo.db.Where("item_id = ?", itemID).Order("id ASC").Find(&models).Error; err != nil {
+	if err := repo.db.Where("item_id = ?", itemID).Find(&models).Error; err != nil {
 		return nil, fmt.Errorf("failed to get likes by item id: %w", err)
 	}
 

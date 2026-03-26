@@ -30,7 +30,7 @@ func (t *tag) toDomain() *domain.Tag {
 
 func (repo *tagRepository) GetByItemID(itemID int) ([]*domain.Tag, error) {
 	var models []tag
-	if err := repo.db.Where("item_id = ?", itemID).Order("id ASC").Find(&models).Error; err != nil {
+	if err := repo.db.Where("item_id = ?", itemID).Find(&models).Error; err != nil {
 		return nil, fmt.Errorf("failed to get tags by item id: %w", err)
 	}
 
