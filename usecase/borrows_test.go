@@ -228,7 +228,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 		borrowingID         int
 		approve             bool
 		message             string
-		setupMock           func(transactionRepo *mock_domain.MockTransactionRepository)
+		setupMock           func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository)
 		expectedTransaction *domain.Transaction
 		expectedError       error
 	}{
@@ -239,7 +239,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			borrowingID: 1,
 			approve:     true,
 			message:     "approved",
-			setupMock: func(transactionRepo *mock_domain.MockTransactionRepository) {
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				transactionRepo.EXPECT().
 					GetByID(1).
 					Return(&domain.Transaction{
@@ -247,6 +247,12 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
+					}, nil)
+				ownershipRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{
+						ID:     1,
+						UserID: "user1",
 					}, nil)
 				transactionRepo.EXPECT().
 					Update(gomock.Any()).
@@ -272,7 +278,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			borrowingID: 1,
 			approve:     false,
 			message:     "rejected",
-			setupMock: func(transactionRepo *mock_domain.MockTransactionRepository) {
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				transactionRepo.EXPECT().
 					GetByID(1).
 					Return(&domain.Transaction{
@@ -280,6 +286,12 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 						UserID:      "user1",
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusRequested,
+					}, nil)
+				ownershipRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{
+						ID:     1,
+						UserID: "user1",
 					}, nil)
 				transactionRepo.EXPECT().
 					Update(gomock.Any()).
@@ -305,7 +317,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			borrowingID: 1,
 			approve:     true,
 			message:     "approved",
-			setupMock: func(transactionRepo *mock_domain.MockTransactionRepository) {
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				transactionRepo.EXPECT().
 					GetByID(1).
 					Return(nil, domain.ErrNotFound)
@@ -320,7 +332,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			borrowingID: 1,
 			approve:     true,
 			message:     "approved",
-			setupMock: func(transactionRepo *mock_domain.MockTransactionRepository) {
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
 				transactionRepo.EXPECT().
 					GetByID(1).
 					Return(&domain.Transaction{
@@ -329,9 +341,41 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 						OwnershipID: 1,
 						Status:      domain.BorrowingStatusBorrowed,
 					}, nil)
+				ownershipRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{
+						ID:     1,
+						UserID: "user1",
+					}, nil)
 			},
 			expectedTransaction: nil,
 			expectedError:       domain.ErrInvalidTransactionStatus,
+		},
+		{
+			name:        "failure: ownership owner mismatch",
+			userID:      "user2",
+			ownershipID: 1,
+			borrowingID: 1,
+			approve:     true,
+			message:     "approved",
+			setupMock: func(ownershipRepo *mock_domain.MockOwnershipRepository, transactionRepo *mock_domain.MockTransactionRepository) {
+				transactionRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Transaction{
+						ID:          1,
+						UserID:      "borrower",
+						OwnershipID: 1,
+						Status:      domain.BorrowingStatusRequested,
+					}, nil)
+				ownershipRepo.EXPECT().
+					GetByID(1).
+					Return(&domain.Ownership{
+						ID:     1,
+						UserID: "user1",
+					}, nil)
+			},
+			expectedTransaction: nil,
+			expectedError:       ErrForbidden,
 		},
 	}
 
@@ -340,11 +384,12 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
+			ownershipRepo := mock_domain.NewMockOwnershipRepository(ctrl)
 			transactionRepo := mock_domain.NewMockTransactionRepository(ctrl)
 
-			tc.setupMock(transactionRepo)
+			tc.setupMock(ownershipRepo, transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil)
+			u := NewBorrowingUseCase(transactionRepo, ownershipRepo)
 			transaction, err := u.ReplyRequest(tc.userID, tc.ownershipID, tc.borrowingID, tc.approve, tc.message)
 
 			if tc.expectedError != nil {
