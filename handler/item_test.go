@@ -23,15 +23,15 @@ func TestHandler_GetItem(t *testing.T) {
 	testCases := []struct {
 		name         string
 		itemId       string
-		setupMock    func(u *mock_usecase.MockItemUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
 		expectedBody func() *openapi.Item
 	}{
 		{
 			name:   "success",
 			itemId: "1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					GetItemByID(1).
 					Return(&domain.Item{
 						ID:              1,
@@ -43,6 +43,10 @@ func TestHandler_GetItem(t *testing.T) {
 						UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt:       nil,
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -63,8 +67,8 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is book",
 			itemId: "1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					GetItemByID(1).
 					Return(&domain.Item{
 						ID:          1,
@@ -79,6 +83,10 @@ func TestHandler_GetItem(t *testing.T) {
 						UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt:       nil,
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -102,8 +110,8 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is equipment",
 			itemId: "1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					GetItemByID(1).
 					Return(&domain.Item{
 						ID:          1,
@@ -119,6 +127,10 @@ func TestHandler_GetItem(t *testing.T) {
 						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt: nil,
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -144,8 +156,8 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is book and equipment",
 			itemId: "1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					GetItemByID(1).
 					Return(&domain.Item{
 						ID:          1,
@@ -163,6 +175,10 @@ func TestHandler_GetItem(t *testing.T) {
 						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt: nil,
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -190,8 +206,8 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "failure: item not found",
 			itemId: "2",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					GetItemByID(2).
 					Return(nil, domain.ErrNotFound).
 					Times(1)
@@ -204,7 +220,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "failure: invalid item ID",
 			itemId: "abc",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
@@ -221,17 +237,7 @@ func TestHandler_GetItem(t *testing.T) {
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			mockTagUseCase.
-				EXPECT().
-				GetByItemID(gomock.Any()).
-				Return([]*domain.Tag{}, nil).
-				AnyTimes()
-			mockTagUseCase.
-				EXPECT().
-				ReplaceByItemID(gomock.Any(), gomock.Any()).
-				Return(nil).
-				AnyTimes()
-			tc.setupMock(mockItemUseCase)
+			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
 			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
@@ -259,15 +265,15 @@ func TestHandler_GetItems(t *testing.T) {
 	testCases := []struct {
 		name         string
 		query        string
-		setupMock    func(u *mock_usecase.MockItemUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
 		expectedBody func() []openapi.Item
 	}{
 		{
 			name:  "success: no query",
 			query: "",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					SearchItems(domain.ItemSearchQuery{}).
 					Return([]*domain.Item{
 						{
@@ -299,6 +305,16 @@ func TestHandler_GetItems(t *testing.T) {
 						},
 					}, nil).
 					Times(1)
+				gomock.InOrder(
+					tu.EXPECT().
+						GetByItemID(1).
+						Return([]*domain.Tag{}, nil).
+						Times(1),
+					tu.EXPECT().
+						GetByItemID(2).
+						Return([]*domain.Tag{}, nil).
+						Times(1),
+				)
 			},
 			expectedCode: http.StatusOK,
 			expectedBody: func() []openapi.Item {
@@ -337,8 +353,8 @@ func TestHandler_GetItems(t *testing.T) {
 		{
 			name:  "success: with query",
 			query: "?search=test&limit=10",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					SearchItems(domain.ItemSearchQuery{Name: "test", Limit: 10}).
 					Return([]*domain.Item{
 						{
@@ -353,6 +369,10 @@ func TestHandler_GetItems(t *testing.T) {
 							DeletedAt:       nil,
 						},
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 
@@ -376,8 +396,8 @@ func TestHandler_GetItems(t *testing.T) {
 		{
 			name:  "failure: invalid query",
 			query: "?limit=-1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					SearchItems(domain.ItemSearchQuery{Limit: -1}).
 					Return(nil, usecase.ErrInvalidSearchQuery).
 					Times(1)
@@ -396,17 +416,7 @@ func TestHandler_GetItems(t *testing.T) {
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			mockTagUseCase.
-				EXPECT().
-				GetByItemID(gomock.Any()).
-				Return([]*domain.Tag{}, nil).
-				AnyTimes()
-			mockTagUseCase.
-				EXPECT().
-				ReplaceByItemID(gomock.Any(), gomock.Any()).
-				Return(nil).
-				AnyTimes()
-			tc.setupMock(mockItemUseCase)
+			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
 			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
@@ -434,7 +444,7 @@ func TestHandler_CreateItem(t *testing.T) {
 	testCases := []struct {
 		name         string
 		requestBody  string
-		setupMock    func(u *mock_usecase.MockItemUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
 		expectedBody func() []openapi.Item
 	}{
@@ -450,8 +460,8 @@ func TestHandler_CreateItem(t *testing.T) {
 					"code": "1234567890"
 				}
 			]`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					CreateItems([]*domain.Item{
 						{
 							Name:        "New Item",
@@ -478,6 +488,14 @@ func TestHandler_CreateItem(t *testing.T) {
 							DeletedAt:       nil,
 						},
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					ReplaceByItemID(1, ([]string)(nil)).
+					Return(nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -519,9 +537,9 @@ func TestHandler_CreateItem(t *testing.T) {
 					"code": "0987654321"
 				}
 			]`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				gomock.InOrder(
-					u.EXPECT().
+					iu.EXPECT().
 						CreateItems([]*domain.Item{
 							{
 								Name:        "New Item 1",
@@ -573,6 +591,22 @@ func TestHandler_CreateItem(t *testing.T) {
 							},
 						}, nil).
 						Times(1),
+					tu.EXPECT().
+						ReplaceByItemID(1, ([]string)(nil)).
+						Return(nil).
+						Times(1),
+					tu.EXPECT().
+						ReplaceByItemID(2, ([]string)(nil)).
+						Return(nil).
+						Times(1),
+					tu.EXPECT().
+						GetByItemID(1).
+						Return([]*domain.Tag{}, nil).
+						Times(1),
+					tu.EXPECT().
+						GetByItemID(2).
+						Return([]*domain.Tag{}, nil).
+						Times(1),
 				)
 			},
 			expectedCode: http.StatusOK,
@@ -619,17 +653,7 @@ func TestHandler_CreateItem(t *testing.T) {
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			mockTagUseCase.
-				EXPECT().
-				GetByItemID(gomock.Any()).
-				Return([]*domain.Tag{}, nil).
-				AnyTimes()
-			mockTagUseCase.
-				EXPECT().
-				ReplaceByItemID(gomock.Any(), gomock.Any()).
-				Return(nil).
-				AnyTimes()
-			tc.setupMock(mockItemUseCase)
+			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
 			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
@@ -659,7 +683,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 		name         string
 		itemId       string
 		requestBody  string
-		setupMock    func(u *mock_usecase.MockItemUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
 		expectedBody func() *openapi.Item
 	}{
@@ -674,8 +698,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"isTrapItem": true,
 				"count": 5
 			}`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					UpdateItem(&domain.Item{
 						ID:          1,
 						Name:        "Updated Item",
@@ -701,6 +725,14 @@ func TestHandler_UpdateItem(t *testing.T) {
 						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt: nil,
 					}, nil).
+					Times(1)
+				tu.EXPECT().
+					ReplaceByItemID(1, ([]string)(nil)).
+					Return(nil).
+					Times(1)
+				tu.EXPECT().
+					GetByItemID(1).
+					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
@@ -734,8 +766,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"isTrapItem": true,
 				"count": 5
 			}`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					UpdateItem(&domain.Item{
 						ID:          2,
 						Name:        "Updated Item",
@@ -766,7 +798,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"isTrapItem": true,
 				"count": 5
 			}`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
@@ -784,8 +816,8 @@ func TestHandler_UpdateItem(t *testing.T) {
 				"isBook": false,
 				"isTrapItem": false
 			}`,
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					UpdateItem(&domain.Item{
 						ID:              1,
 						Name:            "Updated Item",
@@ -811,17 +843,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			mockTagUseCase.
-				EXPECT().
-				GetByItemID(gomock.Any()).
-				Return([]*domain.Tag{}, nil).
-				AnyTimes()
-			mockTagUseCase.
-				EXPECT().
-				ReplaceByItemID(gomock.Any(), gomock.Any()).
-				Return(nil).
-				AnyTimes()
-			tc.setupMock(mockItemUseCase)
+			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
 			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
@@ -850,14 +872,14 @@ func TestHandler_DeleteItem(t *testing.T) {
 	testCases := []struct {
 		name         string
 		itemId       string
-		setupMock    func(u *mock_usecase.MockItemUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
 	}{
 		{
 			name:   "success",
 			itemId: "1",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					DeleteItem(1).
 					Return(nil).
 					Times(1)
@@ -867,8 +889,8 @@ func TestHandler_DeleteItem(t *testing.T) {
 		{
 			name:   "failure: item not found",
 			itemId: "2",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
-				u.EXPECT().
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+				iu.EXPECT().
 					DeleteItem(2).
 					Return(domain.ErrNotFound).
 					Times(1)
@@ -878,7 +900,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 		{
 			name:   "failure: invalid item ID",
 			itemId: "abc",
-			setupMock: func(u *mock_usecase.MockItemUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
@@ -892,17 +914,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			mockTagUseCase.
-				EXPECT().
-				GetByItemID(gomock.Any()).
-				Return([]*domain.Tag{}, nil).
-				AnyTimes()
-			mockTagUseCase.
-				EXPECT().
-				ReplaceByItemID(gomock.Any(), gomock.Any()).
-				Return(nil).
-				AnyTimes()
-			tc.setupMock(mockItemUseCase)
+			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
 			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
 
