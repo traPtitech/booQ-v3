@@ -55,6 +55,21 @@ func (mr *MockTagUseCaseMockRecorder) GetByItemID(itemID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByItemID", reflect.TypeOf((*MockTagUseCase)(nil).GetByItemID), itemID)
 }
 
+// GetByItemIDs mocks base method.
+func (m *MockTagUseCase) GetByItemIDs(itemIDs []int) (map[int][]*domain.Tag, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByItemIDs", itemIDs)
+	ret0, _ := ret[0].(map[int][]*domain.Tag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByItemIDs indicates an expected call of GetByItemIDs.
+func (mr *MockTagUseCaseMockRecorder) GetByItemIDs(itemIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByItemIDs", reflect.TypeOf((*MockTagUseCase)(nil).GetByItemIDs), itemIDs)
+}
+
 // ReplaceByItemID mocks base method.
 func (m *MockTagUseCase) ReplaceByItemID(itemID int, tags []string) error {
 	m.ctrl.T.Helper()

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,6 +9,69 @@ import (
 	mock_domain "github.com/traPtitech/booQ-v3/domain/mock"
 	"go.uber.org/mock/gomock"
 )
+
+func TestTagUseCase_GetByItemIDs(t *testing.T) {
+	testCases := []struct {
+		name        string
+		itemIDs     []int
+		setupMock   func(itemRepo *mock_domain.MockItemRepository, tagRepo *mock_domain.MockTagRepository)
+		expected    map[int][]*domain.Tag
+		expectedErr error
+	}{
+		{
+			name:    "success",
+			itemIDs: []int{1, 2},
+			setupMock: func(itemRepo *mock_domain.MockItemRepository, tagRepo *mock_domain.MockTagRepository) {
+				tagRepo.EXPECT().
+					GetByItemIDs([]int{1, 2}).
+					Return(map[int][]*domain.Tag{
+						1: {
+							{ItemID: 1, Name: "go"},
+						},
+						2: {},
+					}, nil)
+			},
+			expected: map[int][]*domain.Tag{
+				1: {
+					{ItemID: 1, Name: "go"},
+				},
+				2: {},
+			},
+		},
+		{
+			name:    "failure: repository error",
+			itemIDs: []int{1, 2},
+			setupMock: func(itemRepo *mock_domain.MockItemRepository, tagRepo *mock_domain.MockTagRepository) {
+				tagRepo.EXPECT().
+					GetByItemIDs([]int{1, 2}).
+					Return(nil, fmt.Errorf("repository error"))
+			},
+			expectedErr: fmt.Errorf("repository error"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			itemRepo := mock_domain.NewMockItemRepository(ctrl)
+			tagRepo := mock_domain.NewMockTagRepository(ctrl)
+			tc.setupMock(itemRepo, tagRepo)
+
+			u := NewTagUseCase(tagRepo, itemRepo)
+			got, err := u.GetByItemIDs(tc.itemIDs)
+
+			if tc.expectedErr != nil {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expected, got)
+		})
+	}
+}
 
 func TestTagUseCase_ReplaceByItemID(t *testing.T) {
 	testCases := []struct {

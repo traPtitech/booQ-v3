@@ -8,6 +8,7 @@ import (
 
 type TagUseCase interface {
 	GetByItemID(itemID int) ([]*domain.Tag, error)
+	GetByItemIDs(itemIDs []int) (map[int][]*domain.Tag, error)
 	ReplaceByItemID(itemID int, tags []string) error
 }
 
@@ -29,6 +30,10 @@ func (u *tagUseCase) GetByItemID(itemID int) ([]*domain.Tag, error) {
 	}
 
 	return u.tagRepo.GetByItemID(itemID)
+}
+
+func (u *tagUseCase) GetByItemIDs(itemIDs []int) (map[int][]*domain.Tag, error) {
+	return u.tagRepo.GetByItemIDs(itemIDs)
 }
 
 func (u *tagUseCase) ReplaceByItemID(itemID int, tags []string) error {

@@ -305,16 +305,13 @@ func TestHandler_GetItems(t *testing.T) {
 						},
 					}, nil).
 					Times(1)
-				gomock.InOrder(
-					tu.EXPECT().
-						GetByItemID(1).
-						Return([]*domain.Tag{}, nil).
-						Times(1),
-					tu.EXPECT().
-						GetByItemID(2).
-						Return([]*domain.Tag{}, nil).
-						Times(1),
-				)
+				tu.EXPECT().
+					GetByItemIDs([]int{1, 2}).
+					Return(map[int][]*domain.Tag{
+						1: {},
+						2: {},
+					}, nil).
+					Times(1)
 			},
 			expectedCode: http.StatusOK,
 			expectedBody: func() []openapi.Item {
@@ -371,8 +368,8 @@ func TestHandler_GetItems(t *testing.T) {
 					}, nil).
 					Times(1)
 				tu.EXPECT().
-					GetByItemID(1).
-					Return([]*domain.Tag{}, nil).
+					GetByItemIDs([]int{1}).
+					Return(map[int][]*domain.Tag{1: {}}, nil).
 					Times(1)
 			},
 

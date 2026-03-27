@@ -70,6 +70,16 @@ func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) erro
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to search items: %v", err))
 	}
 
+	itemIDs := make([]int, 0, len(items))
+	for _, item := range items {
+		itemIDs = append(itemIDs, item.ID)
+	}
+
+	tagsByItemID, err := h.tu.GetByItemIDs(itemIDs)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
+	}
+
 	openAPIItems := make([]openapi.Item, 0, len(items))
 	for _, item := range items {
 		i, err := toOpenAPIItem(item)
@@ -77,11 +87,7 @@ func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) erro
 			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 		}
 
-		tags, err := h.tu.GetByItemID(item.ID)
-		if err != nil {
-			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
-		}
-		i.Tags = toOpenAPITags(tags)
+		i.Tags = toOpenAPITags(tagsByItemID[item.ID])
 
 		openAPIItems = append(openAPIItems, *i)
 	}

@@ -62,6 +62,70 @@ func TestTagRepository_GetByItemID(t *testing.T) {
 	}
 }
 
+func TestTagRepository_GetByItemIDs(t *testing.T) {
+	testCases := []struct {
+		name    string
+		setup   func(t *testing.T, db *gorm.DB) ([]int, map[int][]*domain.Tag)
+		wantErr bool
+	}{
+		{
+			name: "success",
+			setup: func(t *testing.T, db *gorm.DB) ([]int, map[int][]*domain.Tag) {
+				models := []*tag{
+					{ItemID: 1, Name: "go"},
+					{ItemID: 1, Name: "book"},
+					{ItemID: 2, Name: "equipment"},
+					{ItemID: 3, Name: "unused"},
+				}
+				for _, model := range models {
+					if err := db.Create(model).Error; err != nil {
+						t.Fatalf("failed to create test tag: %v", err)
+					}
+				}
+
+				return []int{1, 2, 9999}, map[int][]*domain.Tag{
+					1: {
+						{ItemID: 1, Name: "book"},
+						{ItemID: 1, Name: "go"},
+					},
+					2: {
+						{ItemID: 2, Name: "equipment"},
+					},
+					9999: {},
+				}
+			},
+			wantErr: false,
+		},
+		{
+			name: "success: empty item IDs",
+			setup: func(t *testing.T, db *gorm.DB) ([]int, map[int][]*domain.Tag) {
+				return []int{}, map[int][]*domain.Tag{}
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			db := setupTestDB(t)
+			repo := NewTagRepository(db)
+			itemIDs, expected := tc.setup(t, db)
+
+			tagsByItemID, err := repo.GetByItemIDs(itemIDs)
+			if tc.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, len(expected), len(tagsByItemID))
+			for itemID, expectedTags := range expected {
+				assert.ElementsMatch(t, expectedTags, tagsByItemID[itemID])
+			}
+		})
+	}
+}
+
 func TestTagRepository_ReplaceByItemID(t *testing.T) {
 	testCases := []struct {
 		name     string

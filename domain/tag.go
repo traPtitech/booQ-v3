@@ -7,5 +7,6 @@ type Tag struct {
 
 type TagRepository interface {
 	GetByItemID(itemID int) ([]*Tag, error)
+	GetByItemIDs(itemIDs []int) (map[int][]*Tag, error)
 	ReplaceByItemID(itemID int, tags []string) error
 }
