@@ -24,6 +24,13 @@ func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 	}
+
+	tags, err := h.tu.GetByItemID(item.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
+	}
+	i.Tags = toOpenAPITags(tags)
+
 	return ctx.JSON(http.StatusOK, i)
 }
 
@@ -63,12 +70,25 @@ func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) erro
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to search items: %v", err))
 	}
 
+	itemIDs := make([]int, 0, len(items))
+	for _, item := range items {
+		itemIDs = append(itemIDs, item.ID)
+	}
+
+	tagsByItemID, err := h.tu.GetByItemIDs(itemIDs)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
+	}
+
 	openAPIItems := make([]openapi.Item, 0, len(items))
 	for _, item := range items {
 		i, err := toOpenAPIItem(item)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 		}
+
+		i.Tags = toOpenAPITags(tagsByItemID[item.ID])
+
 		openAPIItems = append(openAPIItems, *i)
 	}
 
@@ -95,12 +115,29 @@ func (h *handler) PostItem(ctx echo.Context) error {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to create items: %v", err))
 	}
 
+	for i, createdItem := range createdItems {
+		var tags []string
+		if itemRequest[i].Tags != nil {
+			tags = *itemRequest[i].Tags
+		}
+		if err := h.tu.ReplaceByItemID(createdItem.ID, tags); err != nil {
+			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to save tags: %v", err))
+		}
+	}
+
 	openAPIItems := make([]openapi.Item, 0, len(createdItems))
 	for _, item := range createdItems {
 		i, err := toOpenAPIItem(item)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 		}
+
+		tags, err := h.tu.GetByItemID(item.ID)
+		if err != nil {
+			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
+		}
+		i.Tags = toOpenAPITags(tags)
+
 		openAPIItems = append(openAPIItems, *i)
 	}
 
@@ -142,9 +179,24 @@ func (h *handler) EditItem(ctx echo.Context, itemId openapi.ItemIdInPath) error 
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to update item: %v", err))
 	}
 
+	var tags []string
+	if itemRequest.Tags != nil {
+		tags = *itemRequest.Tags
+	}
+	if err := h.tu.ReplaceByItemID(updatedItem.ID, tags); err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to save tags: %v", err))
+	}
+
 	i, err := toOpenAPIItem(updatedItem)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 	}
+
+	t, err := h.tu.GetByItemID(updatedItem.ID)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
+	}
+	i.Tags = toOpenAPITags(t)
+
 	return ctx.JSON(http.StatusOK, i)
 }

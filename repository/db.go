@@ -13,6 +13,8 @@ import (
 
 var allTables = []interface{}{
 	item{},
+	tag{},
+	like{},
 	book{},
 	equipment{},
 	file{},

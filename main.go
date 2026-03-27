@@ -42,6 +42,8 @@ func main() {
 	fileRepo := repository.NewFileRepository(db)
 	ownershipRepo := repository.NewOwnershipRepository(db)
 	transactionRepo := repository.NewTransactionRepository(db)
+	tagRepo := repository.NewTagRepository(db)
+	likeRepo := repository.NewLikeRepository(db)
 
 	// Storage
 	fileStorage := newFileStorage()
@@ -51,9 +53,11 @@ func main() {
 	fileUseCase := usecase.NewFileUseCase(fileRepo, fileStorage)
 	ownershipUseCase := usecase.NewOwnershipUseCase(ownershipRepo)
 	borrowingUseCase := usecase.NewBorrowingUseCase(transactionRepo, ownershipRepo)
+	tagUseCase := usecase.NewTagUseCase(tagRepo, itemRepo)
+	likeUseCase := usecase.NewLikeUseCase(likeRepo, itemRepo)
 
 	// Handler
-	h := handler.NewHandler(itemUseCase, fileUseCase, ownershipUseCase, borrowingUseCase)
+	h := handler.NewHandlerWithTagLike(itemUseCase, fileUseCase, ownershipUseCase, borrowingUseCase, tagUseCase, likeUseCase)
 	openapi.RegisterHandlers(e, h)
 
 	e.Logger.Fatal(e.Start(":3001"))

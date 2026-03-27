@@ -93,3 +93,15 @@ func toOpenAPIOwnership(d *domain.Ownership) openapi.Ownership {
 		Memo:       d.Memo,
 	}
 }
+
+func toOpenAPITags(tags []*domain.Tag) *[]openapi.Tag {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	res := make([]openapi.Tag, 0, len(tags))
+	for _, t := range tags {
+		res = append(res, openapi.Tag{Name: t.Name})
+	}
+	return &res
+}
