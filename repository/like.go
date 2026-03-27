@@ -10,8 +10,8 @@ import (
 
 type like struct {
 	GormModelWithoutID
-	ItemID int    `gorm:"primarykey;type:int;not null;index:idx_item_user_like,unique"`
-	UserID string `gorm:"primarykey;type:varchar(32);not null;index:idx_item_user_like,unique"`
+	ItemID int    `gorm:"primarykey;type:int;not null"`
+	UserID string `gorm:"primarykey;type:varchar(32);not null"`
 }
 
 type likeRepository struct {

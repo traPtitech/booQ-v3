@@ -23,9 +23,8 @@ func TestLikeRepository_GetByItemID(t *testing.T) {
 					{ItemID: 2, UserID: "user3"},
 				}
 				for _, model := range models {
-					if err := db.Create(model).Error; err != nil {
-						t.Fatalf("failed to create test like: %v", err)
-					}
+					err := db.Create(model).Error
+					assert.NoError(t, err)
 				}
 
 				return 1, []*domain.Like{
@@ -73,7 +72,8 @@ func TestLikeRepository_Exists(t *testing.T) {
 			name: "success: exists",
 			setup: func(t *testing.T, db *gorm.DB) (int, string) {
 				model := &like{ItemID: 1, UserID: "user1"}
-				db.Create(model)
+				err := db.Create(model).Error
+				assert.NoError(t, err)
 
 				return 1, "user1"
 			},
@@ -164,7 +164,8 @@ func TestLikeRepository_Delete(t *testing.T) {
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) (int, string) {
 				model := &like{ItemID: 1, UserID: "user1"}
-				db.Create(model)
+				err := db.Create(model).Error
+				assert.NoError(t, err)
 
 				return 1, "user1"
 			},
