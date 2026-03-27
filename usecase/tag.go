@@ -36,7 +36,17 @@ func (u *tagUseCase) ReplaceByItemID(itemID int, tags []string) error {
 		return err
 	}
 
-	if err := u.tagRepo.ReplaceByItemID(itemID, tags); err != nil {
+	uniqueTags := make(map[string]struct{})
+	for _, tag := range tags {
+		uniqueTags[tag] = struct{}{}
+	}
+
+	uniqueTagList := make([]string, 0, len(uniqueTags))
+	for tag := range uniqueTags {
+		uniqueTagList = append(uniqueTagList, tag)
+	}
+
+	if err := u.tagRepo.ReplaceByItemID(itemID, uniqueTagList); err != nil {
 		return fmt.Errorf("failed to replace tags: %w", err)
 	}
 
