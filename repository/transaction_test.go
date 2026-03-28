@@ -11,6 +11,7 @@ import (
 
 func createTestOwnership(t *testing.T, db *gorm.DB, userID string) *ownership {
 	t.Helper()
+	createTestItems(t, db, 1)
 
 	model := &ownership{
 		ItemID:   1,

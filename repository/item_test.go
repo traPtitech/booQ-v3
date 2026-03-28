@@ -150,6 +150,44 @@ func TestItemRepository_GetByID(t *testing.T) {
 	}
 }
 
+func TestItemModel_PreloadLikesAndTags(t *testing.T) {
+	db := setupTestDB(t)
+
+	model := &item{
+		Name:        "Item with likes and tags",
+		Description: "preload test",
+		ImgURL:      "http://example.com/preload.png",
+		Likes: []like{
+			{UserID: "user-a"},
+			{UserID: "user-b"},
+		},
+		Tags: []tag{
+			{Name: "go"},
+			{Name: "book"},
+		},
+	}
+	if err := db.Create(model).Error; err != nil {
+		t.Fatalf("Failed to create test item with likes and tags: %v", err)
+	}
+
+	var got item
+	err := db.Preload("Likes").Preload("Tags").First(&got, model.ID).Error
+	assert.NoError(t, err)
+	assert.Equal(t, model.ID, got.ID)
+
+	assert.Len(t, got.Likes, 2)
+	assert.ElementsMatch(t, []string{"user-a", "user-b"}, []string{got.Likes[0].UserID, got.Likes[1].UserID})
+	for _, like := range got.Likes {
+		assert.Equal(t, got.ID, like.ItemID)
+	}
+
+	assert.Len(t, got.Tags, 2)
+	assert.ElementsMatch(t, []string{"go", "book"}, []string{got.Tags[0].Name, got.Tags[1].Name})
+	for _, tag := range got.Tags {
+		assert.Equal(t, got.ID, tag.ItemID)
+	}
+}
+
 func TestItemRepository_Create(t *testing.T) {
 	testCases := []struct {
 		name    string

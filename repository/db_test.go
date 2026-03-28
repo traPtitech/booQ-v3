@@ -81,3 +81,25 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	return db
 }
+
+func createTestItems(t *testing.T, db *gorm.DB, ids ...int) {
+	t.Helper()
+
+	for _, id := range ids {
+		var count int64
+		if err := db.Model(&item{}).Where("id = ?", id).Count(&count).Error; err != nil {
+			t.Fatalf("Failed to check item id %d existence: %v", id, err)
+		}
+		if count > 0 {
+			continue
+		}
+
+		model := &item{
+			GormModel: GormModel{ID: id},
+			Name:      fmt.Sprintf("test-item-%d", id),
+		}
+		if err := db.Create(model).Error; err != nil {
+			t.Fatalf("Failed to create test item id %d: %v", id, err)
+		}
+	}
+}
