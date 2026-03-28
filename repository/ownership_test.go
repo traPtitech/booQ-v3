@@ -17,6 +17,7 @@ func TestOwnershipRepository_GetByID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) (int, *domain.Ownership) {
+				createTestItems(t, db, 1)
 				model := &ownership{ItemID: 1, UserID: "user1", Rentable: true, Memo: "memo"}
 				if err := db.Create(model).Error; err != nil {
 					t.Fatalf("failed to create test ownership: %v", err)
@@ -68,6 +69,7 @@ func TestOwnershipRepository_GetByItemID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) (int, []*domain.Ownership) {
+				createTestItems(t, db, 1, 2)
 				models := []*ownership{
 					{ItemID: 1, UserID: "user1", Rentable: true, Memo: "memo1"},
 					{ItemID: 1, UserID: "user2", Rentable: false, Memo: "memo2"},
@@ -117,6 +119,7 @@ func TestOwnershipRepository_GetByUserID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) (string, []*domain.Ownership) {
+				createTestItems(t, db, 1, 2, 3)
 				models := []*ownership{
 					{ItemID: 1, UserID: "target-user", Rentable: true, Memo: "memo1"},
 					{ItemID: 2, UserID: "another-user", Rentable: false, Memo: "memo2"},
@@ -178,6 +181,7 @@ func TestOwnershipRepository_Create(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			db := setupTestDB(t)
+			createTestItems(t, db, tc.ownership.ItemID)
 			repo := NewOwnershipRepository(db)
 
 			created, err := repo.Create(tc.ownership)
@@ -211,6 +215,7 @@ func TestOwnershipRepository_Update(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Ownership {
+				createTestItems(t, db, 10, 11)
 				model := &ownership{ItemID: 10, UserID: "user1", Rentable: true, Memo: "before"}
 				if err := db.Create(model).Error; err != nil {
 					t.Fatalf("failed to create test ownership: %v", err)
@@ -228,6 +233,7 @@ func TestOwnershipRepository_Update(t *testing.T) {
 		{
 			name: "success: create new ownership if not exist",
 			setup: func(t *testing.T, db *gorm.DB) *domain.Ownership {
+				createTestItems(t, db, 12)
 				return &domain.Ownership{
 					ID:       9999,
 					ItemID:   12,
@@ -273,6 +279,7 @@ func TestOwnershipRepository_Delete(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) int {
+				createTestItems(t, db, 1)
 				model := &ownership{ItemID: 1, UserID: "user1", Rentable: true, Memo: "memo"}
 				if err := db.Create(model).Error; err != nil {
 					t.Fatalf("failed to create test ownership: %v", err)

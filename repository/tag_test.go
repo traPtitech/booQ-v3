@@ -17,6 +17,7 @@ func TestTagRepository_GetByItemID(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) (int, []*domain.Tag) {
+				createTestItems(t, db, 1, 2)
 				models := []*tag{
 					{ItemID: 1, Name: "go"},
 					{ItemID: 1, Name: "book"},
@@ -71,6 +72,7 @@ func TestTagRepository_GetByItemIDs(t *testing.T) {
 		{
 			name: "success",
 			setup: func(t *testing.T, db *gorm.DB) ([]int, map[int][]*domain.Tag) {
+				createTestItems(t, db, 1, 2, 3)
 				models := []*tag{
 					{ItemID: 1, Name: "go"},
 					{ItemID: 1, Name: "book"},
@@ -136,6 +138,7 @@ func TestTagRepository_ReplaceByItemID(t *testing.T) {
 		{
 			name: "success: replace existing tags",
 			setup: func(t *testing.T, db *gorm.DB) (int, []string) {
+				createTestItems(t, db, 1)
 				initial := []*tag{
 					{ItemID: 1, Name: "old1"},
 					{ItemID: 1, Name: "old2"},
@@ -154,6 +157,7 @@ func TestTagRepository_ReplaceByItemID(t *testing.T) {
 		{
 			name: "success: clear tags",
 			setup: func(t *testing.T, db *gorm.DB) (int, []string) {
+				createTestItems(t, db, 2)
 				initial := []*tag{
 					{ItemID: 2, Name: "old"},
 				}
