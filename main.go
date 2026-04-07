@@ -4,45 +4,69 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
-
-	"github.com/traPtitech/booQ-v3/model"
-	"github.com/traPtitech/booQ-v3/router"
+	"github.com/traPtitech/booQ-v3/domain"
+	"github.com/traPtitech/booQ-v3/handler"
+	"github.com/traPtitech/booQ-v3/handler/openapi"
+	"github.com/traPtitech/booQ-v3/middleware"
+	"github.com/traPtitech/booQ-v3/repository"
 	"github.com/traPtitech/booQ-v3/storage"
+	"github.com/traPtitech/booQ-v3/usecase"
 )
 
 func main() {
-	err := model.EstablishConnection()
+	db, err := repository.EstablishConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = model.Migrate()
+	err = repository.Migrate(db)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	setStorage()
 
 	e := echo.New()
-	router.SetValidator(e)
 
 	if os.Getenv("BOOQ_ENV") == "development" {
+		repository.SetLoggerInfo(db)
 		e.Logger.SetLevel(log.INFO)
 	}
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echomiddleware.Logger())
+	e.Use(echomiddleware.Recover())
+	e.Use(middleware.AuthMiddleware)
 
-	router.SetupRouting(e, router.CreateUserProvider(os.Getenv("DEBUG_USER_NAME")))
+	// Repository
+	itemRepo := repository.NewItemRepository(db)
+	fileRepo := repository.NewFileRepository(db)
+	ownershipRepo := repository.NewOwnershipRepository(db)
+	transactionRepo := repository.NewTransactionRepository(db)
+	tagRepo := repository.NewTagRepository(db)
+	likeRepo := repository.NewLikeRepository(db)
+
+	// Storage
+	fileStorage := newFileStorage()
+
+	// UseCase
+	itemUseCase := usecase.NewItemUseCase(itemRepo)
+	fileUseCase := usecase.NewFileUseCase(fileRepo, fileStorage)
+	ownershipUseCase := usecase.NewOwnershipUseCase(ownershipRepo)
+	borrowingUseCase := usecase.NewBorrowingUseCase(transactionRepo, ownershipRepo)
+	tagUseCase := usecase.NewTagUseCase(tagRepo, itemRepo)
+	likeUseCase := usecase.NewLikeUseCase(likeRepo, itemRepo)
+
+	// Handler
+	h := handler.NewHandlerWithTagLike(itemUseCase, fileUseCase, ownershipUseCase, borrowingUseCase, tagUseCase, likeUseCase)
+	openapi.RegisterHandlers(e, h)
+
 	e.Logger.Fatal(e.Start(":3001"))
 }
 
-func setStorage() {
+func newFileStorage() domain.FileStorage {
 	if os.Getenv("S3_BUCKET") != "" {
 		// S3
-		err := storage.SetS3Storage(
+		s, err := storage.NewS3Storage(
 			os.Getenv("S3_BUCKET"),
 			os.Getenv("S3_REGION"),
 			os.Getenv("S3_ENDPOINT"),
@@ -52,15 +76,17 @@ func setStorage() {
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else {
-		// ローカルストレージ
-		dir := os.Getenv("UPLOAD_DIR")
-		if dir == "" {
-			dir = "./uploads"
-		}
-		err := storage.SetLocalStorage(dir)
-		if err != nil {
-			log.Fatal(err)
-		}
+		return s
 	}
+
+	// ローカルストレージ
+	dir := os.Getenv("UPLOAD_DIR")
+	if dir == "" {
+		dir = "./uploads"
+	}
+	s, err := storage.NewLocalStorage(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return s
 }
