@@ -179,7 +179,9 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 	}
 	if len(query.Tag) > 0 {
 		dbQuery = dbQuery.Joins("JOIN tags ON tags.item_id = items.id").
-			Where("tags.name IN ?", query.Tag)
+			Where("tags.name IN ?", query.Tag).
+			Group("items.id").
+			Having("COUNT(DISTINCT tags.name) = ?", len(query.Tag))
 	}
 	if len(query.TagExclude) > 0 {
 		dbQuery = dbQuery.Where(

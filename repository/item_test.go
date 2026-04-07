@@ -1020,7 +1020,7 @@ func TestItemRepository_Search(t *testing.T) {
 						},
 					},
 					query: domain.ItemSearchQuery{
-						UserID: "borrower1",
+						BorrowerID: "borrower1",
 					},
 					expected: []*domain.Item{
 						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
@@ -1063,7 +1063,7 @@ func TestItemRepository_Search(t *testing.T) {
 						},
 					},
 					query: domain.ItemSearchQuery{
-						UserID: "borrower1",
+						BorrowerID: "borrower1",
 					},
 					expected: []*domain.Item{
 						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
@@ -1207,9 +1207,7 @@ func TestItemRepository_Search(t *testing.T) {
 							"Tag2",
 						},
 					},
-					expected: []*domain.Item{
-						{Name: "Item 2", Description: "This is item 2", ImgUrl: "http://example.com/image2.png"},
-					},
+					expected: []*domain.Item{},
 					wantErr: false,
 				},
 				{
