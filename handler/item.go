@@ -12,7 +12,7 @@ import (
 )
 
 func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	item, err := h.iu.GetItemByID(itemId)
+	itemDetail, err := h.iu.GetItemDetailByID(itemId)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.NoContent(http.StatusNotFound)
@@ -20,16 +20,10 @@ func (h *handler) GetItem(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get item: %v", err))
 	}
 
-	i, err := toOpenAPIItem(item)
+	i, err := toOpenAPIItemDetail(itemDetail)
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 	}
-
-	tags, err := h.tu.GetByItemID(item.ID)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
-	}
-	i.Tags = toOpenAPITags(tags)
 
 	return ctx.JSON(http.StatusOK, i)
 }
@@ -70,25 +64,12 @@ func (h *handler) GetItems(ctx echo.Context, params openapi.GetItemsParams) erro
 		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to search items: %v", err))
 	}
 
-	itemIDs := make([]int, 0, len(items))
+	openAPIItems := make([]openapi.ItemSummary, 0, len(items))
 	for _, item := range items {
-		itemIDs = append(itemIDs, item.ID)
-	}
-
-	tagsByItemID, err := h.tu.GetByItemIDs(itemIDs)
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to get tags: %v", err))
-	}
-
-	openAPIItems := make([]openapi.Item, 0, len(items))
-	for _, item := range items {
-		i, err := toOpenAPIItem(item)
+		i, err := toOpenAPIItemSummary(item)
 		if err != nil {
 			return ctx.JSON(http.StatusInternalServerError, fmt.Sprintf("failed to convert item: %v", err))
 		}
-
-		i.Tags = toOpenAPITags(tagsByItemID[item.ID])
-
 		openAPIItems = append(openAPIItems, *i)
 	}
 
