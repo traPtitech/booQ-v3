@@ -1181,6 +1181,39 @@ func TestItemRepository_Search(t *testing.T) {
 					wantErr: false,
 				},
 				{
+					name: "success: search with duplicate tags in query",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"Tag1",
+							"Tag1",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
 					name: "success: search with tagExclude",
 					createItems: []*item{
 						{
@@ -1256,6 +1289,53 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "search with multiple conditions",
+			testCases: []testCase{
+				{
+					name: "success: search by name and tag",
+					createItems: []*item{
+						{
+							Name:        "Test Item 1",
+							Description: "This is the first test item",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Test Item 2",
+							Description: "This is the second test item",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+						{
+							Name:        "Another Item",
+							Description: "This is another item",
+							ImgURL:      "http://example.com/image3.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Test",
+						Tag: []string{
+							"Tag1",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
 	}
 
 	for _, tc := range testContexts {
@@ -1275,8 +1355,7 @@ func TestItemRepository_Search(t *testing.T) {
 						assert.Error(t, err)
 						assert.Nil(t, results)
 					} else {
-						if assert.NoError(t, err) {
-							assert.Equal(t, len(c.expected), len(results))
+						if assert.NoError(t, err) && assert.Equal(t, len(c.expected), len(results)) {
 							for i := range c.expected {
 								assert.NotNil(t, results[i].Item)
 								assert.Equal(t, c.expected[i].Name, results[i].Item.Name)
