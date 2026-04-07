@@ -710,7 +710,7 @@ func TestItemRepository_Delete(t *testing.T) {
 func TestItemRepository_Search(t *testing.T) {
 	type testCase struct {
 		name        string
-		createItems []*domain.Item
+		createItems []*item
 		query       domain.ItemSearchQuery
 		expected    []*domain.Item
 		wantErr     bool
@@ -726,10 +726,10 @@ func TestItemRepository_Search(t *testing.T) {
 			testCases: []testCase{
 				{
 					name: "success: empty query",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{},
 					expected: []*domain.Item{
@@ -741,10 +741,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: exact match",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "Test Item 1",
@@ -756,10 +756,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: partial match",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "Test",
@@ -772,10 +772,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: no match",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "Non-existent",
@@ -785,10 +785,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: multiple matches",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "Item",
@@ -802,10 +802,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: case insensitive match",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Another Item", Description: "This is another item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Another Item", Description: "This is another item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "test item 1",
@@ -817,10 +817,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: japanese name",
-					createItems: []*domain.Item{
-						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
-						{Name: "テスト物品2", Description: "なんらかの説明2", ImgUrl: "http://example.com/image2.png"},
-						{Name: "別の物品", Description: "別の説明", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgURL: "http://example.com/image1.png"},
+						{Name: "テスト物品2", Description: "なんらかの説明2", ImgURL: "http://example.com/image2.png"},
+						{Name: "別の物品", Description: "別の説明", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "テスト物品1",
@@ -832,10 +832,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: japanese partial match",
-					createItems: []*domain.Item{
-						{Name: "テスト物品1", Description: "なんらかの説明1", ImgUrl: "http://example.com/image1.png"},
-						{Name: "テスト物品2", Description: "なんらかの説明2", ImgUrl: "http://example.com/image2.png"},
-						{Name: "別の物品", Description: "別の説明", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "テスト物品1", Description: "なんらかの説明1", ImgURL: "http://example.com/image1.png"},
+						{Name: "テスト物品2", Description: "なんらかの説明2", ImgURL: "http://example.com/image2.png"},
+						{Name: "別の物品", Description: "別の説明", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Name: "テスト",
@@ -853,10 +853,10 @@ func TestItemRepository_Search(t *testing.T) {
 			testCases: []testCase{
 				{
 					name: "success: limit results",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Limit: 2,
@@ -868,10 +868,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: limit with offset",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Limit:  1,
@@ -884,10 +884,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: offset exceeds total",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Limit:  2,
@@ -898,10 +898,10 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "success: limit exceeds total",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Limit: 5,
@@ -915,16 +915,424 @@ func TestItemRepository_Search(t *testing.T) {
 				},
 				{
 					name: "failure: no limit with offset",
-					createItems: []*domain.Item{
-						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
-						{Name: "Test Item 2", Description: "This is the second test item", ImgUrl: "http://example.com/image2.png"},
-						{Name: "Test Item 3", Description: "This is the third test item", ImgUrl: "http://example.com/image3.png"},
+					createItems: []*item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgURL: "http://example.com/image1.png"},
+						{Name: "Test Item 2", Description: "This is the second test item", ImgURL: "http://example.com/image2.png"},
+						{Name: "Test Item 3", Description: "This is the third test item", ImgURL: "http://example.com/image3.png"},
 					},
 					query: domain.ItemSearchQuery{
 						Offset: 1,
 					},
 					expected: nil,
 					wantErr:  true,
+				},
+			},
+		},
+		{
+			name: "search by user id",
+			testCases: []testCase{
+				{
+					name: "success: search by owner user id",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Ownership: []ownership{
+								{UserID: "owner1"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Ownership: []ownership{
+								{UserID: "owner2"},
+							},
+						},
+						{
+							Name:        "Item 3",
+							Description: "This is item 3",
+							ImgURL:      "http://example.com/image3.png",
+							Ownership: []ownership{
+								{UserID: "owner1"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						UserID: "owner1",
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Item 3", Description: "This is item 3", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
+		{
+			name: "search by borrower id",
+			testCases: []testCase{
+				{
+					name: "success: search by borrower user id",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Ownership: []ownership{
+								{
+									UserID:   "owner1",
+									Rentable: true,
+									Transaction: []transaction{
+										{UserID: "borrower1", Status: domain.BorrowingStatusBorrowed.ToString(), Purpose: "read"},
+									},
+								},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Ownership: []ownership{
+								{
+									UserID:   "owner2",
+									Rentable: true,
+									Transaction: []transaction{
+										{UserID: "borrower2", Status: domain.BorrowingStatusBorrowed.ToString(), Purpose: "research"},
+									},
+								},
+							},
+						},
+						{
+							Name:        "Item 3",
+							Description: "This is item 3",
+							ImgURL:      "http://example.com/image3.png",
+							Ownership: []ownership{
+								{
+									UserID:   "owner3",
+									Rentable: true,
+									Transaction: []transaction{
+										{UserID: "borrower1", Status: domain.BorrowingStatusBorrowed.ToString(), Purpose: "read"},
+									},
+								},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						BorrowerID: "borrower1",
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Item 3", Description: "This is item 3", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: get only status is borrowed",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Ownership: []ownership{
+								{
+									UserID:   "owner1",
+									Rentable: true,
+									Transaction: []transaction{
+										{UserID: "borrower1", Status: domain.BorrowingStatusBorrowed.ToString(), Purpose: "read"},
+										{UserID: "borrower2", Status: domain.BorrowingStatusReturned.ToString(), Purpose: "research"},
+									},
+								},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Ownership: []ownership{
+								{
+									UserID:   "owner2",
+									Rentable: true,
+									Transaction: []transaction{
+										{UserID: "borrower1", Status: domain.BorrowingStatusRequested.ToString(), Purpose: "read"},
+										{UserID: "borrower2", Status: domain.BorrowingStatusBorrowed.ToString(), Purpose: "research"},
+									},
+								},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						BorrowerID: "borrower1",
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
+		{
+			name: "search by tag",
+			testCases: []testCase{
+				{
+					name: "success: search by tag",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+						{
+							Name:        "Item 3",
+							Description: "This is item 3",
+							ImgURL:      "http://example.com/image3.png",
+							Tags: []tag{
+								{Name: "Tag3"},
+								{Name: "Tag4"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"Tag2",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+						{Name: "Item 2", Description: "This is item 2", ImgUrl: "http://example.com/image2.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: search by non-existent tag",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"NonExistentTag",
+						},
+					},
+					expected: []*domain.Item{},
+					wantErr:  false,
+				},
+				{
+					name: "success: search by multiple tags",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"Tag1",
+							"Tag2",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: search with duplicate tags in query",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"Tag1",
+							"Tag1",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Item 1", Description: "This is item 1", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
+				},
+				{
+					name: "success: search with tagExclude",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						TagExclude: []string{
+							"Tag2",
+						},
+					},
+					expected: []*domain.Item{},
+					wantErr: false,
+				},
+				{
+					name: "success: search with tag and tagExclude",
+					createItems: []*item{
+						{
+							Name:        "Item 1",
+							Description: "This is item 1",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Item 2",
+							Description: "This is item 2",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+						{
+							Name:        "Item 3",
+							Description: "This is item 3",
+							ImgURL:      "http://example.com/image3.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Tag: []string{
+							"Tag1",
+						},
+						TagExclude: []string{
+							"Tag2",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Item 3", Description: "This is item 3", ImgUrl: "http://example.com/image3.png"},
+					},
+					wantErr: false,
+				},
+			},
+		},
+		{
+			name: "search with multiple conditions",
+			testCases: []testCase{
+				{
+					name: "success: search by name and tag",
+					createItems: []*item{
+						{
+							Name:        "Test Item 1",
+							Description: "This is the first test item",
+							ImgURL:      "http://example.com/image1.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag2"},
+							},
+						},
+						{
+							Name:        "Test Item 2",
+							Description: "This is the second test item",
+							ImgURL:      "http://example.com/image2.png",
+							Tags: []tag{
+								{Name: "Tag2"},
+								{Name: "Tag3"},
+							},
+						},
+						{
+							Name:        "Another Item",
+							Description: "This is another item",
+							ImgURL:      "http://example.com/image3.png",
+							Tags: []tag{
+								{Name: "Tag1"},
+								{Name: "Tag3"},
+							},
+						},
+					},
+					query: domain.ItemSearchQuery{
+						Name: "Test",
+						Tag: []string{
+							"Tag1",
+						},
+					},
+					expected: []*domain.Item{
+						{Name: "Test Item 1", Description: "This is the first test item", ImgUrl: "http://example.com/image1.png"},
+					},
+					wantErr: false,
 				},
 			},
 		},
@@ -938,7 +1346,7 @@ func TestItemRepository_Search(t *testing.T) {
 					repo := NewItemRepository(db)
 
 					for _, item := range c.createItems {
-						_, err := repo.Create(item)
+						err := db.Create(item).Error
 						assert.NoError(t, err)
 					}
 
@@ -947,13 +1355,13 @@ func TestItemRepository_Search(t *testing.T) {
 						assert.Error(t, err)
 						assert.Nil(t, results)
 					} else {
-						assert.NoError(t, err)
-						assert.Equal(t, len(c.expected), len(results))
-						for i := range c.expected {
-							assert.NotNil(t, results[i].Item)
-							assert.Equal(t, c.expected[i].Name, results[i].Item.Name)
-							assert.Equal(t, c.expected[i].Description, results[i].Item.Description)
-							assert.Equal(t, c.expected[i].ImgUrl, results[i].Item.ImgUrl)
+						if assert.NoError(t, err) && assert.Equal(t, len(c.expected), len(results)) {
+							for i := range c.expected {
+								assert.NotNil(t, results[i].Item)
+								assert.Equal(t, c.expected[i].Name, results[i].Item.Name)
+								assert.Equal(t, c.expected[i].Description, results[i].Item.Description)
+								assert.Equal(t, c.expected[i].ImgUrl, results[i].Item.ImgUrl)
+							}
 						}
 					}
 				})
