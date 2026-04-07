@@ -80,6 +80,67 @@ func TestItemUseCase_GetItemByID(t *testing.T) {
 	}
 }
 
+func TestItemUseCase_GetItemDetailByID(t *testing.T) {
+	testCases := []struct {
+		name         string
+		setupMock    func(repo *mock_domain.MockItemRepository)
+		id           int
+		expectedItem *domain.ItemDetail
+		expectedErr  error
+	}{
+		{
+			name: "success",
+			setupMock: func(repo *mock_domain.MockItemRepository) {
+				repo.EXPECT().
+					GetDetailByID(1).
+					Return(&domain.ItemDetail{
+						Item:       &domain.Item{ID: 1, Name: "Test Item"},
+						Tags:       []*domain.Tag{{Name: "tag1"}},
+						Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+						Ownerships: []*domain.OwnershipDetail{},
+					}, nil).
+					Times(1)
+			},
+			id: 1,
+			expectedItem: &domain.ItemDetail{
+				Item:       &domain.Item{ID: 1, Name: "Test Item"},
+				Tags:       []*domain.Tag{{Name: "tag1"}},
+				Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+				Ownerships: []*domain.OwnershipDetail{},
+			},
+		},
+		{
+			name: "failure: item not found",
+			setupMock: func(repo *mock_domain.MockItemRepository) {
+				repo.EXPECT().
+					GetDetailByID(2).
+					Return(nil, domain.ErrNotFound).
+					Times(1)
+			},
+			id:           2,
+			expectedItem: nil,
+			expectedErr:  domain.ErrNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockItemRepo := mock_domain.NewMockItemRepository(ctrl)
+			tc.setupMock(mockItemRepo)
+
+			itemUseCase := NewItemUseCase(mockItemRepo)
+
+			item, err := itemUseCase.GetItemDetailByID(tc.id)
+
+			assert.Equal(t, tc.expectedItem, item)
+			assert.True(t, errors.Is(err, tc.expectedErr))
+		})
+	}
+}
+
 func TestItemUseCase_CreateItem(t *testing.T) {
 	testCases := []struct {
 		name         string
@@ -145,82 +206,44 @@ func TestItemUseCase_SearchItems(t *testing.T) {
 		name          string
 		setupMock     func(repo *mock_domain.MockItemRepository)
 		query         domain.ItemSearchQuery
-		expectedItems []*domain.Item
+		expectedItems []*domain.ItemDetail
 		expectedErr   error
 	}{
 		{
 			name: "success",
 			setupMock: func(repo *mock_domain.MockItemRepository) {
 				repo.EXPECT().
-					Search(gomock.Any()).
-					Return([]*domain.Item{
+					Search(domain.ItemSearchQuery{Name: "Test", Limit: 10}).
+					Return([]*domain.ItemDetail{
 						{
-							ID:          1,
-							Name:        "Test Item 1",
-							Description: "This is the first test item",
-							ImgUrl:      "http://example.com/image1.png",
-							BookDetail: &domain.BookDetail{
-								ISBNCode: "1234567890",
-							},
-							EquipmentDetail: nil,
-						},
-						{
-							ID:          2,
-							Name:        "Test Item 2",
-							Description: "This is the second test item",
-							ImgUrl:      "http://example.com/image2.png",
-							BookDetail:  nil,
-							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    5,
-								CountMax: 10,
-							},
+							Item:       &domain.Item{ID: 1, Name: "Test Item"},
+							Tags:       []*domain.Tag{{Name: "tag1"}},
+							Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+							Ownerships: []*domain.OwnershipDetail{},
 						},
 					}, nil).
 					Times(1)
 			},
 			query: domain.ItemSearchQuery{
-				Name:   "Test",
-				UserID: "user1",
-				Limit:  10,
-				Offset: 0,
+				Name:  "Test",
+				Limit: 10,
 			},
-			expectedItems: []*domain.Item{
+			expectedItems: []*domain.ItemDetail{
 				{
-					ID:          1,
-					Name:        "Test Item 1",
-					Description: "This is the first test item",
-					ImgUrl:      "http://example.com/image1.png",
-					BookDetail: &domain.BookDetail{
-						ISBNCode: "1234567890",
-					},
-					EquipmentDetail: nil,
-				},
-				{
-					ID:          2,
-					Name:        "Test Item 2",
-					Description: "This is the second test item",
-					ImgUrl:      "http://example.com/image2.png",
-					BookDetail:  nil,
-					EquipmentDetail: &domain.EquipmentDetail{
-						Count:    5,
-						CountMax: 10,
-					},
+					Item:       &domain.Item{ID: 1, Name: "Test Item"},
+					Tags:       []*domain.Tag{{Name: "tag1"}},
+					Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+					Ownerships: []*domain.OwnershipDetail{},
 				},
 			},
-			expectedErr: nil,
 		},
 		{
-			name: "failure: no limit with offset",
-			setupMock: func(repo *mock_domain.MockItemRepository) {
-				// expected to not call Search
-			},
+			name:      "failure: no limit with offset",
+			setupMock: func(repo *mock_domain.MockItemRepository) {},
 			query: domain.ItemSearchQuery{
-				Name:   "Test",
-				UserID: "user1",
 				Offset: 10,
 			},
-			expectedItems: nil,
-			expectedErr:   ErrInvalidSearchQuery,
+			expectedErr: ErrInvalidSearchQuery,
 		},
 	}
 

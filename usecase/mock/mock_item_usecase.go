@@ -99,11 +99,26 @@ func (mr *MockItemUseCaseMockRecorder) GetItemByID(id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemByID", reflect.TypeOf((*MockItemUseCase)(nil).GetItemByID), id)
 }
 
+// GetItemDetailByID mocks base method.
+func (m *MockItemUseCase) GetItemDetailByID(id int) (*domain.ItemDetail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetItemDetailByID", id)
+	ret0, _ := ret[0].(*domain.ItemDetail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetItemDetailByID indicates an expected call of GetItemDetailByID.
+func (mr *MockItemUseCaseMockRecorder) GetItemDetailByID(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetItemDetailByID", reflect.TypeOf((*MockItemUseCase)(nil).GetItemDetailByID), id)
+}
+
 // SearchItems mocks base method.
-func (m *MockItemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+func (m *MockItemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SearchItems", query)
-	ret0, _ := ret[0].([]*domain.Item)
+	ret0, _ := ret[0].([]*domain.ItemDetail)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

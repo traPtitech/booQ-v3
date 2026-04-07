@@ -188,6 +188,90 @@ func TestItemModel_PreloadLikesAndTags(t *testing.T) {
 	}
 }
 
+func TestItemRepository_GetDetailByID(t *testing.T) {
+	testCases := []struct {
+		name   string
+		setup  func(t *testing.T, db *gorm.DB) int
+		verify func(t *testing.T, item *domain.ItemDetail, err error)
+	}{
+		{
+			name: "success",
+			setup: func(t *testing.T, db *gorm.DB) int {
+				model := &item{
+					Name:        "Detailed Item",
+					Description: "detail test",
+					ImgURL:      "http://example.com/detail.png",
+					Tags: []tag{
+						{Name: "go"},
+						{Name: "book"},
+					},
+					Likes: []like{
+						{UserID: "user-a"},
+						{UserID: "user-b"},
+					},
+					Ownership: []ownership{
+						{
+							UserID:   "owner1",
+							Rentable: true,
+							Transaction: []transaction{
+								{UserID: "borrower1", Status: "requested", Purpose: "read"},
+							},
+						},
+						{
+							UserID:   "owner2",
+							Rentable: false,
+							Transaction: []transaction{
+								{UserID: "borrower2", Status: "borrowed", Purpose: "research"},
+							},
+						},
+					},
+				}
+				if err := db.Create(model).Error; err != nil {
+					t.Fatalf("Failed to create detailed item: %v", err)
+				}
+				return model.ID
+			},
+			verify: func(t *testing.T, item *domain.ItemDetail, err error) {
+				assert.NoError(t, err)
+				assert.NotNil(t, item)
+				assert.NotNil(t, item.Item)
+				assert.Equal(t, "Detailed Item", item.Item.Name)
+				assert.Len(t, item.Tags, 2)
+				assert.Len(t, item.Likes, 2)
+				assert.Len(t, item.Ownerships, 2)
+				assert.NotNil(t, item.Ownerships[0].Ownership)
+				assert.Equal(t, "owner1", item.Ownerships[0].Ownership.UserID)
+				assert.Len(t, item.Ownerships[0].Transactions, 1)
+				assert.Equal(t, "borrower1", item.Ownerships[0].Transactions[0].UserID)
+				assert.NotNil(t, item.Ownerships[1].Ownership)
+				assert.Equal(t, "owner2", item.Ownerships[1].Ownership.UserID)
+				assert.Len(t, item.Ownerships[1].Transactions, 1)
+				assert.Equal(t, "borrower2", item.Ownerships[1].Transactions[0].UserID)
+			},
+		},
+		{
+			name:  "failure: item not found",
+			setup: func(t *testing.T, db *gorm.DB) int { return 9999 },
+			verify: func(t *testing.T, item *domain.ItemDetail, err error) {
+				assert.ErrorIs(t, err, domain.ErrNotFound)
+				assert.Nil(t, item)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			db := setupTestDB(t)
+
+			repo := NewItemRepository(db)
+			id := tc.setup(t, db)
+
+			item, err := repo.GetDetailByID(id)
+			tc.verify(t, item, err)
+		})
+	}
+}
+
 func TestItemRepository_Create(t *testing.T) {
 	testCases := []struct {
 		name    string
@@ -622,6 +706,7 @@ func TestItemRepository_Delete(t *testing.T) {
 	}
 }
 
+// TODO: expectedもItemDetailにすべき
 func TestItemRepository_Search(t *testing.T) {
 	type testCase struct {
 		name        string
@@ -865,9 +950,10 @@ func TestItemRepository_Search(t *testing.T) {
 						assert.NoError(t, err)
 						assert.Equal(t, len(c.expected), len(results))
 						for i := range c.expected {
-							assert.Equal(t, c.expected[i].Name, results[i].Name)
-							assert.Equal(t, c.expected[i].Description, results[i].Description)
-							assert.Equal(t, c.expected[i].ImgUrl, results[i].ImgUrl)
+							assert.NotNil(t, results[i].Item)
+							assert.Equal(t, c.expected[i].Name, results[i].Item.Name)
+							assert.Equal(t, c.expected[i].Description, results[i].Item.Description)
+							assert.Equal(t, c.expected[i].ImgUrl, results[i].Item.ImgUrl)
 						}
 					}
 				})

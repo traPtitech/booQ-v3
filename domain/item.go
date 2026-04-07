@@ -36,9 +36,22 @@ type ItemSearchQuery struct {
 	SortBy     string
 }
 
+type ItemDetail struct {
+	Item       *Item
+	Tags       []*Tag
+	Likes      []*Like
+	Ownerships []*OwnershipDetail
+}
+
+type OwnershipDetail struct {
+	Ownership    *Ownership
+	Transactions []*Transaction
+}
+
 type ItemRepository interface {
 	GetByID(id int) (*Item, error)
-	Search(query ItemSearchQuery) ([]*Item, error)
+	GetDetailByID(id int) (*ItemDetail, error)
+	Search(query ItemSearchQuery) ([]*ItemDetail, error)
 	Create(item *Item) (*Item, error)
 	CreateBatch(items []*Item) ([]*Item, error)
 	Update(item *Item) (*Item, error)

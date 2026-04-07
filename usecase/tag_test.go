@@ -87,7 +87,12 @@ func TestTagUseCase_ReplaceByItemID(t *testing.T) {
 			tags:   []string{"go", "book"},
 			setupMock: func(itemRepo *mock_domain.MockItemRepository, tagRepo *mock_domain.MockTagRepository) {
 				itemRepo.EXPECT().GetByID(1).Return(&domain.Item{ID: 1}, nil)
-				tagRepo.EXPECT().ReplaceByItemID(1, []string{"go", "book"}).Return(nil)
+				tagRepo.EXPECT().
+					ReplaceByItemID(1, gomock.Any()).
+					DoAndReturn(func(itemID int, tags []string) error {
+						assert.ElementsMatch(t, []string{"go", "book"}, tags)
+						return nil
+					})
 			},
 		},
 		{

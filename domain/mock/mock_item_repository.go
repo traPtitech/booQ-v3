@@ -99,11 +99,26 @@ func (mr *MockItemRepositoryMockRecorder) GetByID(id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockItemRepository)(nil).GetByID), id)
 }
 
+// GetDetailByID mocks base method.
+func (m *MockItemRepository) GetDetailByID(id int) (*domain.ItemDetail, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDetailByID", id)
+	ret0, _ := ret[0].(*domain.ItemDetail)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDetailByID indicates an expected call of GetDetailByID.
+func (mr *MockItemRepositoryMockRecorder) GetDetailByID(id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDetailByID", reflect.TypeOf((*MockItemRepository)(nil).GetDetailByID), id)
+}
+
 // Search mocks base method.
-func (m *MockItemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+func (m *MockItemRepository) Search(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", query)
-	ret0, _ := ret[0].([]*domain.Item)
+	ret0, _ := ret[0].([]*domain.ItemDetail)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

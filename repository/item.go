@@ -64,6 +64,38 @@ func (i *item) toDomain() *domain.Item {
 	return item
 }
 
+func (i *item) toDomainDetail() *domain.ItemDetail {
+	likes := make([]*domain.Like, 0, len(i.Likes))
+	for _, l := range i.Likes {
+		likes = append(likes, l.toDomain())
+	}
+
+	tags := make([]*domain.Tag, 0, len(i.Tags))
+	for _, t := range i.Tags {
+		tags = append(tags, t.toDomain())
+	}
+
+	ownerships := make([]*domain.OwnershipDetail, 0, len(i.Ownership))
+	for _, ownership := range i.Ownership {
+		transactions := make([]*domain.Transaction, 0, len(ownership.Transaction))
+		for _, transaction := range ownership.Transaction {
+			transactions = append(transactions, transaction.toDomain())
+		}
+		ownershipDetail := &domain.OwnershipDetail{
+			Ownership:    ownership.toDomain(),
+			Transactions: transactions,
+		}
+		ownerships = append(ownerships, ownershipDetail)
+	}
+
+	return &domain.ItemDetail{
+		Item:       i.toDomain(),
+		Tags:       tags,
+		Likes:      likes,
+		Ownerships: ownerships,
+	}
+}
+
 func toItemModel(d *domain.Item) *item {
 	item := &item{
 		GormModel:   GormModel{ID: d.ID, CreatedAt: d.CreatedAt, UpdatedAt: d.UpdatedAt},
@@ -101,10 +133,36 @@ func (repo *itemRepository) GetByID(id int) (*domain.Item, error) {
 	return res.toDomain(), nil
 }
 
+func (repo *itemRepository) GetDetailByID(id int) (*domain.ItemDetail, error) {
+	res := &item{}
+
+	model := repo.db.
+		Preload("Book").
+		Preload("Equipment").
+		Preload("Likes").
+		Preload("Tags").
+		Preload("Ownership.Transaction").
+		Model(&item{})
+	if err := model.First(res, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, err
+	}
+
+	return res.toDomainDetail(), nil
+}
+
 // TODO: search by tags, names, etc.
-func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error) {
 	var items []item
-	dbQuery := repo.db.Preload("Book").Preload("Equipment").Model(&item{})
+	dbQuery := repo.db.
+		Preload("Book").
+		Preload("Equipment").
+		Preload("Likes").
+		Preload("Tags").
+		Preload("Ownership.Transaction").
+		Model(&item{})
 
 	if query.Name != "" {
 		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
@@ -120,9 +178,9 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 		return nil, fmt.Errorf("failed to search items: %w", err)
 	}
 
-	domainItems := make([]*domain.Item, len(items))
+	domainItems := make([]*domain.ItemDetail, len(items))
 	for i, item := range items {
-		domainItems[i] = item.toDomain()
+		domainItems[i] = item.toDomainDetail()
 	}
 
 	return domainItems, nil

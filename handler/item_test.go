@@ -11,6 +11,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/oapi-codegen/nullable"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
@@ -25,43 +26,145 @@ func TestHandler_GetItem(t *testing.T) {
 		itemId       string
 		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
-		expectedBody func() *openapi.Item
+		expectedBody func() *openapi.ItemDetail
 	}{
 		{
 			name:   "success",
 			itemId: "1",
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
-					GetItemByID(1).
-					Return(&domain.Item{
-						ID:              1,
-						Name:            "Test Item",
-						Description:     "This is a test item",
-						ImgUrl:          "http://example.com/image.png",
-						EquipmentDetail: nil,
-						CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-						DeletedAt:       nil,
+					GetItemDetailByID(1).
+					Return(&domain.ItemDetail{
+						Item: &domain.Item{
+							ID:              1,
+							Name:            "Test Item",
+							Description:     "This is a test item",
+							ImgUrl:          "http://example.com/image.png",
+							EquipmentDetail: nil,
+							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+							DeletedAt:       nil,
+						},
+						Tags: []*domain.Tag{{Name: "tag-1"}},
+						Likes: []*domain.Like{
+							{ItemID: 1, UserID: "user1"},
+							{ItemID: 1, UserID: "user2"},
+						},
+						Ownerships: []*domain.OwnershipDetail{
+							{
+								Ownership: &domain.Ownership{
+									ID:       20,
+									ItemID:   1,
+									UserID:   "owner1",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          10,
+										UserID:      "borrower1",
+										OwnershipID: 20,
+										Status:      domain.BorrowingStatusRequested,
+										Purpose:     "read",
+										DueDate:     time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
+									},
+								},
+							},
+							{
+								Ownership: &domain.Ownership{
+									ID:       21,
+									ItemID:   1,
+									UserID:   "owner2",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          11,
+										UserID:      "borrower2",
+										OwnershipID: 21,
+										Status:      domain.BorrowingStatusBorrowed,
+										Purpose:     "research",
+										DueDate:     time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC),
+									},
+								},
+							},
+						},
 					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemID(1).
-					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: func() *openapi.Item {
-				return &openapi.Item{
+			expectedBody: func() *openapi.ItemDetail {
+				transactionCreatedAt := time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC)
+				transactionID := 10
+				ownershipID := 20
+				purpose := "read"
+				status := 0
+				transactionUpdatedAt := time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC)
+				userID := "borrower1"
+				transactionCreatedAt2 := time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC)
+				transactionID2 := 11
+				ownershipID2 := 21
+				purpose2 := "research"
+				status2 := 1
+				transactionUpdatedAt2 := time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC)
+				userID2 := "borrower2"
+
+				res := &openapi.ItemDetail{
 					Id:          1,
 					Name:        "Test Item",
 					Description: "This is a test item",
 					ImgUrl:      "http://example.com/image.png",
 					IsBook:      false,
 					IsTrapItem:  false,
-					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-					DeletedAt:   nullable.NewNullNullable[time.Time](),
+					LikesByUsers: &[]string{
+						"user1",
+						"user2",
+					},
+					Tags: &[]openapi.Tag{
+						{Name: "tag-1"},
+					},
+					CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+					DeletedAt: nullable.NewNullNullable[time.Time](),
 				}
+				_ = res.FromItemDetail1(openapi.ItemDetail1{
+					Transactions: []openapi.Transaction{
+						{
+							CheckoutDate:  openapi_types.Date{},
+							CreatedAt:     &transactionCreatedAt,
+							DeletedAt:     nullable.NewNullNullable[time.Time](),
+							DueDate:       openapi_types.Date{Time: time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC)},
+							Id:            &transactionID,
+							Message:       "",
+							OwnershipId:   &ownershipID,
+							Purpose:       &purpose,
+							ReturnMessage: "",
+							ReturnDate:    openapi_types.Date{},
+							Status:        &status,
+							UpdatedAt:     &transactionUpdatedAt,
+							UserId:        &userID,
+						},
+						{
+							CheckoutDate:  openapi_types.Date{},
+							CreatedAt:     &transactionCreatedAt2,
+							DeletedAt:     nullable.NewNullNullable[time.Time](),
+							DueDate:       openapi_types.Date{Time: time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC)},
+							Id:            &transactionID2,
+							Message:       "",
+							OwnershipId:   &ownershipID2,
+							Purpose:       &purpose2,
+							ReturnMessage: "",
+							ReturnDate:    openapi_types.Date{},
+							Status:        &status2,
+							UpdatedAt:     &transactionUpdatedAt2,
+							UserId:        &userID2,
+						},
+					},
+				})
+				return res
 			},
 		},
 		{
@@ -69,31 +172,32 @@ func TestHandler_GetItem(t *testing.T) {
 			itemId: "1",
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
-					GetItemByID(1).
-					Return(&domain.Item{
-						ID:          1,
-						Name:        "Test Book",
-						Description: "This is a test book",
-						ImgUrl:      "http://example.com/book.png",
-						BookDetail: &domain.BookDetail{
-							ISBNCode: "1234567890",
+					GetItemDetailByID(1).
+					Return(&domain.ItemDetail{
+						Item: &domain.Item{
+							ID:          1,
+							Name:        "Test Book",
+							Description: "This is a test book",
+							ImgUrl:      "http://example.com/book.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "1234567890",
+							},
+							EquipmentDetail: nil,
+							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+							DeletedAt:       nil,
 						},
-						EquipmentDetail: nil,
-						CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-						DeletedAt:       nil,
+						Tags:       []*domain.Tag{},
+						Likes:      []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{},
 					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemID(1).
-					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: func() *openapi.Item {
+			expectedBody: func() *openapi.ItemDetail {
 				code := "1234567890"
 
-				return &openapi.Item{
+				res := &openapi.ItemDetail{
 					Id:          1,
 					Name:        "Test Book",
 					Description: "This is a test book",
@@ -105,6 +209,8 @@ func TestHandler_GetItem(t *testing.T) {
 					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 					DeletedAt:   nullable.NewNullNullable[time.Time](),
 				}
+				_ = res.FromItemDetail1(openapi.ItemDetail1{Transactions: []openapi.Transaction{}})
+				return res
 			},
 		},
 		{
@@ -112,43 +218,90 @@ func TestHandler_GetItem(t *testing.T) {
 			itemId: "1",
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
-					GetItemByID(1).
-					Return(&domain.Item{
-						ID:          1,
-						Name:        "Test Equipment",
-						Description: "This is a test equipment",
-						ImgUrl:      "http://example.com/equipment.png",
-						BookDetail:  nil,
-						EquipmentDetail: &domain.EquipmentDetail{
-							Count:    2,
-							CountMax: 5,
+					GetItemDetailByID(1).
+					Return(&domain.ItemDetail{
+						Item: &domain.Item{
+							ID:          1,
+							Name:        "Test Equipment",
+							Description: "This is a test equipment",
+							ImgUrl:      "http://example.com/equipment.png",
+							BookDetail:  nil,
+							EquipmentDetail: &domain.EquipmentDetail{
+								Count:    2,
+								CountMax: 5,
+							},
+							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+							DeletedAt: nil,
 						},
-						CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-						DeletedAt: nil,
+						Tags:  []*domain.Tag{{Name: "equipment"}},
+						Likes: []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{
+							{
+								Ownership: &domain.Ownership{
+									ID:       21,
+									ItemID:   1,
+									UserID:   "owner2",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          11,
+										UserID:      "borrower2",
+										OwnershipID: 21,
+										Status:      domain.BorrowingStatusBorrowed,
+										Purpose:     "use",
+										DueDate:     time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC),
+									},
+								},
+							},
+						},
 					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemID(1).
-					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: func() *openapi.Item {
-				item := &openapi.Item{
+			expectedBody: func() *openapi.ItemDetail {
+				count := 2
+				transactionCreatedAt := time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC)
+				transactionID := 11
+				itemID := 1
+				purpose := "use"
+				status := 1
+				transactionUpdatedAt := time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC)
+				userID := "borrower2"
+
+				item := &openapi.ItemDetail{
 					Id:          1,
 					Name:        "Test Equipment",
 					Description: "This is a test equipment",
 					ImgUrl:      "http://example.com/equipment.png",
+					Count:       &count,
 					IsBook:      false,
 					IsTrapItem:  true,
-					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-					DeletedAt:   nullable.NewNullNullable[time.Time](),
+					Tags: &[]openapi.Tag{
+						{Name: "equipment"},
+					},
+					CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+					DeletedAt: nullable.NewNullNullable[time.Time](),
 				}
-				_ = item.FromItem0(openapi.Item0{
-					Count:    2,
-					CountMax: 5,
+				_ = item.FromItemDetail0(openapi.ItemDetail0{
+					TransactionsEquipment: []openapi.TransactionEquipment{
+						{
+							CreatedAt:  &transactionCreatedAt,
+							DeletedAt:  nullable.NewNullNullable[time.Time](),
+							DueDate:    openapi_types.Date{Time: time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC)},
+							Id:         &transactionID,
+							ItemId:     &itemID,
+							Purpose:    &purpose,
+							ReturnDate: openapi_types.Date{},
+							Status:     &status,
+							UpdatedAt:  &transactionUpdatedAt,
+							UserId:     &userID,
+						},
+					},
 				})
 				return item
 			},
@@ -158,37 +311,40 @@ func TestHandler_GetItem(t *testing.T) {
 			itemId: "1",
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
-					GetItemByID(1).
-					Return(&domain.Item{
-						ID:          1,
-						Name:        "Test Book Equipment",
-						Description: "This is a test book equipment",
-						ImgUrl:      "http://example.com/book_equipment.png",
-						BookDetail: &domain.BookDetail{
-							ISBNCode: "1234567890",
+					GetItemDetailByID(1).
+					Return(&domain.ItemDetail{
+						Item: &domain.Item{
+							ID:          1,
+							Name:        "Test Book Equipment",
+							Description: "This is a test book equipment",
+							ImgUrl:      "http://example.com/book_equipment.png",
+							BookDetail: &domain.BookDetail{
+								ISBNCode: "1234567890",
+							},
+							EquipmentDetail: &domain.EquipmentDetail{
+								Count:    2,
+								CountMax: 5,
+							},
+							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+							UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+							DeletedAt: nil,
 						},
-						EquipmentDetail: &domain.EquipmentDetail{
-							Count:    2,
-							CountMax: 5,
-						},
-						CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-						UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-						DeletedAt: nil,
+						Tags:       []*domain.Tag{},
+						Likes:      []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{},
 					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemID(1).
-					Return([]*domain.Tag{}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: func() *openapi.Item {
+			expectedBody: func() *openapi.ItemDetail {
 				code := "1234567890"
-				item := &openapi.Item{
+				count := 2
+				item := &openapi.ItemDetail{
 					Id:          1,
 					Name:        "Test Book Equipment",
 					Description: "This is a test book equipment",
 					ImgUrl:      "http://example.com/book_equipment.png",
+					Count:       &count,
 					IsBook:      true,
 					IsTrapItem:  true,
 					Code:        &code,
@@ -196,10 +352,7 @@ func TestHandler_GetItem(t *testing.T) {
 					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 					DeletedAt:   nullable.NewNullNullable[time.Time](),
 				}
-				_ = item.FromItem0(openapi.Item0{
-					Count:    2,
-					CountMax: 5,
-				})
+				_ = item.FromItemDetail0(openapi.ItemDetail0{TransactionsEquipment: []openapi.TransactionEquipment{}})
 				return item
 			},
 		},
@@ -208,12 +361,12 @@ func TestHandler_GetItem(t *testing.T) {
 			itemId: "2",
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
-					GetItemByID(2).
+					GetItemDetailByID(2).
 					Return(nil, domain.ErrNotFound).
 					Times(1)
 			},
 			expectedCode: http.StatusNotFound,
-			expectedBody: func() *openapi.Item {
+			expectedBody: func() *openapi.ItemDetail {
 				return nil
 			},
 		},
@@ -224,7 +377,7 @@ func TestHandler_GetItem(t *testing.T) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
-			expectedBody: func() *openapi.Item {
+			expectedBody: func() *openapi.ItemDetail {
 				return nil
 			},
 		},
@@ -267,7 +420,7 @@ func TestHandler_GetItems(t *testing.T) {
 		query        string
 		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
 		expectedCode int
-		expectedBody func() []openapi.Item
+		expectedBody func() []openapi.ItemSummary
 	}{
 		{
 			name:  "success: no query",
@@ -275,76 +428,86 @@ func TestHandler_GetItems(t *testing.T) {
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
 					SearchItems(domain.ItemSearchQuery{}).
-					Return([]*domain.Item{
+					Return([]*domain.ItemDetail{
 						{
-							ID:          1,
-							Name:        "Test Item 1",
-							Description: "This is the first test item",
-							ImgUrl:      "http://example.com/image1.png",
-							BookDetail:  nil,
-							EquipmentDetail: &domain.EquipmentDetail{
-								Count:    1,
-								CountMax: 5,
+							Item: &domain.Item{
+								ID:          1,
+								Name:        "Test Item 1",
+								Description: "This is the first test item",
+								ImgUrl:      "http://example.com/image1.png",
+								BookDetail:  nil,
+								EquipmentDetail: &domain.EquipmentDetail{
+									Count:    1,
+									CountMax: 5,
+								},
+								CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+								DeletedAt: nil,
 							},
-							CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-							DeletedAt: nil,
+							Tags:  []*domain.Tag{{Name: "tag-1"}},
+							Likes: []*domain.Like{{ItemID: 1, UserID: "user-a"}},
 						},
 						{
-							ID:          2,
-							Name:        "Test Item 2",
-							Description: "This is the second test item",
-							ImgUrl:      "http://example.com/image2.png",
-							BookDetail: &domain.BookDetail{
-								ISBNCode: "0987654321",
+							Item: &domain.Item{
+								ID:          2,
+								Name:        "Test Item 2",
+								Description: "This is the second test item",
+								ImgUrl:      "http://example.com/image2.png",
+								BookDetail: &domain.BookDetail{
+									ISBNCode: "0987654321",
+								},
+								EquipmentDetail: nil,
+								CreatedAt:       time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
+								UpdatedAt:       time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
+								DeletedAt:       nil,
 							},
-							EquipmentDetail: nil,
-							CreatedAt:       time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
-							UpdatedAt:       time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
-							DeletedAt:       nil,
+							Tags:  []*domain.Tag{},
+							Likes: []*domain.Like{{ItemID: 2, UserID: "user-b"}, {ItemID: 2, UserID: "user-c"}},
 						},
-					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemIDs([]int{1, 2}).
-					Return(map[int][]*domain.Tag{
-						1: {},
-						2: {},
 					}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: func() []openapi.Item {
-				equipment := &openapi.Item{
+			expectedBody: func() []openapi.ItemSummary {
+				equipmentCount := 1
+				equipmentIsLiked := false
+				equipmentLikeCounts := 1
+				equipment := &openapi.ItemSummary{
 					Id:          1,
 					Name:        "Test Item 1",
 					Description: "This is the first test item",
 					ImgUrl:      "http://example.com/image1.png",
+					Count:       &equipmentCount,
 					IsBook:      false,
 					IsTrapItem:  true,
-					CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-					UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-					DeletedAt:   nullable.NewNullNullable[time.Time](),
+					IsLiked:     &equipmentIsLiked,
+					LikeCounts:  &equipmentLikeCounts,
+					Tags: &[]openapi.Tag{
+						{Name: "tag-1"},
+					},
+					CreatedAt: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+					DeletedAt: nullable.NewNullNullable[time.Time](),
 				}
-				_ = equipment.FromItem0(openapi.Item0{
-					Count:    1,
-					CountMax: 5,
-				})
 
 				code := "0987654321"
-				book := &openapi.Item{
+				bookIsLiked := false
+				bookLikeCounts := 2
+				book := &openapi.ItemSummary{
 					Id:          2,
 					Name:        "Test Item 2",
 					Description: "This is the second test item",
 					ImgUrl:      "http://example.com/image2.png",
 					IsBook:      true,
 					IsTrapItem:  false,
+					IsLiked:     &bookIsLiked,
+					LikeCounts:  &bookLikeCounts,
 					Code:        &code,
 					CreatedAt:   time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
 					UpdatedAt:   time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
 					DeletedAt:   nullable.NewNullNullable[time.Time](),
 				}
-				return []openapi.Item{*equipment, *book}
+				return []openapi.ItemSummary{*equipment, *book}
 			},
 		},
 		{
@@ -353,36 +516,40 @@ func TestHandler_GetItems(t *testing.T) {
 			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
 				iu.EXPECT().
 					SearchItems(domain.ItemSearchQuery{Name: "test", Limit: 10}).
-					Return([]*domain.Item{
+					Return([]*domain.ItemDetail{
 						{
-							ID:              1,
-							Name:            "Test Item",
-							Description:     "This is a test item",
-							ImgUrl:          "http://example.com/image.png",
-							BookDetail:      nil,
-							EquipmentDetail: nil,
-							CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
-							UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
-							DeletedAt:       nil,
+							Item: &domain.Item{
+								ID:              1,
+								Name:            "Test Item",
+								Description:     "This is a test item",
+								ImgUrl:          "http://example.com/image.png",
+								BookDetail:      nil,
+								EquipmentDetail: nil,
+								CreatedAt:       time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
+								UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
+								DeletedAt:       nil,
+							},
+							Tags:  []*domain.Tag{},
+							Likes: []*domain.Like{},
 						},
 					}, nil).
-					Times(1)
-				tu.EXPECT().
-					GetByItemIDs([]int{1}).
-					Return(map[int][]*domain.Tag{1: {}}, nil).
 					Times(1)
 			},
 
 			expectedCode: http.StatusOK,
-			expectedBody: func() []openapi.Item {
-				return []openapi.Item{
+			expectedBody: func() []openapi.ItemSummary {
+				isLiked := false
+				likeCounts := 0
+				return []openapi.ItemSummary{
 					{
 						Id:          1,
 						Name:        "Test Item",
 						Description: "This is a test item",
 						ImgUrl:      "http://example.com/image.png",
 						IsBook:      false,
+						IsLiked:     &isLiked,
 						IsTrapItem:  false,
+						LikeCounts:  &likeCounts,
 						CreatedAt:   time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC),
 						UpdatedAt:   time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 						DeletedAt:   nullable.NewNullNullable[time.Time](),
@@ -400,7 +567,7 @@ func TestHandler_GetItems(t *testing.T) {
 					Times(1)
 			},
 			expectedCode: http.StatusBadRequest,
-			expectedBody: func() []openapi.Item {
+			expectedBody: func() []openapi.ItemSummary {
 				return nil
 			},
 		},

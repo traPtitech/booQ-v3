@@ -9,7 +9,8 @@ import (
 
 type ItemUseCase interface {
 	GetItemByID(id int) (*domain.Item, error)
-	SearchItems(query domain.ItemSearchQuery) ([]*domain.Item, error)
+	GetItemDetailByID(id int) (*domain.ItemDetail, error)
+	SearchItems(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error)
 	CreateItem(item *domain.Item) (*domain.Item, error)
 	CreateItems(items []*domain.Item) ([]*domain.Item, error)
 	UpdateItem(item *domain.Item) (*domain.Item, error)
@@ -30,7 +31,11 @@ func (u *itemUseCase) GetItemByID(id int) (*domain.Item, error) {
 	return u.itemRepo.GetByID(id)
 }
 
-func (u *itemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.Item, error) {
+func (u *itemUseCase) GetItemDetailByID(id int) (*domain.ItemDetail, error) {
+	return u.itemRepo.GetDetailByID(id)
+}
+
+func (u *itemUseCase) SearchItems(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error) {
 	if query.Offset > 0 && query.Limit <= 0 {
 		return nil, fmt.Errorf("%w: offset is set but limit is not set", ErrInvalidSearchQuery)
 	}
