@@ -153,7 +153,6 @@ func (repo *itemRepository) GetDetailByID(id int) (*domain.ItemDetail, error) {
 	return res.toDomainDetail(), nil
 }
 
-// TODO: search by tags, names, etc.
 func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.ItemDetail, error) {
 	var items []item
 	dbQuery := repo.db.
@@ -166,6 +165,34 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 
 	if query.Name != "" {
 		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
+	}
+	if query.UserID != "" {
+		dbQuery = dbQuery.Joins("JOIN ownerships ON ownerships.item_id = items.id").
+			Where("ownerships.user_id = ?", query.UserID)
+	}
+	if query.BorrowerID != "" {
+		dbQuery = dbQuery.
+			Joins("JOIN ownerships borrower_ownerships ON borrower_ownerships.item_id = items.id").
+			Joins("JOIN transactions ON transactions.ownership_id = borrower_ownerships.id").
+			Where("transactions.user_id = ?", query.BorrowerID).
+			Where("transactions.status = ?", domain.BorrowingStatusBorrowed.ToString())
+	}
+	if len(query.Tag) > 0 {
+		dbQuery = dbQuery.Joins("JOIN tags ON tags.item_id = items.id").
+			Where("tags.name IN ?", query.Tag)
+	}
+	if len(query.TagExclude) > 0 {
+		dbQuery = dbQuery.Where(
+			"NOT EXISTS (?)",
+			repo.db.
+				Table("tags").
+				Select("1").
+				Where("tags.item_id = items.id").
+				Where("tags.name IN ?", query.TagExclude),
+		)
+	}
+	if query.UserID != "" || query.BorrowerID != "" || len(query.Tag) > 0 || len(query.TagExclude) > 0 {
+		dbQuery = dbQuery.Distinct()
 	}
 	if query.Limit > 0 {
 		dbQuery = dbQuery.Limit(query.Limit)
