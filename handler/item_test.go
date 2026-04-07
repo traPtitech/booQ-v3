@@ -50,16 +50,46 @@ func TestHandler_GetItem(t *testing.T) {
 							{ItemID: 1, UserID: "user1"},
 							{ItemID: 1, UserID: "user2"},
 						},
-						Transactions: []*domain.Transaction{
+						Ownerships: []*domain.OwnershipDetail{
 							{
-								ID:          10,
-								UserID:      "borrower1",
-								OwnershipID: 20,
-								Status:      domain.BorrowingStatusRequested,
-								Purpose:     "read",
-								DueDate:     time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC),
-								CreatedAt:   time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
-								UpdatedAt:   time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
+								Ownership: &domain.Ownership{
+									ID:       20,
+									ItemID:   1,
+									UserID:   "owner1",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          10,
+										UserID:      "borrower1",
+										OwnershipID: 20,
+										Status:      domain.BorrowingStatusRequested,
+										Purpose:     "read",
+										DueDate:     time.Date(2025, 1, 10, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 3, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC),
+									},
+								},
+							},
+							{
+								Ownership: &domain.Ownership{
+									ID:       21,
+									ItemID:   1,
+									UserID:   "owner2",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          11,
+										UserID:      "borrower2",
+										OwnershipID: 21,
+										Status:      domain.BorrowingStatusBorrowed,
+										Purpose:     "research",
+										DueDate:     time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC),
+									},
+								},
 							},
 						},
 					}, nil).
@@ -74,6 +104,13 @@ func TestHandler_GetItem(t *testing.T) {
 				status := 0
 				transactionUpdatedAt := time.Date(2025, 1, 4, 0, 0, 0, 0, time.UTC)
 				userID := "borrower1"
+				transactionCreatedAt2 := time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC)
+				transactionID2 := 11
+				ownershipID2 := 21
+				purpose2 := "research"
+				status2 := 1
+				transactionUpdatedAt2 := time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC)
+				userID2 := "borrower2"
 
 				res := &openapi.ItemDetail{
 					Id:          1,
@@ -110,6 +147,21 @@ func TestHandler_GetItem(t *testing.T) {
 							UpdatedAt:     &transactionUpdatedAt,
 							UserId:        &userID,
 						},
+						{
+							CheckoutDate:  openapi_types.Date{},
+							CreatedAt:     &transactionCreatedAt2,
+							DeletedAt:     nullable.NewNullNullable[time.Time](),
+							DueDate:       openapi_types.Date{Time: time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC)},
+							Id:            &transactionID2,
+							Message:       "",
+							OwnershipId:   &ownershipID2,
+							Purpose:       &purpose2,
+							ReturnMessage: "",
+							ReturnDate:    openapi_types.Date{},
+							Status:        &status2,
+							UpdatedAt:     &transactionUpdatedAt2,
+							UserId:        &userID2,
+						},
 					},
 				})
 				return res
@@ -135,9 +187,9 @@ func TestHandler_GetItem(t *testing.T) {
 							UpdatedAt:       time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 							DeletedAt:       nil,
 						},
-						Tags:         []*domain.Tag{},
-						Likes:        []*domain.Like{},
-						Transactions: []*domain.Transaction{},
+						Tags:       []*domain.Tag{},
+						Likes:      []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{},
 					}, nil).
 					Times(1)
 			},
@@ -184,12 +236,41 @@ func TestHandler_GetItem(t *testing.T) {
 						},
 						Tags:  []*domain.Tag{{Name: "equipment"}},
 						Likes: []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{
+							{
+								Ownership: &domain.Ownership{
+									ID:       21,
+									ItemID:   1,
+									UserID:   "owner2",
+									Rentable: true,
+								},
+								Transactions: []*domain.Transaction{
+									{
+										ID:          11,
+										UserID:      "borrower2",
+										OwnershipID: 21,
+										Status:      domain.BorrowingStatusBorrowed,
+										Purpose:     "use",
+										DueDate:     time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC),
+										CreatedAt:   time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC),
+										UpdatedAt:   time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC),
+									},
+								},
+							},
+						},
 					}, nil).
 					Times(1)
 			},
 			expectedCode: http.StatusOK,
 			expectedBody: func() *openapi.ItemDetail {
 				count := 2
+				transactionCreatedAt := time.Date(2025, 1, 5, 0, 0, 0, 0, time.UTC)
+				transactionID := 11
+				itemID := 1
+				purpose := "use"
+				status := 1
+				transactionUpdatedAt := time.Date(2025, 1, 6, 0, 0, 0, 0, time.UTC)
+				userID := "borrower2"
 
 				item := &openapi.ItemDetail{
 					Id:          1,
@@ -206,9 +287,21 @@ func TestHandler_GetItem(t *testing.T) {
 					UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 					DeletedAt: nullable.NewNullNullable[time.Time](),
 				}
-				// TODO
 				_ = item.FromItemDetail0(openapi.ItemDetail0{
-					TransactionsEquipment: []openapi.TransactionEquipment{},
+					TransactionsEquipment: []openapi.TransactionEquipment{
+						{
+							CreatedAt:  &transactionCreatedAt,
+							DeletedAt:  nullable.NewNullNullable[time.Time](),
+							DueDate:    openapi_types.Date{Time: time.Date(2025, 1, 11, 0, 0, 0, 0, time.UTC)},
+							Id:         &transactionID,
+							ItemId:     &itemID,
+							Purpose:    &purpose,
+							ReturnDate: openapi_types.Date{},
+							Status:     &status,
+							UpdatedAt:  &transactionUpdatedAt,
+							UserId:     &userID,
+						},
+					},
 				})
 				return item
 			},
@@ -236,9 +329,9 @@ func TestHandler_GetItem(t *testing.T) {
 							UpdatedAt: time.Date(2025, 1, 2, 0, 0, 0, 0, time.UTC),
 							DeletedAt: nil,
 						},
-						Tags:         []*domain.Tag{},
-						Likes:        []*domain.Like{},
-						Transactions: []*domain.Transaction{},
+						Tags:       []*domain.Tag{},
+						Likes:      []*domain.Like{},
+						Ownerships: []*domain.OwnershipDetail{},
 					}, nil).
 					Times(1)
 			},

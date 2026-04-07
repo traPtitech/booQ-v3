@@ -217,6 +217,13 @@ func TestItemRepository_GetDetailByID(t *testing.T) {
 								{UserID: "borrower1", Status: "requested", Purpose: "read"},
 							},
 						},
+						{
+							UserID:   "owner2",
+							Rentable: false,
+							Transaction: []transaction{
+								{UserID: "borrower2", Status: "borrowed", Purpose: "research"},
+							},
+						},
 					},
 				}
 				if err := db.Create(model).Error; err != nil {
@@ -231,8 +238,15 @@ func TestItemRepository_GetDetailByID(t *testing.T) {
 				assert.Equal(t, "Detailed Item", item.Item.Name)
 				assert.Len(t, item.Tags, 2)
 				assert.Len(t, item.Likes, 2)
-				assert.Len(t, item.Transactions, 1)
-				assert.Equal(t, "borrower1", item.Transactions[0].UserID)
+				assert.Len(t, item.Ownerships, 2)
+				assert.NotNil(t, item.Ownerships[0].Ownership)
+				assert.Equal(t, "owner1", item.Ownerships[0].Ownership.UserID)
+				assert.Len(t, item.Ownerships[0].Transactions, 1)
+				assert.Equal(t, "borrower1", item.Ownerships[0].Transactions[0].UserID)
+				assert.NotNil(t, item.Ownerships[1].Ownership)
+				assert.Equal(t, "owner2", item.Ownerships[1].Ownership.UserID)
+				assert.Len(t, item.Ownerships[1].Transactions, 1)
+				assert.Equal(t, "borrower2", item.Ownerships[1].Transactions[0].UserID)
 			},
 		},
 		{

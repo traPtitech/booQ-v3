@@ -128,16 +128,18 @@ func toOpenAPIItemDetail(detail *domain.ItemDetail) (*openapi.ItemDetail, error)
 	}
 
 	if detail.Item.EquipmentDetail != nil {
-		transactions := make([]openapi.TransactionEquipment, 0, len(detail.Transactions))
-		for _, transaction := range detail.Transactions {
+		domainTransactions := flattenOwnershipTransactions(detail.Ownerships)
+		transactions := make([]openapi.TransactionEquipment, 0, len(domainTransactions))
+		for _, transaction := range domainTransactions {
 			transactions = append(transactions, toOpenAPITransactionEquipment(detail.Item.ID, transaction))
 		}
 		if err := res.FromItemDetail0(openapi.ItemDetail0{TransactionsEquipment: transactions}); err != nil {
 			return nil, fmt.Errorf("failed to convert equipment transactions: %w", err)
 		}
 	} else {
-		transactions := make([]openapi.Transaction, 0, len(detail.Transactions))
-		for _, transaction := range detail.Transactions {
+		domainTransactions := flattenOwnershipTransactions(detail.Ownerships)
+		transactions := make([]openapi.Transaction, 0, len(domainTransactions))
+		for _, transaction := range domainTransactions {
 			transactions = append(transactions, toOpenAPITransaction(transaction))
 		}
 		if err := res.FromItemDetail1(openapi.ItemDetail1{Transactions: transactions}); err != nil {
@@ -146,6 +148,17 @@ func toOpenAPIItemDetail(detail *domain.ItemDetail) (*openapi.ItemDetail, error)
 	}
 
 	return res, nil
+}
+
+func flattenOwnershipTransactions(ownerships []*domain.OwnershipDetail) []*domain.Transaction {
+	transactions := make([]*domain.Transaction, 0)
+	for _, ownership := range ownerships {
+		if ownership == nil {
+			continue
+		}
+		transactions = append(transactions, ownership.Transactions...)
+	}
+	return transactions
 }
 
 func postRequestToDomainItem(request *openapi.ItemPostRequest) (*domain.Item, error) {

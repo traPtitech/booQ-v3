@@ -37,9 +37,14 @@ type ItemSearchQuery struct {
 }
 
 type ItemDetail struct {
-	Item         *Item
-	Tags         []*Tag
-	Likes        []*Like
+	Item       *Item
+	Tags       []*Tag
+	Likes      []*Like
+	Ownerships []*OwnershipDetail
+}
+
+type OwnershipDetail struct {
+	Ownership    *Ownership
 	Transactions []*Transaction
 }
 

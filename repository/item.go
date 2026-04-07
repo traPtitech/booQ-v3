@@ -75,18 +75,24 @@ func (i *item) toDomainDetail() *domain.ItemDetail {
 		tags = append(tags, t.toDomain())
 	}
 
-	transactions := make([]*domain.Transaction, 0)
+	ownerships := make([]*domain.OwnershipDetail, 0, len(i.Ownership))
 	for _, ownership := range i.Ownership {
+		transactions := make([]*domain.Transaction, 0, len(ownership.Transaction))
 		for _, transaction := range ownership.Transaction {
 			transactions = append(transactions, transaction.toDomain())
 		}
+		ownershipDetail := &domain.OwnershipDetail{
+			Ownership:    ownership.toDomain(),
+			Transactions: transactions,
+		}
+		ownerships = append(ownerships, ownershipDetail)
 	}
 
 	return &domain.ItemDetail{
-		Item:         i.toDomain(),
-		Tags:         tags,
-		Likes:        likes,
-		Transactions: transactions,
+		Item:       i.toDomain(),
+		Tags:       tags,
+		Likes:      likes,
+		Ownerships: ownerships,
 	}
 }
 

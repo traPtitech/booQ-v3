@@ -94,17 +94,19 @@ func TestItemUseCase_GetItemDetailByID(t *testing.T) {
 				repo.EXPECT().
 					GetDetailByID(1).
 					Return(&domain.ItemDetail{
-						Item:  &domain.Item{ID: 1, Name: "Test Item"},
-						Tags:  []*domain.Tag{{Name: "tag1"}},
-						Likes: []*domain.Like{{ItemID: 1, UserID: "user1"}},
+						Item:       &domain.Item{ID: 1, Name: "Test Item"},
+						Tags:       []*domain.Tag{{Name: "tag1"}},
+						Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+						Ownerships: []*domain.OwnershipDetail{},
 					}, nil).
 					Times(1)
 			},
 			id: 1,
 			expectedItem: &domain.ItemDetail{
-				Item:  &domain.Item{ID: 1, Name: "Test Item"},
-				Tags:  []*domain.Tag{{Name: "tag1"}},
-				Likes: []*domain.Like{{ItemID: 1, UserID: "user1"}},
+				Item:       &domain.Item{ID: 1, Name: "Test Item"},
+				Tags:       []*domain.Tag{{Name: "tag1"}},
+				Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+				Ownerships: []*domain.OwnershipDetail{},
 			},
 		},
 		{
@@ -214,9 +216,10 @@ func TestItemUseCase_SearchItems(t *testing.T) {
 					Search(domain.ItemSearchQuery{Name: "Test", Limit: 10}).
 					Return([]*domain.ItemDetail{
 						{
-							Item:  &domain.Item{ID: 1, Name: "Test Item"},
-							Tags:  []*domain.Tag{{Name: "tag1"}},
-							Likes: []*domain.Like{{ItemID: 1, UserID: "user1"}},
+							Item:       &domain.Item{ID: 1, Name: "Test Item"},
+							Tags:       []*domain.Tag{{Name: "tag1"}},
+							Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+							Ownerships: []*domain.OwnershipDetail{},
 						},
 					}, nil).
 					Times(1)
@@ -227,9 +230,10 @@ func TestItemUseCase_SearchItems(t *testing.T) {
 			},
 			expectedItems: []*domain.ItemDetail{
 				{
-					Item:  &domain.Item{ID: 1, Name: "Test Item"},
-					Tags:  []*domain.Tag{{Name: "tag1"}},
-					Likes: []*domain.Like{{ItemID: 1, UserID: "user1"}},
+					Item:       &domain.Item{ID: 1, Name: "Test Item"},
+					Tags:       []*domain.Tag{{Name: "tag1"}},
+					Likes:      []*domain.Like{{ItemID: 1, UserID: "user1"}},
+					Ownerships: []*domain.OwnershipDetail{},
 				},
 			},
 		},
