@@ -164,7 +164,7 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 		Model(&item{})
 
 	if query.Name != "" {
-		dbQuery = dbQuery.Where("name LIKE ?", "%"+query.Name+"%")
+		dbQuery = dbQuery.Where("items.name LIKE ?", "%"+query.Name+"%")
 	}
 	if query.UserID != "" {
 		dbQuery = dbQuery.Joins("JOIN ownerships ON ownerships.item_id = items.id").
@@ -178,10 +178,19 @@ func (repo *itemRepository) Search(query domain.ItemSearchQuery) ([]*domain.Item
 			Where("transactions.status = ?", domain.BorrowingStatusBorrowed.ToString())
 	}
 	if len(query.Tag) > 0 {
+		uniqueTags := map[string]struct{}{}
+		for _, tag := range query.Tag {
+			uniqueTags[tag] = struct{}{}
+		}
+		uniqueTagList := make([]string, 0, len(uniqueTags))
+		for tag := range uniqueTags {
+			uniqueTagList = append(uniqueTagList, tag)
+		}
+
 		dbQuery = dbQuery.Joins("JOIN tags ON tags.item_id = items.id").
-			Where("tags.name IN ?", query.Tag).
+			Where("tags.name IN ?", uniqueTagList).
 			Group("items.id").
-			Having("COUNT(DISTINCT tags.name) = ?", len(query.Tag))
+			Having("COUNT(DISTINCT tags.name) = ?", len(uniqueTagList))
 	}
 	if len(query.TagExclude) > 0 {
 		dbQuery = dbQuery.Where(
