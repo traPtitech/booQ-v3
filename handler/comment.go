@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -9,10 +10,9 @@ import (
 )
 
 func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-
 	var req openapi.PostComment
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, err)
+		return ctx.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	// TODO: ミドルウェアからユーザーidを取得するように
@@ -20,15 +20,12 @@ func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) err
 
 	comment, err := h.cu.CreateComment(itemId, userId, req.Text)
 	if err != nil {
-		if err == domain.ErrItemNotFound {
-			// Itemがないとき
-			return ctx.JSON(http.StatusNotFound, "item not found")
-		} else if err == domain.ErrCommentTextEmpty {
-			// 投稿されたコメントが空の時
-			return ctx.JSON(http.StatusBadRequest, "comment text is empty")
+		if errors.Is(err, domain.ErrNotFound) {
+			return ctx.JSON(http.StatusNotFound, "not found")
+		} else if errors.Is(err, domain.ErrCommentTextEmpty) {
+			return ctx.JSON(http.StatusBadRequest, "comment text cannot be empty")
 		}
-
-		return ctx.JSON(http.StatusInternalServerError, err)
+		return ctx.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	res := openapi.Comment{
