@@ -44,7 +44,7 @@ func (u *commentUsecase) CreateComment(itemId int, userId string, text string) (
 		Text:   text,
 	}
 
-	err = u.CommentRepo.Create(comment)
+	comment, err = u.CommentRepo.Create(comment)
 	if err != nil {
 		return nil, err
 	}

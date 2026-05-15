@@ -23,7 +23,7 @@ func NewCommentRepository(db *gorm.DB) domain.CommentRepository {
 	return &commentRepository{db: db}
 }
 
-func (r *commentRepository) Create(c *domain.Comment) error {
+func (r *commentRepository) Create(c *domain.Comment) (*domain.Comment, error) {
 	newComment := &comment{
 		ItemID: c.ItemID,
 		UserID: c.UserID,
@@ -31,7 +31,7 @@ func (r *commentRepository) Create(c *domain.Comment) error {
 	}
 
 	if err := r.db.Create(newComment).Error; err != nil {
-		return err
+		return nil, err
 	}
 
 	c.ID = newComment.ID
@@ -39,5 +39,5 @@ func (r *commentRepository) Create(c *domain.Comment) error {
 	c.UpdatedAt = newComment.UpdatedAt
 	c.DeletedAt = newComment.DeletedAt
 
-	return nil
+	return c, nil
 }

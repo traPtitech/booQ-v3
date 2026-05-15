@@ -13,5 +13,5 @@ type Comment struct {
 }
 
 type CommentRepository interface {
-	Create(comment *Comment) error
+	Create(comment *Comment) (*Comment, error)
 }
