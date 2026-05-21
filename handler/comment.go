@@ -12,7 +12,7 @@ import (
 func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	var req openapi.PostComment
 	if err := ctx.Bind(&req); err != nil {
-		return ctx.JSON(http.StatusBadRequest, err.Error())
+		return ctx.JSON(http.StatusBadRequest, "invalid request body")
 	}
 
 	// TODO: ミドルウェアからユーザーidを取得するように
