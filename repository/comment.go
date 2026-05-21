@@ -24,13 +24,23 @@ func NewCommentRepository(db *gorm.DB) domain.CommentRepository {
 }
 
 func (r *commentRepository) Create(c *domain.Comment) (*domain.Comment, error) {
-	newComment := &comment{
-		ItemID: c.ItemID,
-		UserID: c.UserID,
-		Text:   c.Text,
-	}
+	var newComment *comment
 
-	if err := r.db.Create(newComment).Error; err != nil {
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		newComment = &comment{
+			ItemID: c.ItemID,
+			UserID: c.UserID,
+			Text:   c.Text,
+		}
+
+		if err := tx.Create(newComment).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}).Error
+
+	if err != nil {
 		return nil, err
 	}
 
