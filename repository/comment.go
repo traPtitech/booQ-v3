@@ -38,7 +38,7 @@ func (r *commentRepository) Create(c *domain.Comment) (*domain.Comment, error) {
 		}
 
 		return nil
-	}).Error
+	})
 
 	if err != nil {
 		return nil, err
