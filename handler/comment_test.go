@@ -9,12 +9,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock" // Remove duplicate import
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 	mock_usecase "github.com/traPtitech/booQ-v3/usecase/mock"
+	"go.uber.org/mock/gomock"
 )
 
 func TestHandler_PostComment(t *testing.T) {
