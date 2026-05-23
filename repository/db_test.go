@@ -18,7 +18,7 @@ var db *gorm.DB
 func TestMain(m *testing.M) {
 	ctx := context.Background()
 	container, err := mariadb.Run(ctx,
-		"mariadb:12.0.2",
+		"mariadb:12.2.2@sha256:350261292d0129fd4b24f537dcf05ecd3ebe34d39d5b592af551f38310e7a167",
 		mariadb.WithDatabase("testdb"),
 		mariadb.WithUsername("testuser"),
 		mariadb.WithPassword("testpass"),
