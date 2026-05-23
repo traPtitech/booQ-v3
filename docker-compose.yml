@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:12.0.2
+    image: mariadb:12.2.2@sha256:350261292d0129fd4b24f537dcf05ecd3ebe34d39d5b592af551f38310e7a167
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
