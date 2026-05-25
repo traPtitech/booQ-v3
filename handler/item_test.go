@@ -389,11 +389,11 @@ func TestHandler_GetItem(t *testing.T) {
 			defer ctrl.Finish()
 
 			mockItemUseCase := mock_usecase.NewMockItemUseCase(ctrl)
-			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
-			tc.setupMock(mockItemUseCase, mockTagUseCase)
+			mockCommentUsecase := mock_usecase.NewMockCommentUsecase(ctrl)
+			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
+			tc.setupMock(mockItemUseCase)
 
-			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, mockTagUseCase, nil)
-
+			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
