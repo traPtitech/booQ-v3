@@ -131,7 +131,7 @@ func TestHandler_PostBorrow(t *testing.T) {
 			mockBorrowingUseCase := mock_usecase.NewMockBorrowingUseCase(ctrl)
 			tc.setupMock(mockBorrowingUseCase)
 
-			h := NewHandler(nil, nil, nil, mockBorrowingUseCase)
+			h := NewHandler(nil, nil, nil, nil, mockBorrowingUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -259,7 +259,7 @@ func TestHandler_GetBorrowingById(t *testing.T) {
 			mockBorrowingUseCase := mock_usecase.NewMockBorrowingUseCase(ctrl)
 			tc.setupMock(mockBorrowingUseCase)
 
-			h := NewHandler(nil, nil, nil, mockBorrowingUseCase)
+			h := NewHandler(nil, nil, nil, nil, mockBorrowingUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -406,7 +406,7 @@ func TestHandler_PostBorrowReply(t *testing.T) {
 			mockBorrowingUseCase := mock_usecase.NewMockBorrowingUseCase(ctrl)
 			tc.setupMock(mockBorrowingUseCase)
 
-			h := NewHandler(nil, nil, nil, mockBorrowingUseCase)
+			h := NewHandler(nil, nil, nil, nil, mockBorrowingUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -522,7 +522,7 @@ func TestHandler_PostReturn(t *testing.T) {
 			mockBorrowingUseCase := mock_usecase.NewMockBorrowingUseCase(ctrl)
 			tc.setupMock(mockBorrowingUseCase)
 
-			h := NewHandler(nil, nil, nil, mockBorrowingUseCase)
+			h := NewHandler(nil, nil, nil, nil, mockBorrowingUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 

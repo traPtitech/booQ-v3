@@ -7,27 +7,30 @@ import (
 )
 
 type handler struct {
-	fu usecase.FileUseCase
 	iu usecase.ItemUseCase
+	cu usecase.CommentUsecase
+	fu usecase.FileUseCase
 	ou usecase.OwnershipUseCase
 	bu usecase.BorrowingUseCase
 	tu usecase.TagUseCase
 	lu usecase.LikeUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase) openapi.ServerInterface {
+func NewHandler(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase) openapi.ServerInterface {
 	return &handler{
-		fu: fu,
 		iu: iu,
+		cu: cu,
+		fu: fu,
 		ou: ou,
 		bu: bu,
 	}
 }
 
-func NewHandlerWithTagLike(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase, tu usecase.TagUseCase, lu usecase.LikeUseCase) openapi.ServerInterface {
+func NewHandlerWithTagLike(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase, tu usecase.TagUseCase, lu usecase.LikeUseCase) openapi.ServerInterface {
 	return &handler{
-		fu: fu,
 		iu: iu,
+		cu: cu,
+		fu: fu,
 		ou: ou,
 		bu: bu,
 		tu: tu,
@@ -41,11 +44,6 @@ func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInP
 }
 
 func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
 	//TODO implement me
 	panic("implement me")
 }

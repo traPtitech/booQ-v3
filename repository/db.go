@@ -20,6 +20,7 @@ var allTables = []interface{}{
 	file{},
 	ownership{},
 	transaction{},
+	comment{},
 }
 
 type GormModel struct {
