@@ -24,14 +24,14 @@ func TestHandler_GetItem(t *testing.T) {
 	testCases := []struct {
 		name         string
 		itemId       string
-		setupMock    func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase)
+		setupMock    func(iu *mock_usecase.MockItemUseCase)
 		expectedCode int
 		expectedBody func() *openapi.ItemDetail
 	}{
 		{
 			name:   "success",
 			itemId: "1",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				iu.EXPECT().
 					GetItemDetailByID(1).
 					Return(&domain.ItemDetail{
@@ -170,7 +170,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is book",
 			itemId: "1",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				iu.EXPECT().
 					GetItemDetailByID(1).
 					Return(&domain.ItemDetail{
@@ -216,7 +216,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is equipment",
 			itemId: "1",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				iu.EXPECT().
 					GetItemDetailByID(1).
 					Return(&domain.ItemDetail{
@@ -309,7 +309,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "success: item is book and equipment",
 			itemId: "1",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				iu.EXPECT().
 					GetItemDetailByID(1).
 					Return(&domain.ItemDetail{
@@ -359,7 +359,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "failure: item not found",
 			itemId: "2",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				iu.EXPECT().
 					GetItemDetailByID(2).
 					Return(nil, domain.ErrNotFound).
@@ -373,7 +373,7 @@ func TestHandler_GetItem(t *testing.T) {
 		{
 			name:   "failure: invalid item ID",
 			itemId: "abc",
-			setupMock: func(iu *mock_usecase.MockItemUseCase, tu *mock_usecase.MockTagUseCase) {
+			setupMock: func(iu *mock_usecase.MockItemUseCase) {
 				// No calls expected
 			},
 			expectedCode: http.StatusBadRequest,
@@ -393,7 +393,7 @@ func TestHandler_GetItem(t *testing.T) {
 			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase)
+			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
