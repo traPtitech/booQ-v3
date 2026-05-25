@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/traPtitech/booQ-v3/domain"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
+	"github.com/traPtitech/booQ-v3/middleware"
 )
 
 func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
@@ -15,10 +16,12 @@ func (h *handler) PostComment(ctx echo.Context, itemId openapi.ItemIdInPath) err
 		return ctx.JSON(http.StatusBadRequest, "invalid request body")
 	}
 
-	// TODO: ミドルウェアからユーザーidを取得するように
-	userId := "test-user-id"
+	userID, ok := middleware.GetUserID(ctx.Request().Context())
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
+	}
 
-	comment, err := h.cu.CreateComment(itemId, userId, req.Text)
+	comment, err := h.cu.CreateComment(itemId, userID, req.Text)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
 			return ctx.JSON(http.StatusNotFound, "not found")

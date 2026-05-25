@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/traPtitech/booQ-v3/domain"
+	"github.com/traPtitech/booQ-v3/middleware"
 	"github.com/traPtitech/booQ-v3/handler/openapi"
 	mock_usecase "github.com/traPtitech/booQ-v3/usecase/mock"
 	"go.uber.org/mock/gomock"
@@ -106,15 +107,10 @@ func TestHandler_PostComment(t *testing.T) {
 
 			req := httptest.NewRequest(http.MethodPost, "/items/"+strconv.Itoa(tc.itemId)+"/comments", strings.NewReader(tc.requestBody))
 			req.Header.Set("Content-Type", "application/json")
+			req = req.WithContext(middleware.WithUserID(req.Context(), "test-user-id"))
 			rec := httptest.NewRecorder()
 
-			c := e.NewContext(req, rec)
-			c.SetPath("/items/:itemId/comments")
-
-			c.SetParamNames("itemId")
-			c.SetParamValues(strconv.Itoa(tc.itemId))
-
-			_ = h.PostComment(c, openapi.ItemIdInPath(tc.itemId))
+			e.ServeHTTP(rec, req)
 
 			if tc.expectedCode == http.StatusCreated {
 				assert.Equal(t, tc.expectedCode, rec.Code)
