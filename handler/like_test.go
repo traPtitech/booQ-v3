@@ -69,7 +69,7 @@ func TestHandler_AddLike(t *testing.T) {
 			mockLikeUseCase := mock_usecase.NewMockLikeUseCase(ctrl)
 			tc.setupMock(mockLikeUseCase)
 
-			h := NewHandlerWithTagLike(nil, nil, nil, nil, nil, mockLikeUseCase)
+			h := NewHandlerWithTagLike(nil, nil, nil, nil, nil, nil, mockLikeUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -138,7 +138,7 @@ func TestHandler_RemoveLike(t *testing.T) {
 			mockLikeUseCase := mock_usecase.NewMockLikeUseCase(ctrl)
 			tc.setupMock(mockLikeUseCase)
 
-			h := NewHandlerWithTagLike(nil, nil, nil, nil, nil, mockLikeUseCase)
+			h := NewHandlerWithTagLike(nil, nil, nil, nil, nil, nil, mockLikeUseCase)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 

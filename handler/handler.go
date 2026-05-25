@@ -26,10 +26,11 @@ func NewHandler(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.Fi
 	}
 }
 
-func NewHandlerWithTagLike(iu usecase.ItemUseCase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase, tu usecase.TagUseCase, lu usecase.LikeUseCase) openapi.ServerInterface {
+func NewHandlerWithTagLike(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase, tu usecase.TagUseCase, lu usecase.LikeUseCase) openapi.ServerInterface {
 	return &handler{
-		fu: fu,
 		iu: iu,
+		cu: cu,
+		fu: fu,
 		ou: ou,
 		bu: bu,
 		tu: tu,

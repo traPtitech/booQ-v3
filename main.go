@@ -59,7 +59,7 @@ func main() {
 	likeUseCase := usecase.NewLikeUseCase(likeRepo, itemRepo)
 
 	// Handler
-	h := handler.NewHandlerWithTagLike(itemUseCase, fileUseCase, ownershipUseCase, borrowingUseCase, tagUseCase, likeUseCase)
+	h := handler.NewHandlerWithTagLike(itemUseCase, commentUsecase, fileUseCase, ownershipUseCase, borrowingUseCase, tagUseCase, likeUseCase)
 	openapi.RegisterHandlers(e, h)
 
 	e.Logger.Fatal(e.Start(":3001"))
