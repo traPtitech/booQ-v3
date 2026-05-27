@@ -1241,7 +1241,7 @@ func TestItemRepository_Search(t *testing.T) {
 						},
 					},
 					expected: []*domain.Item{},
-					wantErr: false,
+					wantErr:  false,
 				},
 				{
 					name: "success: search with tag and tagExclude",
