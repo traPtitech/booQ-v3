@@ -384,7 +384,7 @@ func TestTransactionRepository_Update(t *testing.T) {
 				db.Create(model)
 
 				tr := model.toDomain()
-				tr.Approve("approved message")
+				_ = tr.Approve("approved message")
 				return tr
 			},
 			expected: &domain.Transaction{

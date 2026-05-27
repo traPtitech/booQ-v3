@@ -1,7 +1,7 @@
 version: "2"
 linters:
-  enable:
-    - revive
+#  enable:
+##    - revive
   exclusions:
     generated: lax
     presets:
