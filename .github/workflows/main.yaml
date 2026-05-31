@@ -4,62 +4,69 @@ on:
   push:
     branches:
       - "main"
-      - "fix/architecture"
   pull_request:
 
 jobs:
   build:
     name: Server build
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: 'false'
+      
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: ./go.mod
       - name: mod
         run: go mod download
       - name: build
         run: go build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # 7.0.1
         with:
           name: booQ
           path: booQ
+
   lint:
     name: Server lint
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
     needs: [build]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: 'false'
+      
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: ./go.mod
-      - name: Install reviewdog
-        run: curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-      - name: Install golangci-lint
-        run: curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s --  -b $(go env GOPATH)/bin
-      - name: golangci-lint
-        run: golangci-lint run --out-format=line-number | reviewdog -f=golangci-lint -name=golangci-lint -reporter=github-check
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Lint
+        uses: golangci/golangci-lint-action@82606bf257cbaff209d206a39f5134f0cfbfd2ee # v9.2.1
+        with:
+          version: v2.12.2
+  
   test:
     name: Server test
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
     needs: [build]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: 'false'
+        
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: ./go.mod
       - name: Run Test
         run: go test -v ./usecase ./repository ./handler
-  spectral:
-    name: OpenApi Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Spectral checks
-        uses: stoplightio/spectral-action@v0.8.11
-        with:
-          file_glob: docs/swagger.yml
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-

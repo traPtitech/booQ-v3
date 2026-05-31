@@ -42,7 +42,10 @@ func TestHandler_PostFile(t *testing.T) {
 				if err != nil {
 					return nil, err
 				}
-				part.Write([]byte("fake image data"))
+				_, err = part.Write([]byte("fake image data"))
+				if err != nil {
+					return nil, err
+				}
 				writer.Close()
 
 				req := httptest.NewRequest(http.MethodPost, "/files", body)
@@ -76,7 +79,10 @@ func TestHandler_PostFile(t *testing.T) {
 				if err != nil {
 					return nil, err
 				}
-				part.Write([]byte("fake image data"))
+				_, err = part.Write([]byte("fake image data"))
+				if err != nil {
+					return nil, err
+				}
 				writer.Close()
 
 				req := httptest.NewRequest(http.MethodPost, "/files", body)
@@ -101,7 +107,10 @@ func TestHandler_PostFile(t *testing.T) {
 				if err != nil {
 					return nil, err
 				}
-				part.Write([]byte("fake image data"))
+				_, err = part.Write([]byte("fake image data"))
+				if err != nil {
+					return nil, err
+				}
 				writer.Close()
 
 				req := httptest.NewRequest(http.MethodPost, "/files", body)
