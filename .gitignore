@@ -27,3 +27,10 @@ booQ-v3
 /uploads/*
 
 .tool-versions
+.idea
+cover.html
+cover.out
+
+GEMINI.md
+AGENTS.md
+.github/copilot-instructions.md

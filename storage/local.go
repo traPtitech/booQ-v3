@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/traPtitech/booQ-v3/domain"
 )
 
 // Local ローカルストレージ
@@ -12,18 +14,17 @@ type Local struct {
 	localDir string
 }
 
-// SetLocalStorage ローカルストレージをカレントストレージに設定します
-func SetLocalStorage(dir string) error {
+// NewLocalStorage ローカルストレージを作成します
+func NewLocalStorage(dir string) (domain.FileStorage, error) {
 	fi, err := os.Stat(dir)
 	if err != nil {
-		return errors.New("dir doesn't exist")
+		return nil, errors.New("dir doesn't exist")
 	}
 	if !fi.IsDir() {
-		return errors.New("dir is not a directory")
+		return nil, errors.New("dir is not a directory")
 	}
 
-	current = &Local{localDir: dir}
-	return nil
+	return &Local{localDir: dir}, nil
 }
 
 func (l Local) Save(filename string, src io.Reader) error {
@@ -40,7 +41,7 @@ func (l Local) Save(filename string, src io.Reader) error {
 func (l Local) Open(filename string) (io.ReadCloser, error) {
 	r, err := os.Open(l.getFilePath(filename))
 	if err != nil {
-		return nil, ErrFileNotFound
+		return nil, domain.ErrNotFound
 	}
 	return r, nil
 }
@@ -48,7 +49,7 @@ func (l Local) Open(filename string) (io.ReadCloser, error) {
 func (l Local) Delete(filename string) error {
 	path := l.getFilePath(filename)
 	if _, err := os.Stat(path); err != nil {
-		return ErrFileNotFound
+		return domain.ErrNotFound
 	}
 	return os.Remove(path)
 }
