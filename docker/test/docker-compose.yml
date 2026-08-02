@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: mariadb:11.5.2
+    image: mariadb:11.5.2@sha256:2d50fe0f77dac919396091e527e5e148a9de690e58f32875f113bef6506a17f5
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: booq-test
