@@ -145,6 +145,6 @@ func (b *borrowingUseCase) ReturnEquipment(itemID int, borrowingID int, userID s
 	if err := target.Return(message); err != nil {
 		return nil, err
 	}
-	
+
 	return b.equipmentTransactionRepo.Update(target)
 }

@@ -103,7 +103,7 @@ func TestBorrowingUseCase_PostRequest(t *testing.T) {
 
 			tc.setupMock(ownershipRepo, transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, ownershipRepo)
+			u := NewBorrowingUseCase(transactionRepo, ownershipRepo, nil, nil)
 			transaction, err := u.PostRequest(tc.userID, tc.ownershipID, tc.purpose, tc.dueDate, tc.borrowInClubRoom)
 
 			if tc.expectedError != nil {
@@ -207,7 +207,7 @@ func TestBorrowingUseCase_GetRequest(t *testing.T) {
 
 			tc.setupMock(transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil)
+			u := NewBorrowingUseCase(transactionRepo, nil, nil, nil)
 			transaction, err := u.GetRequest(tc.userID, tc.ownershipID, tc.borrowingID)
 
 			if tc.expectedError != nil {
@@ -389,7 +389,7 @@ func TestBorrowingUseCase_ReplyRequest(t *testing.T) {
 
 			tc.setupMock(ownershipRepo, transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, ownershipRepo)
+			u := NewBorrowingUseCase(transactionRepo, ownershipRepo, nil, nil)
 			transaction, err := u.ReplyRequest(tc.userID, tc.ownershipID, tc.borrowingID, tc.approve, tc.message)
 
 			if tc.expectedError != nil {
@@ -481,7 +481,7 @@ func TestBorrowingUseCase_ReturnItem(t *testing.T) {
 
 			tc.setupMock(transactionRepo)
 
-			u := NewBorrowingUseCase(transactionRepo, nil)
+			u := NewBorrowingUseCase(transactionRepo, nil, nil, nil)
 			err := u.ReturnItem(tc.userID, tc.ownershipID, tc.borrowingID, tc.message)
 
 			if tc.expectedError != nil {
