@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"log/slog"
 	"os"
 
 	"github.com/labstack/echo/v4"
@@ -33,7 +35,29 @@ func main() {
 		e.Logger.SetLevel(log.INFO)
 	}
 
-	e.Use(echomiddleware.Logger())
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	e.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
+		LogStatus: true,
+		LogURI: true,
+		LogError: true,
+		HandleError: true,
+		LogValuesFunc: func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
+			if v.Error == nil {
+				logger.LogAttrs(context.Background(), slog.LevelInfo, "REQUEST",
+					slog.String("uri", v.URI),
+					slog.Int("status", v.Status),
+				)
+			} else {
+				logger.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ERROR", 
+					slog.String("uri", v.URI),
+					slog.Int("status", v.Status),
+					slog.String("error", v.Error.Error()),
+				)	
+			}
+
+			return nil
+		},
+	}))
 	e.Use(echomiddleware.Recover())
 	e.Use(middleware.AuthMiddleware)
 
