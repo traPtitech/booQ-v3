@@ -9,7 +9,7 @@ import (
 
 type BorrowingUseCase interface {
 	BorrowEquipment(itemID int, userID string, purpose string, count int, dueDate time.Time) (*domain.EquipmentTransaction, error)
-	ReturnEquipment(itemID int, userID string, message string) (*domain.EquipmentTransaction, error)
+	ReturnEquipment(itemID int, borrowingID int, userID string, message string) (*domain.EquipmentTransaction, error)
 	PostRequest(userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error)
 	GetRequest(userID string, ownershipID int, borrowingID int) (*domain.Transaction, error)
 	ReplyRequest(userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error)
@@ -131,26 +131,20 @@ func (b *borrowingUseCase) BorrowEquipment(itemID int, userID string, purpose st
 	return b.equipmentTransactionRepo.Create(domain.NewEquipmentTransaction(userID, itemID, purpose, count, dueDate))
 }
 
-func (b *borrowingUseCase) ReturnEquipment(itemID int, userID string, message string) (*domain.EquipmentTransaction, error) {
-	transactions, err := b.equipmentTransactionRepo.GetByItemID(itemID)
+func (b *borrowingUseCase) ReturnEquipment(itemID int, borrowingID int, userID string, message string) (*domain.EquipmentTransaction, error) {
+	target, err := b.equipmentTransactionRepo.GetByID(borrowingID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get equipment transactions: %w", err)
+		return nil, fmt.Errorf("failed to get equipment transaction: %w", err)
 	}
-	
-	var target *domain.EquipmentTransaction
-	for _, transaction := range transactions {
-		if transaction.UserID != userID || transaction.Status != domain.EquipmentBorrowingStatusBorrowed {
-			continue
-		}
-		if target == nil || transaction.CreatedAt.After(target.CreatedAt) || (transaction.CreatedAt.Equal(target.CreatedAt) && transaction.ID > target.ID) {
-			target = transaction
-		}
-	}
-	if target == nil {
+	if target.ItemID != itemID {
 		return nil, domain.ErrNotFound
+	}
+	if target.UserID != userID {
+		return nil, ErrForbidden
 	}
 	if err := target.Return(message); err != nil {
 		return nil, err
 	}
+	
 	return b.equipmentTransactionRepo.Update(target)
 }
