@@ -1,46 +1,23 @@
 # booQ
 
-[![GitHub release](https://img.shields.io/github/release/traPtitech/booQ-v3.svg)](https://GitHub.com/traPtitech/booQ-v3/releases/)
-![CI](https://github.com/traPtitech/booQ-v3/workflows/CI/badge.svg)
-![master](https://github.com/traPtitech/booQ-v3/workflows/master/badge.svg)
-[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=traPtitech/booQ-v3)](https://dependabot.com)
-
 management tool for equipment and book rental
 
-## Development environment
+## 開発環境
 
-### Setup with docker (compose)
+必要なもの
+- mise
+- docker (+ docker compose)
 
-#### First Up (or entirely rebuild)
-
-```
-$ docker compose up --build --watch
-```
-
-Now you can access to `http://localhost:8080` for booQ
-
-And you can access booQ MariaDB by executing commands
-`docker compose exec db bash` and `mysql -uroot -ppassword -Dbooq-v3`
-
-#### test
-
-You can test this project
-
-```
-$ ./scripts/test.sh
-// Run with coverage. It creates cover_model.html, cover_router.html
-$ ./scripts/test.sh cover
-```
-
-#### Rebuild
-
-`docker compose up --no-deps --build`
-
-#### Destroy Containers and Volumes
-
-`docker compose down -v`
-
-### use oapi-codegen
+### サーバー立ち上げ
 ```bash
-go generate handler/openapi/generate.go
+docker compose up -d --build
 ```
+
+### mise tasks
+
+- `mise run test`: テスト実行
+- `mise run test -- --cover`: カバレッジありでテスト実行 プロジェクトルート下にcover.htmlが生成されます
+- `mise run gen-oapi`: OpenAPIのコード生成
+- `mise run gen-mock`: gomockのコード生成
+
+なお，テスト実行時にはDockerが使えるようにしておく必要があります（Docker Desktopを起動しておくなど）
