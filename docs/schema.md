@@ -48,8 +48,9 @@ erDiagram
 	varchar(32) user_id
 	int status
 	text purpose
+	int count
 	text return_message
-	datetime return_due
+	datetime due_date
 	datetime return_date
   }
   ownerships {
@@ -161,19 +162,19 @@ erDiagram
 
 ### transactions_equipment
 
-| Name           | Type        | NULL | Key | Default | Extra | 説明                                |
- |----------------|-------------|------|-----|---------|-------|-----------------------------------|
-| **id**         | int         | NO   | PRI |         |       |                                   |
-| item_id        | int         | NO   |     |         |       |                                   |
-| user_id        | varchar(32) | NO   |     |         |       | アクションを起こす人                        |
-| status         | int         | NO   |     |         |       | 0=リクエスト済み、1=貸し出し中、2=返却済み、3=貸し出し拒否 |
-| purpose        | text        |      |     |         |       |                                   |
-| return_message | text        |      |     |         |       |                                   |
-| return_due     | datetime    |      |     |         |       | 返却予定日                             |
-| **created_at** | datetime    | NO   |     |         |       |                                   |
-| **update_at**  | datetime    | NO   |     |         |       |                                   |
-| checkout_date  | datetime    |      |     |         |       | ステータスが1になった日                      |
-| return_date    | datetime    |      |     |         |       | ステータスが2または3になった日                  |
+| Name           | Type        | NULL | Key | Default | Extra | 説明                       |
+|----------------|-------------|------|-----|---------|-------|----------------------------|
+| **id**         | int         | NO   | PRI |         |       |                            |
+| item_id        | int         | NO   |     |         |       |                            |
+| user_id        | varchar(32) | NO   |     |         |       | アクションを起こす人       |
+| status         | int         | NO   |     |         |       | 1=貸し出し中、2=返却済み    |
+| purpose        | text        | NO   |     |         |       |                            |
+| count          | int         | NO   |     |         |       | 借りる個数                 |
+| return_message | text        | NO   |     |         |       |                            |
+| due_date       | datetime    | NO   |     |         |       | 返却予定日                 |
+| **created_at** | datetime    | NO   |     |         |       |                            |
+| **updated_at** | datetime    | NO   |     |         |       |                            |
+| return_date    | datetime    |      |     |         |       | ステータスが2になった日    |
 
 ### ownerships
 
