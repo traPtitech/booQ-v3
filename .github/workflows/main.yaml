@@ -70,4 +70,4 @@ jobs:
           go-version-file: ./go.mod
       
       - name: Run Test
-        run: mise run test
+        run: go test ./internal/... -v
