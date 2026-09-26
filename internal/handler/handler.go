@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/traPtitech/booQ-v3/internal/handler/openapi"
 	"github.com/traPtitech/booQ-v3/internal/usecase"
 )
@@ -34,14 +33,4 @@ func NewHandler(
 		tu: tu,
 		lu: lu,
 	}
-}
-
-func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath) error {
-	//TODO implement me
-	panic("implement me")
 }
