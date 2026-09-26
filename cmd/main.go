@@ -37,9 +37,9 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	e.Use(echomiddleware.RequestLoggerWithConfig(echomiddleware.RequestLoggerConfig{
-		LogStatus: true,
-		LogURI: true,
-		LogError: true,
+		LogStatus:   true,
+		LogURI:      true,
+		LogError:    true,
 		HandleError: true,
 		LogValuesFunc: func(c echo.Context, v echomiddleware.RequestLoggerValues) error {
 			if v.Error == nil {
@@ -48,11 +48,11 @@ func main() {
 					slog.Int("status", v.Status),
 				)
 			} else {
-				logger.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ERROR", 
+				logger.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ERROR",
 					slog.String("uri", v.URI),
 					slog.Int("status", v.Status),
 					slog.String("error", v.Error.Error()),
-				)	
+				)
 			}
 
 			return nil

@@ -9,7 +9,7 @@ run = "go generate ./internal/handler/openapi/generate.go"
 description = "Generate gomock"
 run = [
   "go generate ./internal/domain/mock_generate.go",
-  "go generate ./internal/usecase/mock_generate.go"
+  "go generate ./internal/usecase/mock_generate.go",
 ]
 
 [tasks.fmt]
@@ -18,7 +18,4 @@ run = "go fmt ./..."
 
 [tasks.lint]
 description = "Run Lint"
-run = [
-  "go vet ./...",
-  "golangci-lint run"
-]
+run = ["go vet ./...", "golangci-lint run"]
