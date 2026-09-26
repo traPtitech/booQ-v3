@@ -102,18 +102,18 @@ func (mr *MockBorrowingUseCaseMockRecorder) ReplyRequest(userID, ownershipID, bo
 }
 
 // ReturnEquipment mocks base method.
-func (m *MockBorrowingUseCase) ReturnEquipment(itemID int, userID, message string) (*domain.EquipmentTransaction, error) {
+func (m *MockBorrowingUseCase) ReturnEquipment(itemID, borrowingID int, userID, message string) (*domain.EquipmentTransaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReturnEquipment", itemID, userID, message)
+	ret := m.ctrl.Call(m, "ReturnEquipment", itemID, borrowingID, userID, message)
 	ret0, _ := ret[0].(*domain.EquipmentTransaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReturnEquipment indicates an expected call of ReturnEquipment.
-func (mr *MockBorrowingUseCaseMockRecorder) ReturnEquipment(itemID, userID, message any) *gomock.Call {
+func (mr *MockBorrowingUseCaseMockRecorder) ReturnEquipment(itemID, borrowingID, userID, message any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReturnEquipment", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReturnEquipment), itemID, userID, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReturnEquipment", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReturnEquipment), itemID, borrowingID, userID, message)
 }
 
 // ReturnItem mocks base method.
