@@ -1,3 +1,6 @@
+[tools]
+golangci-lint = "v2.14.0"
+
 [tasks.gen-oapi]
 description = "Generate OpenAPI client code"
 run = "go generate ./internal/handler/openapi/generate.go"
@@ -12,3 +15,10 @@ run = [
 [tasks.fmt]
 description = "Format Code"
 run = "go fmt ./..."
+
+[tasks.lint]
+description = "Run Lint"
+run = [
+  "go vet ./...",
+  "golangci-lint run"
+]
