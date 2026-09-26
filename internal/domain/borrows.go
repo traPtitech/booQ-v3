@@ -159,5 +159,5 @@ type EquipmentTransactionRepository interface {
 	GetByUserID(userID string) ([]*EquipmentTransaction, error)
 	GetByItemID(itemID int) ([]*EquipmentTransaction, error)
 	Create(transaction *EquipmentTransaction) (*EquipmentTransaction, error)
-	Update(transaction *EquipmentTransaction) (*EquipmentTransaction, error)	
+	Update(transaction *EquipmentTransaction) (*EquipmentTransaction, error)
 }
