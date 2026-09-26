@@ -8,3 +8,7 @@ run = [
   "go generate ./internal/domain/mock_generate.go",
   "go generate ./internal/usecase/mock_generate.go"
 ]
+
+[tasks.fmt]
+description = "Format Code"
+run = "go fmt ./..."

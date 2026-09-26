@@ -12,8 +12,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/traPtitech/booQ-v3/internal/domain"
-	"github.com/traPtitech/booQ-v3/internal/middleware"
 	"github.com/traPtitech/booQ-v3/internal/handler/openapi"
+	"github.com/traPtitech/booQ-v3/internal/middleware"
 	mock_usecase "github.com/traPtitech/booQ-v3/internal/usecase/mock"
 	"go.uber.org/mock/gomock"
 )
