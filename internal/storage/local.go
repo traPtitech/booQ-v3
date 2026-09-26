@@ -1,0 +1,59 @@
+package storage
+
+import (
+	"errors"
+	"io"
+	"os"
+	"path/filepath"
+
+	"github.com/traPtitech/booQ-v3/internal/domain"
+)
+
+// Local ローカルストレージ
+type Local struct {
+	localDir string
+}
+
+// NewLocalStorage ローカルストレージを作成します
+func NewLocalStorage(dir string) (domain.FileStorage, error) {
+	fi, err := os.Stat(dir)
+	if err != nil {
+		return nil, errors.New("dir doesn't exist")
+	}
+	if !fi.IsDir() {
+		return nil, errors.New("dir is not a directory")
+	}
+
+	return &Local{localDir: dir}, nil
+}
+
+func (l Local) Save(filename string, src io.Reader) error {
+	file, err := os.Create(l.getFilePath(filename))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, src)
+	return err
+}
+
+func (l Local) Open(filename string) (io.ReadCloser, error) {
+	r, err := os.Open(l.getFilePath(filename))
+	if err != nil {
+		return nil, domain.ErrNotFound
+	}
+	return r, nil
+}
+
+func (l Local) Delete(filename string) error {
+	path := l.getFilePath(filename)
+	if _, err := os.Stat(path); err != nil {
+		return domain.ErrNotFound
+	}
+	return os.Remove(path)
+}
+
+func (l Local) getFilePath(filename string) string {
+	return filepath.Join(l.localDir, filename)
+}
