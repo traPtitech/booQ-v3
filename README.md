@@ -8,6 +8,11 @@ management tool for equipment and book rental
 - mise
 - docker (+ docker compose)
 
+インストール
+```bash
+mise install
+```
+
 ### サーバー立ち上げ
 ```bash
 docker compose up -d --build
