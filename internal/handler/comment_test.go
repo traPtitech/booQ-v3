@@ -101,7 +101,7 @@ func TestHandler_PostComment(t *testing.T) {
 			}
 			tc.setupMock(f)
 
-			h := NewHandler(f.itemUsecase, f.commentUsecase, f.fileUsecase, nil, nil)
+			h := NewHandler(f.itemUsecase, f.commentUsecase, f.fileUsecase, nil, nil, nil, nil)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 

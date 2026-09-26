@@ -393,7 +393,7 @@ func TestHandler_GetItem(t *testing.T) {
 			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockItemUseCase)
 
-			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil)
+			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil, nil, nil)
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
 
@@ -582,7 +582,7 @@ func TestHandler_GetItems(t *testing.T) {
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
 			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
-			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -819,7 +819,7 @@ func TestHandler_CreateItem(t *testing.T) {
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
 			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
-			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -1009,7 +1009,7 @@ func TestHandler_UpdateItem(t *testing.T) {
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
 			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
-			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -1080,7 +1080,7 @@ func TestHandler_DeleteItem(t *testing.T) {
 			mockTagUseCase := mock_usecase.NewMockTagUseCase(ctrl)
 			tc.setupMock(mockItemUseCase, mockTagUseCase)
 
-			h := NewHandlerWithTagLike(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
+			h := NewHandler(mockItemUseCase, nil, nil, nil, nil, mockTagUseCase, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)

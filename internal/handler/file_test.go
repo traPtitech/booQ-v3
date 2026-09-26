@@ -148,7 +148,7 @@ func TestHandler_PostFile(t *testing.T) {
 			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockFileUseCase)
 
-			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil)
+			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)
@@ -244,7 +244,7 @@ func TestHandler_GetFile(t *testing.T) {
 			mockFileUseCase := mock_usecase.NewMockFileUseCase(ctrl)
 			tc.setupMock(mockFileUseCase)
 
-			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil)
+			h := NewHandler(mockItemUseCase, mockCommentUsecase, mockFileUseCase, nil, nil, nil, nil)
 
 			e := echo.New()
 			openapi.RegisterHandlers(e, h)

@@ -16,17 +16,15 @@ type handler struct {
 	lu usecase.LikeUseCase
 }
 
-func NewHandler(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase) openapi.ServerInterface {
-	return &handler{
-		iu: iu,
-		cu: cu,
-		fu: fu,
-		ou: ou,
-		bu: bu,
-	}
-}
-
-func NewHandlerWithTagLike(iu usecase.ItemUseCase, cu usecase.CommentUsecase, fu usecase.FileUseCase, ou usecase.OwnershipUseCase, bu usecase.BorrowingUseCase, tu usecase.TagUseCase, lu usecase.LikeUseCase) openapi.ServerInterface {
+func NewHandler(
+	iu usecase.ItemUseCase, 
+	cu usecase.CommentUsecase, 
+	fu usecase.FileUseCase, 
+	ou usecase.OwnershipUseCase, 
+	bu usecase.BorrowingUseCase, 
+	tu usecase.TagUseCase, 
+	lu usecase.LikeUseCase,
+) openapi.ServerInterface {
 	return &handler{
 		iu: iu,
 		cu: cu,
