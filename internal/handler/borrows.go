@@ -206,6 +206,6 @@ func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.Ite
 			return ctx.JSON(http.StatusInternalServerError, "failed to return equipment")
 		}
 	}
-	
+
 	return ctx.JSON(http.StatusCreated, openapi.BorrowReturn(request))
 }
