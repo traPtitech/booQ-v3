@@ -8,6 +8,8 @@ import (
 )
 
 type BorrowingUseCase interface {
+	BorrowEquipment(itemID int, userID string, purpose string, count int, dueDate time.Time) (*domain.EquipmentTransaction, error)
+	ReturnEquipment(itemID int, userID string, message string) (*domain.EquipmentTransaction, error)
 	PostRequest(userID string, ownershipID int, purpose string, dueDate time.Time, borrowInClubRoom bool) (*domain.Transaction, error)
 	GetRequest(userID string, ownershipID int, borrowingID int) (*domain.Transaction, error)
 	ReplyRequest(userID string, ownershipID int, borrowingID int, approve bool, message string) (*domain.Transaction, error)
@@ -15,14 +17,18 @@ type BorrowingUseCase interface {
 }
 
 type borrowingUseCase struct {
-	transactionRepo domain.TransactionRepository
-	ownershipRepo   domain.OwnershipRepository
+	transactionRepo          domain.TransactionRepository
+	ownershipRepo            domain.OwnershipRepository
+	equipmentTransactionRepo domain.EquipmentTransactionRepository
+	itemRepo                 domain.ItemRepository
 }
 
-func NewBorrowingUseCase(transactionRepo domain.TransactionRepository, ownershipRepo domain.OwnershipRepository) BorrowingUseCase {
+func NewBorrowingUseCase(transactionRepo domain.TransactionRepository, ownershipRepo domain.OwnershipRepository, equipmentTransactionRepo domain.EquipmentTransactionRepository, itemRepo domain.ItemRepository) BorrowingUseCase {
 	return &borrowingUseCase{
-		transactionRepo: transactionRepo,
-		ownershipRepo:   ownershipRepo,
+		transactionRepo:          transactionRepo,
+		ownershipRepo:            ownershipRepo,
+		equipmentTransactionRepo: equipmentTransactionRepo,
+		itemRepo:                 itemRepo,
 	}
 }
 
@@ -105,4 +111,46 @@ func (b *borrowingUseCase) ReturnItem(userID string, ownershipID int, borrowingI
 	}
 
 	return nil
+}
+
+func (b *borrowingUseCase) BorrowEquipment(itemID int, userID string, purpose string, count int, dueDate time.Time) (*domain.EquipmentTransaction, error) {
+	item, err := b.itemRepo.GetByID(itemID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get item: %w", err)
+	}
+	if item.EquipmentDetail == nil {
+		return nil, ErrItemNotEquipment
+	}
+	if !dueDate.After(time.Now()) {
+		return nil, ErrInvalidDueDate
+	}
+	if count <= 0 {
+		count = 1
+	}
+
+	return b.equipmentTransactionRepo.Create(domain.NewEquipmentTransaction(userID, itemID, purpose, count, dueDate))
+}
+
+func (b *borrowingUseCase) ReturnEquipment(itemID int, userID string, message string) (*domain.EquipmentTransaction, error) {
+	transactions, err := b.equipmentTransactionRepo.GetByItemID(itemID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get equipment transactions: %w", err)
+	}
+	
+	var target *domain.EquipmentTransaction
+	for _, transaction := range transactions {
+		if transaction.UserID != userID || transaction.Status != domain.EquipmentBorrowingStatusBorrowed {
+			continue
+		}
+		if target == nil || transaction.CreatedAt.After(target.CreatedAt) || (transaction.CreatedAt.Equal(target.CreatedAt) && transaction.ID > target.ID) {
+			target = transaction
+		}
+	}
+	if target == nil {
+		return nil, domain.ErrNotFound
+	}
+	if err := target.Return(message); err != nil {
+		return nil, err
+	}
+	return b.equipmentTransactionRepo.Update(target)
 }
