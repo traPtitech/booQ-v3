@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "$1" = "cover" ]; then
+if [ "$1" = "--cover" ]; then
   echo "Running Tests With Coverage..."
 
   go test ./internal/... -v -covermode=atomic -coverprofile=cover.out

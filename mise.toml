@@ -1,0 +1,10 @@
+[tasks.gen-oapi]
+description = "Generate OpenAPI client code"
+run = "go generate ./internal/handler/openapi/generate.go"
+
+[tasks.gen-mock]
+description = "Generate gomock"
+run = [
+  "go generate ./internal/domain/mock_generate.go",
+  "go generate ./internal/usecase/mock_generate.go"
+]
