@@ -41,6 +41,21 @@ func (m *MockBorrowingUseCase) EXPECT() *MockBorrowingUseCaseMockRecorder {
 	return m.recorder
 }
 
+// BorrowEquipment mocks base method.
+func (m *MockBorrowingUseCase) BorrowEquipment(itemID int, userID, purpose string, count int, dueDate time.Time) (*domain.EquipmentTransaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BorrowEquipment", itemID, userID, purpose, count, dueDate)
+	ret0, _ := ret[0].(*domain.EquipmentTransaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BorrowEquipment indicates an expected call of BorrowEquipment.
+func (mr *MockBorrowingUseCaseMockRecorder) BorrowEquipment(itemID, userID, purpose, count, dueDate any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BorrowEquipment", reflect.TypeOf((*MockBorrowingUseCase)(nil).BorrowEquipment), itemID, userID, purpose, count, dueDate)
+}
+
 // GetRequest mocks base method.
 func (m *MockBorrowingUseCase) GetRequest(userID string, ownershipID, borrowingID int) (*domain.Transaction, error) {
 	m.ctrl.T.Helper()
@@ -84,6 +99,21 @@ func (m *MockBorrowingUseCase) ReplyRequest(userID string, ownershipID, borrowin
 func (mr *MockBorrowingUseCaseMockRecorder) ReplyRequest(userID, ownershipID, borrowingID, approve, message any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReplyRequest", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReplyRequest), userID, ownershipID, borrowingID, approve, message)
+}
+
+// ReturnEquipment mocks base method.
+func (m *MockBorrowingUseCase) ReturnEquipment(itemID, borrowingID int, userID, message string) (*domain.EquipmentTransaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReturnEquipment", itemID, borrowingID, userID, message)
+	ret0, _ := ret[0].(*domain.EquipmentTransaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReturnEquipment indicates an expected call of ReturnEquipment.
+func (mr *MockBorrowingUseCaseMockRecorder) ReturnEquipment(itemID, borrowingID, userID, message any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReturnEquipment", reflect.TypeOf((*MockBorrowingUseCase)(nil).ReturnEquipment), itemID, borrowingID, userID, message)
 }
 
 // ReturnItem mocks base method.

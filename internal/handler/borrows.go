@@ -135,3 +135,77 @@ func (h *handler) PostReturn(ctx echo.Context, _ openapi.ItemIdInPath, ownership
 
 	return ctx.NoContent(http.StatusOK)
 }
+
+// POST /items/:itemId/borrowing/equipment
+func (h *handler) PostBorrowEquipment(ctx echo.Context, itemId openapi.ItemIdInPath) error {
+	var request openapi.PostBorrowEquipmentJSONRequestBody
+	if err := ctx.Bind(&request); err != nil {
+		return ctx.JSON(http.StatusBadRequest, "invalid request body")
+	}
+
+	userID, ok := middleware.GetUserID(ctx.Request().Context())
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
+	}
+
+	if request.DueDate.IsZero() {
+		return ctx.JSON(http.StatusBadRequest, "dueDate is required")
+	}
+	y, m, d := request.DueDate.Date()
+	dueDate := time.Date(y, m, d, 23, 59, 59, 0, time.UTC)
+	purpose := ""
+	if request.Propose != nil {
+		purpose = *request.Propose
+	}
+
+	count := 1
+	if request.Count != nil {
+		count = *request.Count
+	}
+
+	transaction, err := h.bu.BorrowEquipment(itemId, userID, purpose, count, dueDate)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
+			return ctx.NoContent(http.StatusNotFound)
+		case errors.Is(err, usecase.ErrInvalidDueDate), errors.Is(err, usecase.ErrItemNotEquipment):
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		default:
+			return ctx.JSON(http.StatusInternalServerError, "failed to borrow equipment")
+		}
+	}
+
+	return ctx.JSON(http.StatusCreated, openapi.BorrowRequestEquipment{
+		Propose: &transaction.Purpose, Count: &transaction.Count,
+		DueDate: openapi_types.Date{Time: transaction.DueDate}, BorrowInClubRoom: request.BorrowInClubRoom,
+	})
+}
+
+// POST /items/:itemId/borrowing/equipment/:borrowingId/return
+func (h *handler) PostBorrowEquipmentReturn(ctx echo.Context, itemId openapi.ItemIdInPath, borrowingId openapi.BorrowingIdInPath) error {
+	var request openapi.PostBorrowEquipmentReturnJSONRequestBody
+	if err := ctx.Bind(&request); err != nil {
+		return ctx.JSON(http.StatusBadRequest, "invalid request body")
+	}
+
+	userID, ok := middleware.GetUserID(ctx.Request().Context())
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, "user ID not found in context")
+	}
+
+	_, err := h.bu.ReturnEquipment(itemId, borrowingId, userID, request.Text)
+	if err != nil {
+		switch {
+		case errors.Is(err, domain.ErrNotFound):
+			return ctx.JSON(http.StatusNotFound, "borrowing not found")
+		case errors.Is(err, usecase.ErrForbidden):
+			return ctx.JSON(http.StatusForbidden, "you cannot return this borrowing")
+		case errors.Is(err, domain.ErrInvalidTransactionStatus):
+			return ctx.JSON(http.StatusBadRequest, err.Error())
+		default:
+			return ctx.JSON(http.StatusInternalServerError, "failed to return equipment")
+		}
+	}
+
+	return ctx.JSON(http.StatusCreated, openapi.BorrowReturn(request))
+}

@@ -108,3 +108,56 @@ type TransactionRepository interface {
 	Create(transaction *Transaction) (*Transaction, error)
 	Update(transaction *Transaction) (*Transaction, error)
 }
+
+type EquipmentBorrowingStatus string
+
+const (
+	EquipmentBorrowingStatusBorrowed EquipmentBorrowingStatus = "borrowed"
+	EquipmentBorrowingStatusReturned EquipmentBorrowingStatus = "returned"
+)
+
+type EquipmentTransaction struct {
+	ID      int
+	ItemID  int
+	UserID  string
+	Status  EquipmentBorrowingStatus
+	Purpose string
+	Count   int
+	DueDate time.Time
+
+	ReturnMessage string
+	ReturnDate    time.Time
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func NewEquipmentTransaction(userID string, itemID int, purpose string, count int, dueDate time.Time) *EquipmentTransaction {
+	return &EquipmentTransaction{
+		UserID:  userID,
+		ItemID:  itemID,
+		Status:  EquipmentBorrowingStatusBorrowed,
+		Purpose: purpose,
+		Count:   count,
+		DueDate: dueDate,
+	}
+}
+
+func (t *EquipmentTransaction) Return(message string) error {
+	if t.Status != EquipmentBorrowingStatusBorrowed {
+		return fmt.Errorf("%w: transaction is not in borrowed status", ErrInvalidTransactionStatus)
+	}
+
+	t.Status = EquipmentBorrowingStatusReturned
+	t.ReturnMessage = message
+	t.ReturnDate = time.Now()
+	return nil
+}
+
+type EquipmentTransactionRepository interface {
+	GetByID(id int) (*EquipmentTransaction, error)
+	GetByUserID(userID string) ([]*EquipmentTransaction, error)
+	GetByItemID(itemID int) ([]*EquipmentTransaction, error)
+	Create(transaction *EquipmentTransaction) (*EquipmentTransaction, error)
+	Update(transaction *EquipmentTransaction) (*EquipmentTransaction, error)
+}

@@ -67,6 +67,7 @@ func main() {
 	fileRepo := repository.NewFileRepository(db)
 	ownershipRepo := repository.NewOwnershipRepository(db)
 	transactionRepo := repository.NewTransactionRepository(db)
+	equipmentTransactionRepo := repository.NewEquipmentTransactionRepository(db)
 	tagRepo := repository.NewTagRepository(db)
 	likeRepo := repository.NewLikeRepository(db)
 
@@ -78,7 +79,7 @@ func main() {
 	commentUsecase := usecase.NewCommentUsecase(commentRepo, itemRepo)
 	fileUseCase := usecase.NewFileUseCase(fileRepo, fileStorage)
 	ownershipUseCase := usecase.NewOwnershipUseCase(ownershipRepo)
-	borrowingUseCase := usecase.NewBorrowingUseCase(transactionRepo, ownershipRepo)
+	borrowingUseCase := usecase.NewBorrowingUseCase(transactionRepo, ownershipRepo, equipmentTransactionRepo, itemRepo)
 	tagUseCase := usecase.NewTagUseCase(tagRepo, itemRepo)
 	likeUseCase := usecase.NewLikeUseCase(likeRepo, itemRepo)
 

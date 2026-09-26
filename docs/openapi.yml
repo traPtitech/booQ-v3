@@ -288,9 +288,10 @@ paths:
           description: "リクエストボディが不正です。"
         "404":
           description: "アイテムが存在しません"
-  /items/{itemId}/borrowing/equipment/return:
+  /items/{itemId}/borrowing/equipment/{borrowingId}/return:
     parameters:
       - $ref: "#/components/parameters/itemIdInPath"
+      - $ref: "#/components/parameters/borrowingIdInPath"
     post:
       operationId: postBorrowEquipmentReturn
       tags:
@@ -311,8 +312,10 @@ paths:
                 $ref: "#/components/schemas/borrowReturn"
         "400":
           description: "リクエストボディが不正です。"
+        "403":
+          description: "他のユーザーの貸出は返却できません"
         "404":
-          description: "アイテムが存在しません"
+          description: "貸出が存在しないか、指定されたアイテムの貸出ではありません"
   /items/{itemId}/owners/{ownershipId}/borrowings:
     parameters:
       - $ref: "#/components/parameters/itemIdInPath"
@@ -503,7 +506,7 @@ components:
       name: borrowingId
       in: path
       required: true
-      description: 所有権ID
+      description: 貸出ID
       schema:
         type: integer
     fileIdInPath:
