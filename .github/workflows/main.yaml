@@ -25,7 +25,7 @@ jobs:
       - name: mod
         run: go mod download
       - name: build
-        run: go build
+        run: go build ./cmd/main.go
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # 7.0.1
         with:
           name: booQ
