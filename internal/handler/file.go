@@ -11,6 +11,10 @@ import (
 )
 
 func (h *handler) PostFile(ctx echo.Context) error {
+	if h.fu == nil {
+		return ctx.JSON(http.StatusServiceUnavailable, "file storage is disabled")
+	}
+
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, "file is required")
@@ -51,6 +55,10 @@ func (h *handler) PostFile(ctx echo.Context) error {
 }
 
 func (h *handler) GetFile(ctx echo.Context, fileId openapi.FileIdInPath) error {
+	if h.fu == nil {
+		return ctx.JSON(http.StatusServiceUnavailable, "file storage is disabled")
+	}
+
 	// UseCase 呼び出し
 	reader, file, err := h.fu.GetFile(fileId)
 	if err != nil {
