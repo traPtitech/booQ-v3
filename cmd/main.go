@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	echomiddleware "github.com/labstack/echo/v4/middleware"
@@ -18,6 +20,11 @@ import (
 )
 
 func main() {
+	enableStorage, err := storageEnabled()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	db, err := repository.EstablishConnection()
 	if err != nil {
 		log.Fatal(err)
@@ -71,13 +78,13 @@ func main() {
 	tagRepo := repository.NewTagRepository(db)
 	likeRepo := repository.NewLikeRepository(db)
 
-	// Storage
-	fileStorage := newFileStorage()
-
 	// UseCase
 	itemUseCase := usecase.NewItemUseCase(itemRepo)
 	commentUsecase := usecase.NewCommentUsecase(commentRepo, itemRepo)
-	fileUseCase := usecase.NewFileUseCase(fileRepo, fileStorage)
+	var fileUseCase usecase.FileUseCase
+	if enableStorage {
+		fileUseCase = usecase.NewFileUseCase(fileRepo, newFileStorage())
+	}
 	ownershipUseCase := usecase.NewOwnershipUseCase(ownershipRepo)
 	borrowingUseCase := usecase.NewBorrowingUseCase(transactionRepo, ownershipRepo, equipmentTransactionRepo, itemRepo)
 	tagUseCase := usecase.NewTagUseCase(tagRepo, itemRepo)
@@ -88,6 +95,19 @@ func main() {
 	openapi.RegisterHandlers(e, h)
 
 	e.Logger.Fatal(e.Start(":3001"))
+}
+
+func storageEnabled() (bool, error) {
+	value, ok := os.LookupEnv("ENABLE_STORAGE")
+	if !ok {
+		return true, nil
+	}
+
+	enabled, err := strconv.ParseBool(value)
+	if err != nil {
+		return false, fmt.Errorf("invalid ENABLE_STORAGE value %q: %w", value, err)
+	}
+	return enabled, nil
 }
 
 func newFileStorage() domain.FileStorage {

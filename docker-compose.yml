@@ -44,6 +44,7 @@ services:
     build: .
     environment:
       BOOQ_ENV: development
+      ENABLE_STORAGE: "true"
       MYSQL_HOST: db
       MYSQL_PORT: 3306
       MYSQL_USERNAME: root

@@ -467,6 +467,8 @@ paths:
                 $ref: "#/components/schemas/file"
         "400":
           description: "不正なリクエストです。"
+        "503":
+          description: "ファイル保存機能が無効です。"
   /files/{fileId}:
     parameters:
       - $ref: "#/components/parameters/fileIdInPath"
@@ -485,6 +487,8 @@ paths:
                 format: binary
         "404":
           description: "ファイルが存在しません。"
+        "503":
+          description: "ファイル保存機能が無効です。"
 
 components:
   parameters:
@@ -1061,4 +1065,3 @@ components:
       required:
         - id
         - url
-

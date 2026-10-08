@@ -263,3 +263,26 @@ func TestHandler_GetFile(t *testing.T) {
 		})
 	}
 }
+
+func TestHandler_FileStorageDisabled(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		method string
+		path   string
+	}{
+		{name: "upload", method: http.MethodPost, path: "/files"},
+		{name: "download", method: http.MethodGet, path: "/files/1"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			e := echo.New()
+			openapi.RegisterHandlers(e, NewHandler(nil, nil, nil, nil, nil, nil, nil))
+
+			req := httptest.NewRequest(tc.method, tc.path, nil)
+			rec := httptest.NewRecorder()
+			e.ServeHTTP(rec, req)
+
+			assert.Equal(t, http.StatusServiceUnavailable, rec.Code)
+			assert.JSONEq(t, `"file storage is disabled"`, rec.Body.String())
+		})
+	}
+}
