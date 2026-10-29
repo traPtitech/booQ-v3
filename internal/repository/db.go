@@ -42,11 +42,11 @@ func EstablishConnection() (*gorm.DB, error) {
 	}
 
 	cfg := mysql.Config{
-		User:                 os.Getenv("MYSQL_USERNAME"),
-		Passwd:               os.Getenv("MYSQL_PASSWORD"),
+		User:                 os.Getenv("NS_MARIADB_USER"),
+		Passwd:               os.Getenv("NS_MARIADB_PASSWORD"),
 		Net:                  "tcp",
-		Addr:                 fmt.Sprintf("%s:%s", os.Getenv("MYSQL_HOST"), os.Getenv("MYSQL_PORT")),
-		DBName:               os.Getenv("MYSQL_DATABASE"),
+		Addr:                 fmt.Sprintf("%s:%s", os.Getenv("NS_MARIADB_HOSTNAME"), os.Getenv("NS_MARIADB_PORT")),
+		DBName:               os.Getenv("NS_MARIADB_DATABASE"),
 		ParseTime:            true,
 		Loc:                  loc,
 		Collation:            "utf8mb4_general_ci",

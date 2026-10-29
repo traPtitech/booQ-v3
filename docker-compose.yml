@@ -45,11 +45,11 @@ services:
     environment:
       BOOQ_ENV: development
       ENABLE_STORAGE: "true"
-      MYSQL_HOST: db
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: root
-      MYSQL_PASSWORD: password
-      MYSQL_DATABASE: booq-v3
+      NS_MARIADB_HOSTNAME: db
+      NS_MARIADB_PORT: 3306
+      NS_MARIADB_USER: root
+      NS_MARIADB_PASSWORD: password
+      NS_MARIADB_DATABASE: booq-v3
       S3_BUCKET: booq-v3
       S3_REGION: ap-northeast-1
       S3_ENDPOINT: http://s3:9000
