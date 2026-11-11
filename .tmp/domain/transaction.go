@@ -9,7 +9,6 @@ const (
 	Returned TransactionStatus = "returned"
 )
 
-// D01: 貸出実績。所有権移転は表さない。
 type Transaction struct {
 	ID               int
 	OwnershipKey     OwnershipKey
@@ -69,8 +68,6 @@ func (t *Transaction) Return(message string, now time.Time) error {
 type TransactionRepository interface {
 	GetByID(id int) (*Transaction, error)
 	ListByOwnership(key OwnershipKey) ([]*Transaction, error)
-
-	// Returned と申請は集計に含めない。
 	SumBorrowedQuantity(key OwnershipKey) (int, error)
 	Create(transaction *Transaction) (*Transaction, error)
 	Save(transaction *Transaction) error

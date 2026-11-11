@@ -65,6 +65,7 @@ func (o Ownership) RequirePolicy(policy LendingPolicy) error {
 	return nil
 }
 
+// quantity: 借りたい数
 func (o Ownership) CheckQuantity(quantity int, borrowed int) error {
 	if quantity <= 0 {
 		return ErrInvalidQuantity
@@ -95,11 +96,7 @@ func (o *Ownership) ChangeSettings(quantity int, policy LendingPolicy, memo stri
 type OwnershipRepository interface {
 	Get(key OwnershipKey) (*Ownership, error)
 	ListByItemID(itemID int) ([]*Ownership, error)
-
-	// Create は複合キーの重複を許さない契約。
 	Create(ownership *Ownership) (*Ownership, error)
 	Save(ownership *Ownership) error
-
-	// 完了済みの履歴を維持する。物理削除か廃止かの実装はここでは扱わない。
 	Delete(key OwnershipKey) error
 }

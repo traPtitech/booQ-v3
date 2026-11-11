@@ -22,7 +22,7 @@ type TransactionRequest struct {
 	Status           RequestStatus
 	CreatedAt        time.Time
 	DecidedAt        *time.Time
-	DecidedBy        string
+	DecidedBy        string // 許可した人 所有者 or Groupなら管理者
 	ReplyMessage     string
 }
 
@@ -105,9 +105,5 @@ type RequestRepository interface {
 	HasPending(key OwnershipKey) (bool, error)
 	Create(request *TransactionRequest) (*TransactionRequest, error)
 	Save(request *TransactionRequest) error
-
-	// 承認と貸出作成を一体として扱う概念上の境界。
-	// 同じ RequestID の貸出は一つ。途中失敗ではどちらも成立させない。
-	// 実装方法・排他制御はこのモックの対象外。
 	SaveApproval(request *TransactionRequest, transaction *Transaction) (*Transaction, error)
 }
